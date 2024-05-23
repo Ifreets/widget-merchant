@@ -32,15 +32,9 @@ dependencies:
   sass:
     specifier: ^1.56.2
     version: 1.77.2
-  sweetalert2:
-    specifier: ^11.7.12
-    version: 11.11.0
   tailwindcss:
     specifier: ^3.2.4
     version: 3.4.3
-  toastify-js:
-    specifier: ^1.12.0
-    version: 1.12.0
   vue:
     specifier: ^3.2.45
     version: 3.4.27(typescript@4.7.4)
@@ -61,9 +55,6 @@ devDependencies:
   '@types/node':
     specifier: ^18.16.18
     version: 18.19.33
-  '@types/toastify-js':
-    specifier: ^1.12.3
-    version: 1.12.3
   '@vitejs/plugin-basic-ssl':
     specifier: ^1.0.1
     version: 1.1.0(vite@4.5.3)
@@ -423,10 +414,6 @@ packages:
     resolution: {integrity: sha512-NR9+KrpSajr2qBVp/Yt5TU/rp+b5Mayi3+OlMlcg2cVCfRmcG5PWZ7S4+MG9PZ5gWBoc9Pd0BKSRViuBCRPu0A==}
     dependencies:
       undici-types: 5.26.5
-    dev: true
-
-  /@types/toastify-js@1.12.3:
-    resolution: {integrity: sha512-9RjLlbAHMSaae/KZNHGv19VG4gcLIm3YjvacCXBtfMfYn26h76YP5oxXI8k26q4iKXCB9LNfv18lsoS0JnFPTg==}
     dev: true
 
   /@vitejs/plugin-basic-ssl@1.1.0(vite@4.5.3):
@@ -2075,10 +2062,6 @@ packages:
     resolution: {integrity: sha512-ot0WnXS9fgdkgIcePe6RHNk1WA8+muPa6cSjeR3V8K27q9BB1rTE3R1p7Hv0z1ZyAc8s6Vvv8DIyWf681MAt0w==}
     engines: {node: '>= 0.4'}
 
-  /sweetalert2@11.11.0:
-    resolution: {integrity: sha512-wKCTtoE6lQVDKaJ5FFq+znk/YykJmJlD8RnLZps8C7DyivctCoRlVeeOwnKfgwKS+QJYon7s++3dmNi3/am1tw==}
-    dev: false
-
   /tailwindcss@3.4.3:
     resolution: {integrity: sha512-U7sxQk/n397Bmx4JHbJx/iSOOv5G+II3f1kpLpY2QeUv5DcPdcTsYLlusZfq1NthHS1c1cZoyFmmkex1rzke0A==}
     engines: {node: '>=14.0.0'}
@@ -2132,10 +2115,6 @@ packages:
     engines: {node: '>=8.0'}
     dependencies:
       is-number: 7.0.0
-
-  /toastify-js@1.12.0:
-    resolution: {integrity: sha512-HeMHCO9yLPvP9k0apGSdPUWrUbLnxUKNFzgUoZp1PHCLploIX/4DSQ7V8H25ef+h4iO9n0he7ImfcndnN6nDrQ==}
-    dev: false
 
   /ts-interface-checker@0.1.13:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}

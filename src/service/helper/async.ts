@@ -1,15 +1,13 @@
-import { waterfall } from 'async'
-import { useCommonStore } from '@/stores'
-import { toastError } from '@/service/helper/alert'
+import { waterfall } from "async";
+import { useCommonStore } from "@/stores";
 
-import type { Cb, CbError } from '@/service/interface'
+import type { Cb, CbError } from "@/service/interface";
 
 /**hiển thị loading toàn trang */
 export const toggle_loading = (value: boolean) => {
-    const commonStore = useCommonStore()
-
-    commonStore.is_loading_full_screen = value
-}
+    const commonStore = useCommonStore();
+    commonStore.is_loading_full_screen = value;
+};
 
 /**
  * custom lại hàm async.waterfall
@@ -24,29 +22,33 @@ export const flow = (
 ) => {
     /**hiển thị loading toàn trang */
     function toggleLoading(value: boolean) {
-        if (!active_full_screen_loading) return
+        if (!active_full_screen_loading) return;
 
-        toggle_loading(value)
+        toggle_loading(value);
     }
 
-    waterfall([
-        (cb: CbError) => { // bật loading
-            toggleLoading(true)
+    waterfall(
+        [
+            (cb: CbError) => {
+                // bật loading
+                toggleLoading(true);
 
-            cb()
-        },
-        ...waterfall_function
-    ], e => {
-        toggleLoading(false) // tắt loading
+                cb();
+            },
+            ...waterfall_function,
+        ],
+        (e) => {
+            toggleLoading(false); // tắt loading
 
-        if (e) {
-            if (!disable_alert) toastError(e) // thông báo lỗi
+            if (e) {
+                if (!disable_alert) console.log(e); // thông báo lỗi
 
-            if (proceed) proceed(e)
+                if (proceed) proceed(e);
 
-            return
+                return;
+            }
+
+            if (proceed) proceed();
         }
-
-        if (proceed) proceed()
-    })
-}
+    );
+};

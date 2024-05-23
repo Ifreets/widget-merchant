@@ -21,10 +21,10 @@ const APP = createApp(App);
 
 waterfall(
     [
-        (cb: CbError) => loadEnv(cb),
-        (cb: CbError) => loadLib(cb),
+        // (cb: CbError) => loadEnv(cb),
+        // (cb: CbError) => loadLib(cb),
         (cb: CbError) => loadRouter(APP, cb),
-        (cb: CbError) => loadLanguage(APP, cb),
+        // (cb: CbError) => loadLanguage(APP, cb),
         (cb: CbError) => loadApp(APP, cb),
     ],
     () => APP.mount("#app")
