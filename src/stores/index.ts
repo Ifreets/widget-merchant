@@ -1,10 +1,11 @@
 import { defineStore } from "pinia";
 import { ref } from "vue";
-
+import type { CustomerInfo } from "bbh-chatbox-widget-js-sdk";
 export const useCommonStore = defineStore("common_store", () => {
-    /**toggle loading toàn trang */
+    /** toggle loading toàn trang */
     const is_loading_full_screen = ref(false);
-    const data_client = ref<any>({});
+    /** gdygêur */
+    const data_client = ref<CustomerInfo>({});
 
     return {
         is_loading_full_screen,
