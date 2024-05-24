@@ -2,15 +2,10 @@
  * .env.dev
  */
 
-import type { Env } from '@/service/interface'
+import type { Env } from "@/service/interface";
 
 const ENV: Env = {
-    local_storage: {
-        prefix: 'buddha_'
-    },
-    host: {
-        test: 'http://localhost:1355'
-    }
-}
+    secret_key: "8e2152bda80e40fa85ba4278f6a3353a",
+};
 
-export default ENV
+export default ENV;
