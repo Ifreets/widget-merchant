@@ -24,3 +24,4 @@
 //         key, prefix = $env.local_storage.prefix
 //     ) => localStorage.removeItem(`${prefix}${key}`)
 // ) as (key: string, prefix?: string) => any
+export {};

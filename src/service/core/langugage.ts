@@ -7,3 +7,4 @@
 //     APP.use(i18n);
 //     proceed();
 // };
+export {};

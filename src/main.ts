@@ -5,7 +5,7 @@ import {
     loadEnv,
     loadLib,
     loadApp,
-    loadLanguage,
+    // loadLanguage,
     loadRouter,
 } from "@/service/core";
 import "@/assets/css/tailwind.css";
