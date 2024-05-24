@@ -1,7 +1,7 @@
 <template>
     <div class="w-full h-full flex justify-center items-center bg-slate-300">
-        <div class="w-[395px] h-[300px] bg-white text-sm">
-            <div v-if="tab !== 2" class="p-3 flex flex-col gap-2.5">
+        <div class="lg:w-[395px] lg:h-[300px] bg-white text-sm">
+            <div v-if="tab !== 'FORM'" class="p-3 flex flex-col gap-2.5">
                 <div class="w-full flex gap-2.5">
                     <img :src="Avatar" class="h-16 w-16 rounded-3xl" alt="" srcset="">
                     <div class="w-full flex flex-col gap-1">
@@ -20,13 +20,15 @@
                 <div class="py-1 px-3 bg-slate-100 rounded-lg">
                     <div class="flex py-2 text-center font-medium text-[#71717A] border-b">
                         <p class="w-1/2 rounded py-1 cursor-pointer"
-                            :class="tab === 0 ? 'text-black bg-white shadow-md' : ''" @click="() => tab = 0">Nhân sự phụ
+                            :class="tab === 'LIST' ? 'text-black bg-white shadow-md' : ''" @click="() => tab = 'LIST'">
+                            Nhân sự phụ
                             trách</p>
                         <p class="w-1/2 rounded py-1 cursor-pointer"
-                            :class="tab === 1 ? 'text-black bg-white shadow-md' : ''" @click="() => tab = 1">Đơn hàng
+                            :class="tab === 'LOAD' ? 'text-black bg-white shadow-md' : ''" @click="() => tab = 'LOAD'">
+                            Đơn hàng
                         </p>
                     </div>
-                    <ul v-if="tab === 0" class="max-h-[100px] overflow-y-auto scrollbar-thin">
+                    <ul v-if="tab === 'LIST'" class="max-h-[100px] overflow-y-auto scrollbar-thin">
                         <li v-for="i in 2" class="flex justify-between items-center py-1 border-b">
                             <div class="flex items-center gap-2">
                                 <img :src="Avatar" class="h-8 w-8 rounded-xl" alt="" srcset="">
@@ -38,18 +40,19 @@
                             <p class="bg-green-600 text-white rounded-md pb-0.5 px-2">Dev</p>
                         </li>
                     </ul>
-                    <div v-if="tab === 1">
+                    <div v-if="tab === 'LOAD'">
                         <p class="text-center py-1 font-medium">Tính năng đang được phát triển...</p>
                     </div>
                 </div>
                 <div class="flex justify-end">
-                    <p class="bg-slate-200 text-slate-700 pb-0.5 px-2 rounded-md cursor-pointer" @click="() => tab = 2">
+                    <p class="bg-slate-200 text-slate-700 pb-0.5 px-2 rounded-md cursor-pointer"
+                        @click="() => tab = 'FORM'">
                         Thiết lập</p>
                 </div>
             </div>
-            <div v-if="tab == 2" class="p-3 flex flex-col gap-2.5">
+            <div v-if="tab == 'FORM'" class="p-3 flex flex-col gap-2.5">
                 <div>
-                    <p @click="tab = 0"
+                    <p @click="tab = 'LIST'"
                         class="flex items-center font-medium bg-slate-200 w-fit px-2 rounded-md cursor-pointer gap-1">
                         <img :src="ArrowIcon" alt="">
                         <span class="pb-0.5">Quay
@@ -105,12 +108,18 @@ import GuidanceIcon from '@/assets/icons/guidance-icon.svg'
 /** store */
 const commonStore = useCommonStore()
 
+/** loading */
 const loading = ref<boolean>(false)
-const tab = ref<number>(0)
-const status_submit = ref<'SUCCESS' | 'ERROR' | ''>('')
-const id = ref<string>('')
-const token = ref<string>('')
 
+/** tab hiện tại */
+const tab = ref<'LIST' | 'LOAD' | 'FORM'>('LIST')
+/** Trạng thái của hành động submit form */
+const status_submit = ref<'SUCCESS' | 'ERROR' | ''>('')
+/** id của form */
+const id = ref<string>('')
+/** token của form */
+const token = ref<string>('')
+/** hàm xử lý submit form */
 function onSubmit() {
     if (id.value && token.value && id.value === '123123123' && token.value === '123123123') {
         status_submit.value = 'SUCCESS'
