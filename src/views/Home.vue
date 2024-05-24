@@ -1,6 +1,6 @@
 <template>
     <div class="w-full h-full flex justify-center items-center bg-slate-300">
-        <div class="lg:w-[395px] lg:h-[300px] bg-white text-sm">
+        <div class="w-screen h-screen lg:w-[395px] lg:h-[300px] bg-white text-sm">
             <div v-if="tab !== 'FORM'" class="p-3 flex flex-col gap-2.5">
                 <div class="w-full flex gap-2.5">
                     <img :src="Avatar" class="h-16 w-16 rounded-3xl" alt="" srcset="">
@@ -50,6 +50,7 @@
                         Thiết lập</p>
                 </div>
             </div>
+            <!-- FORM -->
             <div v-if="tab == 'FORM'" class="p-3 flex flex-col gap-2.5">
                 <div>
                     <p @click="tab = 'LIST'"
@@ -59,7 +60,10 @@
                             lại</span>
                     </p>
                 </div>
-                <form class="flex flex-col gap-2.5 rounded-lg p-3 bg-slate-100">
+                <form class="flex flex-col gap-4 rounded-lg p-3 bg-slate-100">
+                    <p v-if="status_submit === 'SUCCESS'" class="text-center text-green-600">Thiết lập thành công</p>
+                    <p v-if="status_submit === 'ERROR'" class="text-center text-red-500">ID hoặc Token bị lỗi, vui lòng
+                        kiểm tra lại</p>
                     <div class="flex flex-col gap-1">
                         <label class="font-medium" for="">Nhập ID Business <span class="text-red-500">*</span></label>
                         <input v-model="id" class="outline-none pb-1.5 pt-1 px-3 rounded-md border" type="text"
@@ -71,18 +75,17 @@
                         <input v-model="token" class="outline-none pb-1.5 pt-1 px-3 rounded-md border" type="text"
                             placeholder="Nhập Token">
                     </div>
-                    <div v-if="status_submit !== 'SUCCESS'" class="flex justify-center">
+                    <div class="flex justify-between items-center">
                         <button @click.prevent="onSubmit"
-                            class="bg-slate-600 active:bg-green-500 text-white rounded-md p-1 px-4 w-fit">Gửi</button>
+                            class="active:bg-green-500 rounded-md py-2 px-4 w-fit border bg-white hover:shadow-md">Kết
+                            nối</button>
+                        <div>
+                            <p class="flex items-center gap-0.5 cursor-pointer"><img :src="GuidanceIcon" alt=""><span
+                                    class="pb-0.5"><u>Hướng dẫn thiết lập</u></span>
+                            </p>
+                        </div>
                     </div>
-                    <p v-if="status_submit === 'SUCCESS'" class="text-center text-green-600">Thiết lập thành công</p>
-                    <p v-if="status_submit === 'ERROR'" class="text-center text-red-500">ID hoặc Token bị lỗi, vui lòng
-                        kiểm tra lại</p>
-                    <div>
-                        <p class="flex items-center gap-0.5 cursor-pointer"><img :src="GuidanceIcon" alt=""><span
-                                class="pb-0.5"><u>Hướng dẫn thiết lập</u></span>
-                        </p>
-                    </div>
+
                 </form>
             </div>
             <Loading v-if="loading" type="FULL" text="Đang tải..." />
