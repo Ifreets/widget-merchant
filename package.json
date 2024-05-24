@@ -18,16 +18,13 @@
         "async": "^3.2.4",
         "autoprefixer": "^10.4.13",
         "bbh-chatbox-widget-js-sdk": "^1.0.2",
-        "date-fns": "2.30.0",
         "lodash": "^4.17.21",
         "pinia": "^2.0.28",
         "postcss": "^8.4.19",
-        "query-string": "^8.1.0",
         "sass": "^1.56.2",
         "sweetalert2": "^11.11.0",
         "tailwindcss": "^3.2.4",
         "vue": "^3.2.45",
-        "vue-i18n": "^9.2.2",
         "vue-router": "^4.1.6"
     },
     "devDependencies": {

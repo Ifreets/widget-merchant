@@ -1,5 +1,4 @@
 import { createPinia } from "pinia";
-import { i18n } from "@/lang";
 
 import type { App } from "vue";
 import type { Cb } from "@/service/interface";
