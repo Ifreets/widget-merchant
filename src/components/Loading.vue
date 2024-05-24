@@ -24,10 +24,11 @@ withDefaults(defineProps<{
 </script>
 
 <script lang="ts">
-import { i18n } from '@/lang'
+// import { i18n } from '@/lang'
 
-const $t = i18n.global.t
+// const $t = i18n.global.t
 
 // đặt text mặc định cho prop
-const text = $t('v1.common.loading')
+// const text = $t('v1.common.loading')
+const text = "Đang tải dữ liệu ..."
 </script>
