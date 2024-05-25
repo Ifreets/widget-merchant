@@ -10,20 +10,8 @@
 <script setup lang="ts">
 import { useCommonStore } from '@/stores'
 import Loading from '@/components/Loading.vue'
-import WIDGET from 'bbh-chatbox-widget-js-sdk';
-import { onMounted } from 'vue';
 
 const commonStore = useCommonStore()
-
-WIDGET.onEvent(async () => {
-  // ghi lại thông tin khách hàng mới
-  commonStore.data_client = await WIDGET.decodeClient()
-})
-onMounted(async () => {
-  // khai báo biến lưu trữ dữ liệu khách hàng + init dữ liệu lần đầu
-  commonStore.data_client = await WIDGET.decodeClient()
-  // [optional] lắng nghe khách hàng thay đổi ở chế độ post message
-})
 
 </script>
 

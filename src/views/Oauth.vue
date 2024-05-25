@@ -8,12 +8,13 @@
     </div>
 </template>
 <script setup lang="ts">
+
 import WIDGET from 'bbh-chatbox-widget-js-sdk'
 import Swal from 'sweetalert2';
 
 async function onOauth() {
     try {
-        const res = await WIDGET.oAuth()
+        await WIDGET.oAuth()
         // window.close()
         Swal.fire({
             title: "Oauth thành công",
@@ -27,7 +28,6 @@ async function onOauth() {
         });
     } catch (error) {
         console.log(error)
-        return false
     }
 }
 

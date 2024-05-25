@@ -1,7 +1,7 @@
 <template>
     <div class="w-full h-full flex justify-center items-center bg-slate-300">
         <div class="w-screen h-screen lg:w-[395px] lg:h-[300px] bg-white text-sm">
-            <div v-if="tab !== 'FORM'" class="p-3 flex flex-col gap-2.5">
+            <div v-if="tab == 'LIST' || tab == 'LOAD'" class="p-3 flex flex-col gap-2.5">
                 <div class="w-full flex gap-2.5">
                     <img :src="Avatar" class="h-16 w-16 rounded-3xl" alt="" srcset="">
                     <div class="w-full flex flex-col gap-1">
@@ -51,8 +51,8 @@
                 </div>
             </div>
             <!-- FORM -->
-            <div v-if="tab == 'FORM'" class="p-3 flex flex-col gap-2.5">
-                <div>
+            <div v-if="tab == 'FORM' || tab == 'FORM_NO_TOKEN'" class="p-3 flex flex-col gap-2.5">
+                <div v-if="tab == 'FORM'">
                     <p @click="tab = 'LIST'"
                         class="flex items-center font-medium bg-slate-200 w-fit px-2 rounded-md cursor-pointer gap-1">
                         <img :src="ArrowIcon" alt="">
@@ -94,7 +94,7 @@
 </template>
 <script setup lang="ts">
 //* import library
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
 //* import service
 import { useCommonStore } from '@/stores';
@@ -107,6 +107,8 @@ import Avatar from '@/assets/imgs/avatar.png'
 import InfoIcon from '@/assets/icons/info-icon.svg'
 import ArrowIcon from '@/assets/icons/arrow-icon.svg'
 import GuidanceIcon from '@/assets/icons/guidance-icon.svg'
+import WIDGET from 'bbh-chatbox-widget-js-sdk';
+import type { IConfigWidget } from '@/service/interface';
 
 /** store */
 const commonStore = useCommonStore()
@@ -115,7 +117,7 @@ const commonStore = useCommonStore()
 const loading = ref<boolean>(false)
 
 /** tab hiện tại */
-const tab = ref<'LIST' | 'LOAD' | 'FORM'>('LIST')
+const tab = ref<'LIST' | 'LOAD' | 'FORM' | 'FORM_NO_TOKEN' | ''>('')
 /** Trạng thái của hành động submit form */
 const status_submit = ref<'SUCCESS' | 'ERROR' | ''>('')
 /** id của form */
@@ -123,13 +125,49 @@ const id = ref<string>('')
 /** token của form */
 const token = ref<string>('')
 /** hàm xử lý submit form */
-function onSubmit() {
-    if (id.value && token.value && id.value === '123123123' && token.value === '123123123') {
-        status_submit.value = 'SUCCESS'
-    } else {
+async function onSubmit() {
+    try {
+        if (id.value && token.value) {
+            await WIDGET.saveConfig({ brand_name: 'widget-merchant', type_config: 'CRM', config_data: { id_bussiness: id.value, token_bussiness: token.value } })
+            status_submit.value = 'SUCCESS'
+            if (tab.value == 'FORM_NO_TOKEN') tab.value = 'LIST'
+        } else {
+            status_submit.value = 'ERROR'
+        }
+    } catch (err) {
         status_submit.value = 'ERROR'
+
     }
 }
+
+WIDGET.onEvent(async () => {
+    // ghi lại thông tin khách hàng mới
+    commonStore.data_client = await WIDGET.decodeClient()
+})
+onMounted(async () => {
+    try {
+        loading.value = true
+        // khai báo biến lưu trữ dữ liệu khách hàng + init dữ liệu lần đầu
+        commonStore.data_client = await WIDGET.decodeClient()
+        // [optional] lắng nghe khách hàng thay đổi ở chế độ post message
+        let res: IConfigWidget | null = await WIDGET.getConfig({ brand_name: 'widget-merchant', type_config: 'CRM' })
+        if (res?.token_bussiness) {
+            id.value = res.id_bussiness || ''
+            token.value = res.token_bussiness
+            tab.value = 'LIST'
+        } else {
+            tab.value = 'FORM_NO_TOKEN'
+        }
+        res = null
+        loading.value = false
+    } catch (err) {
+        console.log(err);
+        tab.value = 'FORM_NO_TOKEN'
+        loading.value = false
+    }
+
+
+})
 </script>
 <style scoped lang="scss">
 .scrollbar-thin {

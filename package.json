@@ -17,7 +17,7 @@
     "dependencies": {
         "async": "^3.2.4",
         "autoprefixer": "^10.4.13",
-        "bbh-chatbox-widget-js-sdk": "^1.0.2",
+        "bbh-chatbox-widget-js-sdk": "^1.0.5",
         "lodash": "^4.17.21",
         "pinia": "^2.0.28",
         "postcss": "^8.4.19",
