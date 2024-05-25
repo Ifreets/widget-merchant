@@ -1,4 +1,4 @@
 export interface IConfigWidget {
-    id_bussiness?: string;
-    token_bussiness?: string;
+    id_business?: string;
+    token_business?: string;
 }
