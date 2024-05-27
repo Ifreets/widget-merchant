@@ -41,19 +41,17 @@
 </template>
 
 <script setup lang="ts">
+//* import function
+import { request } from '@/service/helper/asyncRequest';
 //* import library
-import { request } from '@/service/helper/request';
 import { ref } from 'vue';
 import WIDGET from 'bbh-chatbox-widget-js-sdk';
-
 //* import icon
 import ArrowIcon from '@/assets/icons/arrow-icon.svg'
 import GuidanceIcon from '@/assets/icons/guidance-icon.svg'
+import { useCommonStore } from '@/stores';
 
-/** Trạng thái của hành động submit form */
-const status_submit = ref<'SUCCESS' | 'ERROR' | ''>('')
-
-
+//* props
 const props = defineProps<{
     synchData: Function
 }>()
@@ -62,40 +60,44 @@ const tab = defineModel('tab', { default: "" })
 const id = defineModel('id', { default: "" })
 const token = defineModel('token', { default: "" })
 
+/** store */
+const commonStore = useCommonStore()
+
+/** Trạng thái của hành động submit form */
+const status_submit = ref<'SUCCESS' | 'ERROR' | ''>('')
+
 /** hàm xử lý  */
 async function onSubmit() {
     try {
-        if (id.value && token.value) {
+        if (!id.value || !token.value) status_submit.value = 'ERROR'
+        else {
+            commonStore.is_loading_full_screen = true
             // call API check token có hợp lệ không
-            request({
+            let r: any = await request({
                 uri: 'https://api.merchant.vn/v1/apps/info/profile',
                 method: 'GET',
                 headers: {
                     'token-business': token.value
                 }
-            }, async (e, r) => {
-                // nếu thành công thì lưu token vừa nhập vào widget sdk
-                if (r.status === 200) {
-                    await WIDGET.saveConfig({
-                        brand_name: 'widget-merchant',
-                        type_config: 'CRM',
-                        config_data: {
-                            id_business: id.value,
-                            token_business: token.value
-                        }
-                    })
-                    status_submit.value = 'SUCCESS'
-                    if (tab.value == 'FORM_NO_TOKEN') {
-                        await props.synchData(token.value)
-                        tab.value = 'LIST'
-                    }
-                } else {
-                    status_submit.value = 'ERROR'
-                }
             });
-
-        } else {
-            status_submit.value = 'ERROR'
+            commonStore.is_loading_full_screen = false
+            // nếu thành công thì lưu token vừa nhập vào widget sdk
+            if (r.status !== 200) status_submit.value = 'ERROR'
+            else {
+                await WIDGET.saveConfig({
+                    brand_name: 'widget-merchant',
+                    type_config: 'CRM',
+                    config_data: {
+                        id_business: id.value,
+                        token_business: token.value
+                    }
+                })
+                status_submit.value = 'SUCCESS'
+                if (tab.value == 'FORM_NO_TOKEN') {
+                    await props.synchData(token.value)
+                    tab.value = 'LIST'
+                }
+            }
         }
     } catch (err) {
         status_submit.value = 'ERROR'
