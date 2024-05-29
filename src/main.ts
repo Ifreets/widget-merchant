@@ -5,7 +5,6 @@ import {
     loadEnv,
     loadLib,
     loadApp,
-    // loadLanguage,
     loadRouter,
 } from "@/service/core";
 import "@/assets/css/tailwind.css";
@@ -15,20 +14,17 @@ import type { CbError } from "@/service/interface";
 // [optional] kích hoạt chế độ debug
 WIDGET.debugOn();
 
-// nạp secret_key của widget
-// WIDGET.load("8e2152bda80e40fa85ba4278f6a3353a");
 const APP = createApp(App);
 
 waterfall(
     [
         (cb: CbError) => loadEnv(cb),
         (cb: CbError) => {
+            // nạp secret_key của widget
             WIDGET.load($env.secret_key);
             cb();
         },
-        // (cb: CbError) => loadLib(cb),
         (cb: CbError) => loadRouter(APP, cb),
-        // (cb: CbError) => loadLanguage(APP, cb),
         (cb: CbError) => loadApp(APP, cb),
     ],
     () => APP.mount("#app")
