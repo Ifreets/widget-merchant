@@ -8,13 +8,10 @@
 </template>
 
 <script setup lang="ts">
-import { useCommonStore } from '@/stores'
-import Loading from '@/components/Loading.vue'
+import {useCommonStore} from "@/stores";
+import Loading from "@/components/Loading.vue";
 
-const commonStore = useCommonStore()
-
+const commonStore = useCommonStore();
 </script>
 
-<style lang="scss">
-@import "@/assets/css/index.scss";
-</style>
+<style lang="scss"></style>

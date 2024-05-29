@@ -1,6 +1,6 @@
 <template>
   <div class="w-full h-full flex justify-center items-center bg-slate-300">
-    <div class="w-screen h-screen lg:w-[395px] lg:h-[300px] bg-white text-sm">
+    <div class="w-screen h-screen sm:w-[395px] sm:h-[300px] bg-white text-sm">
       <div
         v-if="tab == 'LIST' || tab == 'LOAD'"
         class="p-3 flex flex-col gap-2.5"
@@ -8,10 +8,8 @@
         <div class="w-full flex gap-2.5">
           <img
             loading="lazy"
-            :src="customer_infor?.avatar"
+            :src="user_avatar"
             class="h-16 w-16 rounded-3xl"
-            alt=""
-            srcset=""
           />
           <div class="w-full flex flex-col gap-1">
             <div
@@ -23,7 +21,13 @@
                 </span>
                 {{ client_email }}
               </p>
-              <img :src="InfoIcon" class="h-4 w-4" alt="" srcset="" />
+              <a
+                :href="link_to_merchant"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img :src="InfoIcon" class="h-4 w-4" />
+              </a>
             </div>
             <div class="font-medium">
               <p class="text-sky-600">Số điện thoại</p>
@@ -120,6 +124,8 @@ const customer_infor = ref<{
   email?: string;
   /** số điện thoại */
   phone?: string;
+  /** id contact merchent */
+  id_contact_merchant?: string;
 }>();
 
 onMounted(async () => {
@@ -141,7 +147,6 @@ onMounted(async () => {
   } else {
     tab.value = "FORM_NO_TOKEN";
   }
-  res = null;
   commonStore.is_loading_full_screen = false;
 });
 
@@ -159,6 +164,24 @@ const client_email = computed(() =>
 const id_client = computed(
   () => commonStore?.data_client?.public_profile?.fb_client_id || ""
 );
+/** đường dẫn đến contact merchant */
+const link_to_merchant = computed(
+  () =>
+    "https://merchant.vn/a/contact?id=" +
+    customer_infor?.value?.id_contact_merchant
+);
+
+/** avater của người dùng */
+const user_avatar = computed(
+  () =>
+    "https://chatbox-static-v3.botbanhang.vn/app/facebook/avatar/" +
+    commonStore?.data_client?.public_profile?.fb_client_id +
+    "?page_id=" +
+    commonStore?.data_client?.public_profile?.page_id +
+    "&staff_id=" +
+    commonStore?.data_client?.public_profile?.current_staff_id +
+    "&width=64&height=64"
+);
 
 /** hàm call API đồng bộ dữ liệu sang merchant */
 async function synchData(token_business: string) {
@@ -174,11 +197,12 @@ async function synchData(token_business: string) {
         },
       });
       if (result) {
-        list_employee.value = result.assigned_employees;
+        list_employee.value = result.assigned_employees || [];
         customer_infor.value = {
-          avatar: result.avatar,
-          email: result.suggest_email,
-          phone: result.suggest_phone,
+          avatar: result?.avatar,
+          email: result?.suggest_email,
+          phone: result?.suggest_phone,
+          id_contact_merchant: result?.identifier_id,
         };
       }
     }

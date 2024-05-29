@@ -10,10 +10,10 @@ function formatDate(date: Date) {
 /** check xem đã gọi ngày hôm nay chưa */
 function checkIsCallToday(id: string) {
   let isCallToday = localStorage.getItem(id);
-  if (isCallToday && isCallToday === formatDate(new Date())) return false;
+  if (isCallToday && isCallToday === formatDate(new Date())) return true;
   // nếu không có đặt là ngày hôm nay
   localStorage.setItem(id, formatDate(new Date()));
-  return true;
+  return false;
 }
 
 /** chuyển mảng nhân viên thành object */
@@ -24,7 +24,7 @@ function arrayToObject(arr: Object[]) {
   });
   return result;
 }
-
+/** hàm gọi API lấy danh sách tất cả nhân viên */
 async function callAPI(token: string, id: string) {
   let result = await request({
     uri: "https://api.merchant.vn/v1/apps/info/business_employees",
@@ -49,24 +49,28 @@ export async function getAllEmployee(
   token: string,
   list_employee: string[]
 ) {
-  if (checkIsCallToday(id)) {
+  let id_exist: boolean = false;
+
+  // nếu danh sách nhân viên rỗng thì không cần lấy thông tin nữa
+  if (!list_employee.length) return null;
+
+  let list_employee_localstorage = JSON.parse(
+    localStorage.getItem(id + "-data") || "{}"
+  );
+
+  //kiểm tra các nhân viên có thông tin trong danh sách của localStorage không
+  if (list_employee_localstorage) {
+    id_exist = list_employee.every((id) => id in list_employee_localstorage);
+  }
+  if (
+    !checkIsCallToday(id) ||
+    !Object.keys(list_employee_localstorage) ||
+    !id_exist
+  ) {
     let result = await callAPI(token, id);
     return result;
-  } else {
-    // nếu đã gọi api ngày hôm đó sẽ lấy data từ localStorage
-    if (localStorage.getItem(id + "-data")) {
-      let list_employee_localstorage = JSON.parse(
-        localStorage.getItem(id + "-data") || ""
-      );
-      let id_exist = list_employee.every(
-        (id) => id in list_employee_localstorage
-      );
-      if (id_exist) {
-        return list_employee_localstorage;
-      } else {
-        let result = await callAPI(token, id);
-        return result;
-      }
-    }
   }
+  // nếu đã gọi api ngày hôm đó và các nhân viên đều
+  //có thông tin trong localStorage sẽ lấy data từ localStorage
+  return list_employee_localstorage;
 }

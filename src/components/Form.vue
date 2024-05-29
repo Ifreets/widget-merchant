@@ -50,10 +50,16 @@
           Kết nối
         </button>
         <div>
-          <p class="flex items-center gap-0.5 cursor-pointer">
-            <img :src="GuidanceIcon" alt="" />
-            <span class="pb-0.5"><u>Hướng dẫn thiết lập</u></span>
-          </p>
+          <a
+            href="https://docs.google.com/document/d/1wEUjWLlLjhA1ZJ3ORD4z4KEszFBgopbIqq8KGLLGKUQ/edit?addon_store"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <p class="flex items-center gap-0.5 cursor-pointer">
+              <img :src="GuidanceIcon" alt="" />
+              <span class="pb-0.5"><u>Hướng dẫn thiết lập</u></span>
+            </p>
+          </a>
         </div>
       </div>
     </form>
@@ -73,11 +79,17 @@ import {useCommonStore} from "@/stores";
 
 //* props
 const props = defineProps<{
+  /** hàm đồng bộ dữ liệu về merchant */
   synchData: Function;
 }>();
 
+/** tab hiện tại của ứng dụng */
 const tab = defineModel("tab", {default: ""});
+
+/** id để kích hoạt */
 const id = defineModel("id", {default: ""});
+
+/** token để kích hoạt */
 const token = defineModel("token", {default: ""});
 
 /** store */
@@ -119,7 +131,8 @@ async function onSubmit() {
         }
       }
     }
-  } catch (err) {
+  } catch (error) {
+    console.log("verify widget", error);
     status_submit.value = "ERROR";
   }
 }
