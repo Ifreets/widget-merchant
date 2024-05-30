@@ -57,9 +57,7 @@
           <ListEmployee
             v-if="tab === 'LIST'"
             v-model:tab="tab"
-            :token="token"
             :list_employee="list_employee"
-            :id_client="id_client"
           />
           <div v-if="tab === 'LOAD'">
             <p class="text-center py-1 font-medium">
@@ -104,6 +102,7 @@ import InfoIcon from "@/assets/icons/info-icon.svg";
 
 //* import interface
 import type {IConfigWidget} from "@/service/interface";
+import {getAllEmployee} from "@/service/helper/getAllEmploy";
 
 /** store */
 const commonStore = useCommonStore();
@@ -138,9 +137,17 @@ onMounted(async () => {
     brand_name: "widget-merchant",
     type_config: "CRM",
   });
+
   // nếu có sẽ vào dashboard và đồng bộ dữ liệu, nếu không sẽ vào form
-  if (res?.token_business) {
+  if (res?.token_business && res?.id_business) {
+    /** đồng bộ dữ liệu */
     await synchData(res?.token_business);
+    /** lấy tất cả thông tin nhân viên */
+    await fetchAllEmployee(
+      res.id_business,
+      res.token_business,
+      list_employee.value
+    );
     id.value = res.id_business || "";
     token.value = res.token_business;
     tab.value = "LIST";
@@ -186,29 +193,42 @@ const user_avatar = computed(
 /** hàm call API đồng bộ dữ liệu sang merchant */
 async function synchData(token_business: string) {
   try {
-    if (Object.keys(commonStore.data_client).length) {
-      let result = await request({
-        uri: "https://api-contact.merchant.vn/contact/chatbox_sync_contact",
-        method: "POST",
-        body: commonStore.data_client,
-        json: true,
-        headers: {
-          "token-business": token_business,
-        },
-      });
-      if (result) {
-        list_employee.value = result.assigned_employees || [];
-        customer_infor.value = {
-          avatar: result?.avatar,
-          email: result?.suggest_email,
-          phone: result?.suggest_phone,
-          id_contact_merchant: result?.identifier_id,
-        };
-      }
-    }
+    if (!Object.keys(commonStore.data_client).length) return;
+    let result = await request({
+      uri: "https://api-contact.merchant.vn/contact/chatbox_sync_contact",
+      method: "POST",
+      body: commonStore.data_client,
+      json: true,
+      headers: {
+        "token-business": token_business,
+      },
+    });
+    console.log("synch to merchant", result);
+
+    if (result.message || !result) return;
+    list_employee.value = result.assigned_employees || [];
+    console.log("list employee", list_employee.value);
+
+    customer_infor.value = {
+      avatar: result?.avatar,
+      email: result?.suggest_email,
+      phone: result?.suggest_phone,
+      id_contact_merchant: result?.identifier_id,
+    };
   } catch (error) {
     console.log("synch to merchant", error);
   }
+}
+/** hàm xử lý lấy tất cả nhân viên */
+async function fetchAllEmployee(
+  id: string,
+  token: string,
+  list_employee: string[]
+) {
+  /** lấy danh sách toàn bộ nhân viên */
+  let result = await getAllEmployee(id, token, list_employee);
+  if (!result) return;
+  commonStore.listAllEmployee = result;
 }
 
 WIDGET.onEvent(async () => {
@@ -222,8 +242,17 @@ WIDGET.onEvent(async () => {
     type_config: "CRM",
   });
   // nếu có sẽ vào dashboard và đồng bộ dữ liệu, nếu không sẽ vào form
-  if (!res?.token_business) return (tab.value = "FORM_NO_TOKEN");
+  if (!res?.token_business || !res?.id_business)
+    return (tab.value = "FORM_NO_TOKEN");
+  //đồng bộ dữ liệu
   await synchData(res?.token_business);
+  //lấy danh sách tất cả nhân viên
+  await fetchAllEmployee(
+    res.id_business,
+    res.token_business,
+    list_employee.value
+  );
+
   id.value = res.id_business || "";
   token.value = res.token_business;
   tab.value = "LIST";

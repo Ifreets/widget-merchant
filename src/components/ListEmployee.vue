@@ -4,8 +4,8 @@
     class="max-h-[100px] overflow-y-auto scrollbar-thin"
   >
     <li
-      v-if="list_employee?.length"
-      v-for="item in list_employee"
+      v-if="props.list_employee?.length"
+      v-for="item in props.list_employee"
       class="flex justify-between items-center py-1 border-b"
     >
       <div class="flex items-center gap-2">
@@ -39,16 +39,12 @@
 import {getAllEmployee} from "@/service/helper/getAllEmploy";
 import {useCommonStore} from "@/stores";
 //* import library
-import {computed, onMounted} from "vue";
+import {onMounted, watch} from "vue";
 //* import icon && image
 import AvatarDefault from "@/assets/imgs/default-avatar.png";
 
 //* props
 const props = defineProps<{
-  /** token merchant */
-  token: string;
-  /** id của khách */
-  id_client: string;
   /** danh sách nhân viên phụ trách */
   list_employee: string[];
 }>();
@@ -57,19 +53,6 @@ const tab = defineModel("tab", {default: ""});
 
 /** store */
 const commonStore = useCommonStore();
-onMounted(async () => {
-  commonStore.is_loading_full_screen = true;
-  /** lấy danh sách toàn bộ nhân viên */
-  let result = await getAllEmployee(
-    props.id_client,
-    props.token,
-    props.list_employee
-  );
-  if (result) {
-    commonStore.listAllEmployee = result;
-  }
-  commonStore.is_loading_full_screen = false;
-});
 /** avatar của nhân viên */
 function avatarEmployee(item: string) {
   return commonStore?.listAllEmployee[item]?.avatar;

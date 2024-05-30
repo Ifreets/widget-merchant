@@ -1,3 +1,4 @@
+import keyBy from "lodash/keyBy";
 import type {Cb} from "../interface";
 import {request} from "./asyncRequest";
 
@@ -19,9 +20,10 @@ function checkIsCallToday(id: string) {
 /** chuyển mảng nhân viên thành object */
 function arrayToObject(arr: Object[]) {
   let result: any = {};
-  arr.forEach((item: any) => {
-    result[item["_id"]] = item;
-  });
+  // arr.forEach((item: any) => {
+  //   result[item["_id"]] = item;
+  // });
+  result = keyBy(arr, "_id");
   return result;
 }
 /** hàm gọi API lấy danh sách tất cả nhân viên */
