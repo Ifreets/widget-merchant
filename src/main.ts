@@ -5,6 +5,7 @@ import {loadEnv, loadApp, loadRouter} from "@/service/core";
 import "@/assets/css/tailwind.css";
 import WIDGET from "bbh-chatbox-widget-js-sdk";
 import type {CbError} from "@/service/interface";
+import "./assets/css/index.scss";
 
 // [optional] kích hoạt chế độ debug
 WIDGET.debugOn();
