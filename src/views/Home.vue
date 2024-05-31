@@ -31,7 +31,7 @@
             </div>
             <div class="font-medium">
               <p class="text-sky-600">Số điện thoại</p>
-              <p class="truncate w-60">{{ customer_info?.phone }}</p>
+              <p class="truncate w-60">{{ appStore?.customer_info?.phone }}</p>
             </div>
           </div>
         </div>
@@ -92,7 +92,7 @@ import { request } from '@/service/helper/asyncRequest'
 import { useAppStore, useCommonStore } from '@/stores'
 
 //* import library
-import { onMounted, ref } from 'vue'
+import { onMounted, provide, ref, type InjectionKey } from 'vue'
 import WIDGET from 'bbh-chatbox-widget-js-sdk'
 import size from 'lodash/size'
 
@@ -104,7 +104,7 @@ import Form from '@/components/Form.vue'
 import InfoIcon from '@/assets/icons/info-icon.svg'
 
 //* import interface
-import type { IConfigWidget } from '@/service/interface'
+import type { IConfigWidget, TSynchData } from '@/service/interface'
 import { getAllEmployee } from '@/service/helper/getAllEmploy'
 
 /** store */
@@ -113,18 +113,8 @@ const commonStore = useCommonStore()
 
 /** danh sách nhân viên */
 const list_employee = ref<any>([])
-/** thông tin khách hàng */
-const customer_info = ref<{
-  /** link ảnh đại diện */
-  avatar?: string
-  /** email */
-  email?: string
-  /** số điện thoại */
-  phone?: string
-  /** id contact merchent */
-  id_contact_merchant?: string
-}>()
 
+// lắng nghe sự kiện từ chatbox
 WIDGET.onEvent(async () => {
   load()
 })
@@ -148,11 +138,11 @@ async function synchData(token_business: string) {
         'token-business': token_business,
       },
     })
-    // nếu đồng bộ thành công thì
+    // nếu đồng bộ thành công thì lấy danh sách nhân viên phụ trách khách hàng
+    // và thông tin khác hàng đó
     if (result.message || !result) return
     list_employee.value = result.assigned_employees || []
-
-    customer_info.value = {
+    appStore.customer_info = {
       avatar: result?.avatar,
       email: result?.suggest_email,
       phone: result?.suggest_phone,
@@ -171,10 +161,18 @@ async function fetchAllEmployee(
   /** danh sách nhân viên được giao phụ trách khách hàng */
   list_employee: string[]
 ) {
-  /** lấy danh sách toàn bộ nhân viên */
-  let result = await getAllEmployee(id_business, token_business, list_employee)
-  if (!result) return
-  commonStore.listAllEmployee = result
+  try {
+    /** lấy danh sách toàn bộ nhân viên */
+    let result = await getAllEmployee(
+      id_business,
+      token_business,
+      list_employee
+    )
+    if (!result) return
+    commonStore.listAllEmployee = result
+  } catch (error) {
+    console.log('get all employee home', error)
+  }
 }
 /** hàm thực thi khi mở đoạn chat hoặc chuyển đoạn chat */
 async function load() {
@@ -187,6 +185,8 @@ async function load() {
     brand_name: 'widget-merchant',
     type_config: 'CRM',
   })
+  console.log(res)
+
   // nếu có sẽ vào dashboard và đồng bộ dữ liệu, nếu không sẽ vào form
   if (!res?.token_business || !res?.id_business) {
     appStore.tab = 'FORM_NO_TOKEN'
@@ -195,7 +195,7 @@ async function load() {
     return
   }
   //đồng bộ dữ liệu
-  await synchData(res?.token_business)
+  let result = await synchData(res?.token_business)
   //lấy danh sách tất cả nhân viên
   await fetchAllEmployee(
     res.id_business,

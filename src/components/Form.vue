@@ -1,12 +1,12 @@
 <template>
   <div
-    v-if="tab == 'FORM' || tab == 'FORM_NO_TOKEN'"
+    v-if="['FORM', 'FORM_NO_TOKEN'].includes(appStore?.tab)"
     class="p-3 flex flex-col gap-2.5"
   >
     <div class="h-6">
       <p
-        @click="tab = 'LIST'"
-        v-if="tab == 'FORM'"
+        @click="appStore.tab = 'LIST'"
+        v-if="appStore?.tab === 'FORM'"
         class="flex items-center font-medium bg-slate-200 w-fit px-2 rounded-md cursor-pointer gap-1"
       >
         <img :src="ArrowIcon" alt="" />
@@ -25,7 +25,7 @@
           >Nhập ID Business <span class="text-red-500">*</span></label
         >
         <input
-          v-model="id"
+          v-model="commonStore.id_business"
           class="outline-none pb-1.5 pt-1 px-3 rounded-md border"
           type="text"
           placeholder="Nhập ID"
@@ -36,7 +36,7 @@
           >Nhập Token Business <span class="text-red-500">*</span></label
         >
         <input
-          v-model="token"
+          v-model="commonStore.token_business"
           class="outline-none pb-1.5 pt-1 px-3 rounded-md border"
           type="text"
           placeholder="Nhập Token"
@@ -50,11 +50,7 @@
           Kết nối
         </button>
         <div>
-          <a
-            href="https://docs.google.com/document/d/1wEUjWLlLjhA1ZJ3ORD4z4KEszFBgopbIqq8KGLLGKUQ/edit?addon_store"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
+          <a :href="link_guild" target="_blank" rel="noopener noreferrer">
             <p class="flex items-center gap-0.5 cursor-pointer">
               <img :src="GuidanceIcon" alt="" />
               <span class="pb-0.5"><u>Hướng dẫn thiết lập</u></span>
@@ -68,72 +64,80 @@
 
 <script setup lang="ts">
 //* import function
-import {request} from "@/service/helper/asyncRequest";
+import { request } from '@/service/helper/asyncRequest'
 //* import library
-import {ref} from "vue";
-import WIDGET from "bbh-chatbox-widget-js-sdk";
+import {
+  computed,
+  getCurrentInstance,
+  inject,
+  ref,
+  type InjectionKey,
+} from 'vue'
+import WIDGET from 'bbh-chatbox-widget-js-sdk'
 //* import icon
-import ArrowIcon from "@/assets/icons/arrow-icon.svg";
-import GuidanceIcon from "@/assets/icons/guidance-icon.svg";
-import {useCommonStore} from "@/stores";
-
+import ArrowIcon from '@/assets/icons/arrow-icon.svg'
+import GuidanceIcon from '@/assets/icons/guidance-icon.svg'
+import { useAppStore, useCommonStore } from '@/stores'
+import type { TSynchData } from '@/service/interface'
 //* props
 const props = defineProps<{
   /** hàm đồng bộ dữ liệu về merchant */
-  synchData: Function;
-}>();
+  synchData: Function
+}>()
 
 /** tab hiện tại của ứng dụng */
-const tab = defineModel("tab", {default: ""});
+const tab = defineModel('tab', { default: '' })
 
 /** id để kích hoạt */
-const id = defineModel("id", {default: ""});
+const id = defineModel('id', { default: '' })
 
 /** token để kích hoạt */
-const token = defineModel("token", {default: ""});
+const token = defineModel('token', { default: '' })
 
 /** store */
-const commonStore = useCommonStore();
+const appStore = useAppStore()
+const commonStore = useCommonStore()
 
 /** Trạng thái của hành động submit form */
-const status_submit = ref<"SUCCESS" | "ERROR" | "">("");
+const status_submit = ref<'SUCCESS' | 'ERROR' | ''>('')
 
+const link_guild = computed(() => $env.link_guild)
 /** hàm xử lý  */
+
 async function onSubmit() {
   try {
-    if (!id.value || !token.value) status_submit.value = "ERROR";
+    if (!id.value || !token.value) status_submit.value = 'ERROR'
     else {
-      commonStore.is_loading_full_screen = true;
+      commonStore.is_loading_full_screen = true
       // call API check token có hợp lệ không
       let r: any = await request({
-        uri: "https://api.merchant.vn/v1/apps/info/profile",
-        method: "GET",
+        uri: 'https://api.merchant.vn/v1/apps/info/profile',
+        method: 'GET',
         headers: {
-          "token-business": token.value,
+          'token-business': token.value,
         },
-      });
-      commonStore.is_loading_full_screen = false;
+      })
+      commonStore.is_loading_full_screen = false
       // nếu thành công thì lưu token vừa nhập vào widget sdk
-      if (r.status !== 200) status_submit.value = "ERROR";
+      if (r.status !== 200) status_submit.value = 'ERROR'
       else {
         await WIDGET.saveConfig({
-          brand_name: "widget-merchant",
-          type_config: "CRM",
+          brand_name: 'widget-merchant',
+          type_config: 'CRM',
           config_data: {
             id_business: id.value,
             token_business: token.value,
           },
-        });
-        status_submit.value = "SUCCESS";
-        if (tab.value == "FORM_NO_TOKEN") {
-          await props.synchData(token.value);
-          tab.value = "LIST";
-        }
+        })
+        status_submit.value = 'SUCCESS'
+        if (tab.value !== 'FORM_NO_TOKEN') return
+        await props.synchData(token.value)
+        tab.value = 'LIST'
       }
     }
   } catch (error) {
-    console.log("verify widget", error);
-    status_submit.value = "ERROR";
+    console.log('verify widget', error)
+    status_submit.value = 'ERROR'
   }
 }
 </script>
