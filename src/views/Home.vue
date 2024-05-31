@@ -2,7 +2,7 @@
   <div class="w-full h-full flex justify-center items-center bg-slate-300">
     <div class="w-screen h-screen sm:w-[395px] sm:h-[300px] bg-white text-sm">
       <div
-        v-if="['LIST', 'LOAD'].includes(appStore.tab)"
+        v-if="['USER', 'ORDER'].includes(appStore.tab)"
         class="p-3 flex flex-col gap-2.5"
       >
         <div class="w-full flex gap-2.5">
@@ -42,28 +42,27 @@
             <p
               class="w-1/2 rounded py-1 cursor-pointer"
               :class="
-                appStore.tab === 'LIST' ? 'text-black bg-white shadow-md' : ''
+                appStore.tab === 'USER' ? 'text-black bg-white shadow-md' : ''
               "
-              @click="appStore.tab = 'LIST'"
+              @click="appStore.tab = 'USER'"
             >
               Nhân sự phụ trách
             </p>
             <p
               class="w-1/2 rounded py-1 cursor-pointer"
               :class="
-                appStore.tab === 'LOAD' ? 'text-black bg-white shadow-md' : ''
+                appStore.tab === 'ORDER' ? 'text-black bg-white shadow-md' : ''
               "
-              @click="appStore.tab = 'LOAD'"
+              @click="appStore.tab = 'ORDER'"
             >
               Đơn hàng
             </p>
           </div>
-          <ListEmployee
-            v-if="appStore.tab === 'LIST'"
-            v-model:tab="appStore.tab"
+          <AssignedEmployees
+            v-if="appStore.tab === 'USER'"
             :list_employee="list_employee"
           />
-          <div v-if="appStore.tab === 'LOAD'">
+          <div v-if="appStore.tab === 'ORDER'">
             <p class="text-center py-1 font-medium">
               Tính năng đang được phát triển...
             </p>
@@ -72,17 +71,14 @@
         <div class="flex justify-end">
           <p
             class="bg-slate-200 text-slate-700 pb-0.5 px-2 rounded-md cursor-pointer"
-            @click="appStore.tab = 'FORM'"
+            @click="appStore.tab = 'SETTING'"
           >
             Thiết lập
           </p>
         </div>
       </div>
       <!-- FORM -->
-      <Form
-        v-if="appStore.tab == 'FORM' || appStore.tab == 'FORM_NO_TOKEN'"
-        :synchData="synchData"
-      />
+      <Setting v-if="['SETTING', 'SETTING_NO_TOKEN'].includes(appStore?.tab)" />
     </div>
   </div>
 </template>
@@ -97,8 +93,8 @@ import WIDGET from 'bbh-chatbox-widget-js-sdk'
 import size from 'lodash/size'
 
 //* import component
-import ListEmployee from '@/components/ListEmployee.vue'
-import Form from '@/components/Form.vue'
+import AssignedEmployees from '@/components/AssignedEmployees.vue'
+import Setting from '@/components/Setting.vue'
 
 //* import icon
 import InfoIcon from '@/assets/icons/info-icon.svg'
@@ -106,6 +102,7 @@ import InfoIcon from '@/assets/icons/info-icon.svg'
 //* import interface
 import type { IConfigWidget, TSynchData } from '@/service/interface'
 import { getAllEmployee } from '@/service/helper/getAllEmploy'
+import { keySynchData } from '@/service/constant'
 
 /** store */
 const appStore = useAppStore()
@@ -122,6 +119,9 @@ WIDGET.onEvent(async () => {
 onMounted(async () => {
   load()
 })
+
+// xuất hàm đồng bộ data cho các component con dùng
+provide(keySynchData, synchData)
 
 /** hàm call API đồng bộ dữ liệu sang merchant */
 async function synchData(token_business: string) {
@@ -185,11 +185,10 @@ async function load() {
     brand_name: 'widget-merchant',
     type_config: 'CRM',
   })
-  console.log(res)
 
   // nếu có sẽ vào dashboard và đồng bộ dữ liệu, nếu không sẽ vào form
   if (!res?.token_business || !res?.id_business) {
-    appStore.tab = 'FORM_NO_TOKEN'
+    appStore.tab = 'SETTING_NO_TOKEN'
     //tắt loading
     commonStore.is_loading_full_screen = false
     return
@@ -205,7 +204,7 @@ async function load() {
   //lưu id_business, token_business vào store
   commonStore.id_business = res.id_business || ''
   commonStore.token_business = res.token_business
-  appStore.tab = 'LIST'
+  appStore.tab = 'USER'
   //tắt loading
   commonStore.is_loading_full_screen = false
 }

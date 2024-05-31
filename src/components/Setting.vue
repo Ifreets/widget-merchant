@@ -1,12 +1,12 @@
 <template>
   <div
-    v-if="['FORM', 'FORM_NO_TOKEN'].includes(appStore?.tab)"
+    v-if="['SETTING', 'SETTING_NO_TOKEN'].includes(appStore?.tab)"
     class="p-3 flex flex-col gap-2.5"
   >
     <div class="h-6">
       <p
-        @click="appStore.tab = 'LIST'"
-        v-if="appStore?.tab === 'FORM'"
+        @click="appStore.tab = 'USER'"
+        v-if="appStore?.tab === 'SETTING'"
         class="flex items-center font-medium bg-slate-200 w-fit px-2 rounded-md cursor-pointer gap-1"
       >
         <img :src="ArrowIcon" alt="" />
@@ -78,21 +78,7 @@ import WIDGET from 'bbh-chatbox-widget-js-sdk'
 import ArrowIcon from '@/assets/icons/arrow-icon.svg'
 import GuidanceIcon from '@/assets/icons/guidance-icon.svg'
 import { useAppStore, useCommonStore } from '@/stores'
-import type { TSynchData } from '@/service/interface'
-//* props
-const props = defineProps<{
-  /** hàm đồng bộ dữ liệu về merchant */
-  synchData: Function
-}>()
-
-/** tab hiện tại của ứng dụng */
-const tab = defineModel('tab', { default: '' })
-
-/** id để kích hoạt */
-const id = defineModel('id', { default: '' })
-
-/** token để kích hoạt */
-const token = defineModel('token', { default: '' })
+import { keySynchData } from '@/service/constant'
 
 /** store */
 const appStore = useAppStore()
@@ -101,40 +87,52 @@ const commonStore = useCommonStore()
 /** Trạng thái của hành động submit form */
 const status_submit = ref<'SUCCESS' | 'ERROR' | ''>('')
 
+/** link hướng dẫn thiết lập */
 const link_guild = computed(() => $env.link_guild)
-/** hàm xử lý  */
 
+/** hàm đồng bộ khai báo từ trang home */
+const synchData = inject(keySynchData)
+
+/** hàm xử lý khi submit */
 async function onSubmit() {
   try {
-    if (!id.value || !token.value) status_submit.value = 'ERROR'
-    else {
-      commonStore.is_loading_full_screen = true
-      // call API check token có hợp lệ không
-      let r: any = await request({
-        uri: 'https://api.merchant.vn/v1/apps/info/profile',
-        method: 'GET',
-        headers: {
-          'token-business': token.value,
-        },
-      })
-      commonStore.is_loading_full_screen = false
-      // nếu thành công thì lưu token vừa nhập vào widget sdk
-      if (r.status !== 200) status_submit.value = 'ERROR'
-      else {
-        await WIDGET.saveConfig({
-          brand_name: 'widget-merchant',
-          type_config: 'CRM',
-          config_data: {
-            id_business: id.value,
-            token_business: token.value,
-          },
-        })
-        status_submit.value = 'SUCCESS'
-        if (tab.value !== 'FORM_NO_TOKEN') return
-        await props.synchData(token.value)
-        tab.value = 'LIST'
-      }
+    // khi chưa nhập đủ các field sẽ báo lỗi
+    if (!commonStore.id_business || !commonStore.token_business) {
+      status_submit.value = 'ERROR'
+      return
     }
+    // bật loading
+    commonStore.is_loading_full_screen = true
+    // call API check token có hợp lệ không
+    let r: any = await request({
+      uri: 'https://api.merchant.vn/v1/apps/info/profile',
+      method: 'GET',
+      headers: {
+        'token-business': commonStore.token_business,
+      },
+    })
+    //tắt loading
+    commonStore.is_loading_full_screen = false
+    // nếu thành công thì lưu token vừa nhập vào widget sdk
+    if (r.status !== 200) {
+      status_submit.value = 'ERROR'
+      return
+    }
+    // lưu id, token vào widget sdk
+    await WIDGET.saveConfig({
+      brand_name: 'widget-merchant',
+      type_config: 'CRM',
+      config_data: {
+        id_business: commonStore.id_business,
+        token_business: commonStore.token_business,
+      },
+    })
+    status_submit.value = 'SUCCESS'
+    // Nếu là lần đầu nhập id và token thì đồng bộ dữ liệu
+    if (appStore.tab !== 'SETTING_NO_TOKEN' || !synchData) return
+    await synchData(commonStore.token_business)
+    // đẩy sang giao diện thông tin của người dùng
+    appStore.tab = 'USER'
   } catch (error) {
     console.log('verify widget', error)
     status_submit.value = 'ERROR'
