@@ -200,11 +200,12 @@ async function load() {
       commonStore.is_loading_full_screen = false
       return
     }
-    //đồng bộ dữ liệu
-    await synchData(res?.token_business)
     //lưu id_business, token_business vào store
     commonStore.id_business = res.id_business || ''
     commonStore.token_business = res.token_business
+    //đồng bộ dữ liệu
+    await synchData(res?.token_business)
+
     appStore.tab = 'USER'
     //tắt loading
     commonStore.is_loading_full_screen = false
