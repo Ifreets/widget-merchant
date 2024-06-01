@@ -60,7 +60,7 @@
           </div>
           <AssignedEmployees
             v-if="appStore.tab === 'USER'"
-            v-model:list_employee="list_employee"
+            :list_employee="list_employee"
           />
           <div v-if="appStore.tab === 'ORDER'">
             <p class="text-center py-1 font-medium">
@@ -148,11 +148,38 @@ async function synchData(token_business: string) {
       phone: result?.suggest_phone,
       id_contact_merchant: result?.identifier_id,
     }
+    //lấy danh sách tất cả nhân viên
+    await fetchAllEmployee(
+      commonStore.id_business,
+      commonStore.token_business,
+      list_employee.value
+    )
   } catch (error) {
     console.log('synch to merchant', error)
   }
 }
-
+/** hàm xử lý lấy tất cả nhân viên */
+async function fetchAllEmployee(
+  /** id doanh nghiệp */
+  id_business: string,
+  /** token doanh nghiệp */
+  token_business: string,
+  /** danh sách nhân viên được giao phụ trách khách hàng */
+  list_employee: string[]
+) {
+  try {
+    /** lấy danh sách toàn bộ nhân viên */
+    let result = await getAllEmployee(
+      id_business,
+      token_business,
+      list_employee
+    )
+    if (!result) return
+    commonStore.listAllEmployee = result
+  } catch (error) {
+    console.log('get all employee home', error)
+  }
+}
 /** hàm thực thi khi mở đoạn chat hoặc chuyển đoạn chat */
 async function load() {
   try {
@@ -173,12 +200,12 @@ async function load() {
       commonStore.is_loading_full_screen = false
       return
     }
-    //đồng bộ dữ liệu
-    await synchData(res?.token_business)
-
     //lưu id_business, token_business vào store
     commonStore.id_business = res.id_business || ''
     commonStore.token_business = res.token_business
+    //đồng bộ dữ liệu
+    await synchData(res?.token_business)
+
     appStore.tab = 'USER'
     //tắt loading
     commonStore.is_loading_full_screen = false
