@@ -97,27 +97,27 @@ const synchData = inject(keySynchData)
 async function onSubmit() {
   try {
     // khi chưa nhập đủ các field sẽ báo lỗi
-    // if (!commonStore.id_business || !commonStore.token_business) {
-    //   status_submit.value = 'ERROR'
-    //   return
-    // }
+    if (!commonStore.id_business || !commonStore.token_business) {
+      status_submit.value = 'ERROR'
+      return
+    }
     // bật loading
     commonStore.is_loading_full_screen = true
     // call API check token có hợp lệ không
-    // let r: any = await request({
-    //   uri: 'https://api.merchant.vn/v1/apps/info/profile',
-    //   method: 'GET',
-    //   headers: {
-    //     'token-business': commonStore.token_business,
-    //   },
-    // })
+    let r: any = await request({
+      uri: 'https://api.merchant.vn/v1/apps/info/profile',
+      method: 'GET',
+      headers: {
+        'token-business': commonStore.token_business,
+      },
+    })
     //tắt loading
     commonStore.is_loading_full_screen = false
     // nếu thành công thì lưu token vừa nhập vào widget sdk
-    // if (r.status !== 200) {
-    //   status_submit.value = 'ERROR'
-    //   return
-    // }
+    if (r.status !== 200) {
+      status_submit.value = 'ERROR'
+      return
+    }
     // lưu id, token vào widget sdk
     await WIDGET.saveConfig({
       brand_name: 'widget-merchant',
