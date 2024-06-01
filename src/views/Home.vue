@@ -148,6 +148,12 @@ async function synchData(token_business: string) {
       phone: result?.suggest_phone,
       id_contact_merchant: result?.identifier_id,
     }
+    //lấy danh sách tất cả nhân viên
+    await fetchAllEmployee(
+      commonStore.id_business,
+      commonStore.token_business,
+      list_employee.value
+    )
   } catch (error) {
     console.log('synch to merchant', error)
   }
@@ -176,36 +182,39 @@ async function fetchAllEmployee(
 }
 /** hàm thực thi khi mở đoạn chat hoặc chuyển đoạn chat */
 async function load() {
-  // bật loading
-  commonStore.is_loading_full_screen = true
-  // ghi lại thông tin khách hàng mới
-  appStore.data_client = await WIDGET.decodeClient()
-  //call API lấy token từ widget
-  let res: IConfigWidget | null = await WIDGET.getConfig({
-    brand_name: 'widget-merchant',
-    type_config: 'CRM',
-  })
+  try {
+    // bật loading
+    commonStore.is_loading_full_screen = true
+    // ghi lại thông tin khách hàng mới
+    appStore.data_client = await WIDGET.decodeClient()
+    //call API lấy token từ widget
+    let res: IConfigWidget | null = await WIDGET.getConfig({
+      brand_name: 'widget-merchant',
+      type_config: 'CRM',
+    })
 
-  // nếu có sẽ vào dashboard và đồng bộ dữ liệu, nếu không sẽ vào form
-  if (!res?.token_business || !res?.id_business) {
+    // nếu có sẽ vào dashboard và đồng bộ dữ liệu, nếu không sẽ vào form
+    if (!res?.token_business || !res?.id_business) {
+      appStore.tab = 'SETTING_NO_TOKEN'
+      //tắt loading
+      commonStore.is_loading_full_screen = false
+      return
+    }
+    //lưu id_business, token_business vào store
+    commonStore.id_business = res.id_business || ''
+    commonStore.token_business = res.token_business
+    //đồng bộ dữ liệu
+    await synchData(res?.token_business)
+
+    appStore.tab = 'USER'
+    //tắt loading
+    commonStore.is_loading_full_screen = false
+  } catch (error) {
+    console.log('load home', error)
+    //chuyển tab setting
     appStore.tab = 'SETTING_NO_TOKEN'
     //tắt loading
     commonStore.is_loading_full_screen = false
-    return
   }
-  //đồng bộ dữ liệu
-  let result = await synchData(res?.token_business)
-  //lấy danh sách tất cả nhân viên
-  await fetchAllEmployee(
-    res.id_business,
-    res.token_business,
-    list_employee.value
-  )
-  //lưu id_business, token_business vào store
-  commonStore.id_business = res.id_business || ''
-  commonStore.token_business = res.token_business
-  appStore.tab = 'USER'
-  //tắt loading
-  commonStore.is_loading_full_screen = false
 }
 </script>
