@@ -100,10 +100,9 @@ const synchData = inject(keySynchData)
 async function onSubmit() {
   try {
     // khi chưa nhập đủ các field sẽ báo lỗi
-    if (!commonStore.id_business || !commonStore.token_business) {
-      status_submit.value = 'ERROR'
-      return
-    }
+    if (!commonStore.id_business || !commonStore.token_business)
+      throw { message: 'ID hoặc Token bị lỗi, vui này kiểm tra lại' }
+
     // bật loading
     commonStore.is_loading_full_screen = true
     // call API check token có hợp lệ không
@@ -114,15 +113,16 @@ async function onSubmit() {
         'token-business': commonStore.token_business,
       },
     })
+
     //tắt loading
     commonStore.is_loading_full_screen = false
+    // tokem id lỗi
+    if (!r.data._id)
+      throw { message: 'ID hoặc Token bị lỗi, vui này kiểm tra lại' }
+
     // nếu thành công thì lưu token vừa nhập vào widget sdk
-    if (r.status !== 200) {
-      status_submit.value = 'ERROR'
-      return
-    }
     // lưu id, token vào widget sdk
-    await WIDGET.saveConfig({
+    r = await WIDGET.saveConfig({
       brand_name: 'widget-merchant',
       type_config: 'CRM',
       config_data: {
@@ -130,6 +130,9 @@ async function onSubmit() {
         token_business: commonStore.token_business,
       },
     })
+
+    if (r.code !== 200)
+      throw { message: 'Không lưu được ID và token trên chatbot' }
 
     // Nếu là lần đầu nhập id và token thì đồng bộ dữ liệu
     if (appStore.tab !== 'SETTING_NO_TOKEN' || !synchData) return
