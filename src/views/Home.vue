@@ -56,7 +56,7 @@
 //* import function
 import { request } from '@/service/helper/asyncRequest'
 import { useAppStore, useCommonStore } from '@/stores'
-import GetAllEmployee from '@/service/helper/getAllEmployeeClass'
+import EmployeeFetcher from '@/service/helper/getAllEmployeeClass'
 
 //* import library
 import { onMounted, provide, ref, type InjectionKey } from 'vue'
@@ -149,7 +149,7 @@ async function fetchAllEmployee(
     // )
     // if (!result) return
     // commonStore.listAllEmployee = result
-    const GETALLEMPLOYEE = new GetAllEmployee(id_business, token_business, list_employee)
+    const GETALLEMPLOYEE = EmployeeFetcher(id_business, token_business, list_employee)
     let result = await GETALLEMPLOYEE.getAllEmployee()
     console.log('getAllEmployee', result);
 
@@ -166,6 +166,10 @@ async function load() {
     commonStore.is_loading_full_screen = true
     // ghi lại thông tin khách hàng mới
     appStore.data_client = await WIDGET.decodeClient()
+    // await WIDGET.deleteConfig({
+    //   brand_name: 'widget-merchant',
+    //   type_config: 'CRM',
+    // })
     //call API lấy token từ widget
     let res: IConfigWidget | null = await WIDGET.getConfig({
       brand_name: 'widget-merchant',
