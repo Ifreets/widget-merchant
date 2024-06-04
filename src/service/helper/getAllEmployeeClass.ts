@@ -1,36 +1,61 @@
 import { request } from './asyncRequest'
 import keyBy from 'lodash/keyBy'
 
-export default class GetAllEmployee {
-  #id_business: string = ''
-  #token_business: string = ''
+class EmployeeFetcher {
+  static #instance: EmployeeFetcher
+  /** id doanh nghiệp */
+  #id_business: string
+  /** token doanh nghiệp */
+  #token_business: string
+  /** danh sách nhân viên phụ trách khách hàng */
   #list_assigned_employee?: string[]
   constructor(
     id_business: string,
     token_business: string,
     list_assigned_employee: string[]
   ) {
+    if (!list_assigned_employee)
+      throw 'Chưa khởi tạo danh sách nhân viên phụ trách'
+    if (!id_business) throw 'Chưa khởi tạo id doanh nghiệp'
+    if (!token_business) throw 'Chưa khởi tạo token doanh nghiệp'
     this.#id_business = id_business
     this.#token_business = token_business
     this.#list_assigned_employee = list_assigned_employee
   }
+  /** singleton */
+  public static getInstance(
+    id_business: string,
+    token_business: string,
+    list_assigned_employee: string[]
+  ): EmployeeFetcher {
+    // kiểm tra xem đã khởi tạo instance chưa, nếu chưa thì tạo mới
+    // nếu đã tạo trả về instance đã tạo trước đó
+    if (!EmployeeFetcher.#instance) {
+      EmployeeFetcher.#instance = new EmployeeFetcher(
+        id_business,
+        token_business,
+        list_assigned_employee
+      )
+    }
+    return EmployeeFetcher.#instance
+  }
   /** format date */
-  private formatDate(date: Date) {
+  #formatDate(date: Date): string {
     return (
       date.getDate() + '-' + (date.getMonth() + 1) + '-' + date.getFullYear()
     )
   }
   /** check xem đã lấy danh sách tất cả nhân viên ngày hôm nay chưa */
-  private checkIsCallToday() {
+  #checkIsCallToday(): boolean {
     // lấy giá trị của ngày hôm nay
-    let today = this.formatDate(new Date())
+    let today = this.#formatDate(new Date())
     // lấy ngày được lưu trong localStorage
     let isCallToday = localStorage.getItem(this.#id_business)
     // check xem ngày hôm nay lấy danh sách tất cả nhân viên chưa
     return Boolean(isCallToday && isCallToday === today)
   }
-
-  private async callAPI() {
+  /** hàm gọi API đồng bộ sang merchant */
+  async #callAPI(): Promise<Record<string, any>> {
     try {
       // gọi api
       let result = await request({
@@ -49,14 +74,10 @@ export default class GetAllEmployee {
       throw error
     }
   }
-  public async getAllEmployee() {
+  public async getAllEmployee(): Promise<Record<string, any> | null> {
     try {
-      if (!this.#list_assigned_employee)
-        throw 'Chưa khởi tạo danh sách nhân viên phụ trách'
-      if (!this.#id_business) throw 'Chưa khởi tạo id doanh nghiệp'
-      if (!this.#token_business) throw 'Chưa khởi tạo token doanh nghiệp'
-      /** biến kiểm tra xem nhân viên phụ trách có thông tin trong danh sách tất cả \
-       * nhân viên không */
+      /** biến kiểm tra xem nhân viên phụ trách có thông tin trong danh sách tất cả
+      nhân viên không */
       let id_exist: boolean = false
 
       // nếu danh sách nhân viên phụ trách rỗng thì không cần lấy thông tin nữa
@@ -75,13 +96,13 @@ export default class GetAllEmployee {
       // nếu hôm nay chưa lấy danh sách hoặc các nhân viên phụ trách không có thông tin
       // trong danh sách lưu ở localStorage thì gọi api lấy danh sách mới và lưu vào localStorage
       if (
-        !this.checkIsCallToday() ||
+        !this.#checkIsCallToday() ||
         !Object.keys(list_employee_localstorage) ||
         !id_exist
       ) {
         // lưu ngày gọi
-        localStorage.setItem(this.#id_business, this.formatDate(new Date()))
-        let result = await this.callAPI()
+        localStorage.setItem(this.#id_business, this.#formatDate(new Date()))
+        let result = await this.#callAPI()
         // lưu data xuống localStorage
         localStorage.setItem(
           this.#id_business + '-data',
@@ -97,3 +118,4 @@ export default class GetAllEmployee {
     }
   }
 }
+export default EmployeeFetcher.getInstance
