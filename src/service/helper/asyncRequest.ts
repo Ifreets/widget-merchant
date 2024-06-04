@@ -43,8 +43,11 @@ export const request = async ({
     //chuyển kết quả về json
     if (json) result = await result.json()
     return result
-  } catch (e) {
-    console.log('asyncRequest', e)
+  } catch (e: any) {
+    //check mất mạng
+    if (e.message === 'Failed to fetch') {
+      throw new Error('Mất kết nối máy chủ...')
+    }
     throw e
   }
 }

@@ -3,7 +3,7 @@
     v-if="['SETTING', 'SETTING_NO_TOKEN'].includes(appStore?.tab)"
     class="p-3 flex flex-col gap-2.5"
   >
-    <div class="h-6">
+    <div class="h-5">
       <p
         @click="appStore.tab = 'USER'"
         v-if="appStore?.tab === 'SETTING'"
@@ -105,15 +105,16 @@ async function onSubmit() {
 
     // bật loading
     commonStore.is_loading_full_screen = true
+
     // call API check token có hợp lệ không
     let r: any = await request({
       uri: 'https://api.merchant.vn/v1/apps/info/profile',
       method: 'GET',
+      json: true,
       headers: {
         'token-business': commonStore.token_business,
       },
     })
-
     //tắt loading
     commonStore.is_loading_full_screen = false
     // tokem id lỗi
@@ -130,8 +131,7 @@ async function onSubmit() {
         token_business: commonStore.token_business,
       },
     })
-
-    if (r.code !== 200)
+    if (r.message == 'SAVE CONFIG SUCCESS')
       throw { message: 'Không lưu được ID và token trên chatbot' }
 
     // Nếu là lần đầu nhập id và token thì đồng bộ dữ liệu
@@ -143,8 +143,11 @@ async function onSubmit() {
     appStore.tab = 'USER'
   } catch (error: any) {
     console.log('verify widget', error)
+    // nếu có messess lỗi thì lưu lại
     if (error.message) text_error.value = error.message
     status_submit.value = 'ERROR'
+    //tắt loading
+    commonStore.is_loading_full_screen = false
   }
 }
 </script>
