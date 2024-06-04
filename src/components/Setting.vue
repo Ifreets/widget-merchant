@@ -20,6 +20,12 @@
       <p v-if="status_submit === 'ERROR'" class="text-center text-red-500">
         ID hoặc Token bị lỗi, vui lòng kiểm tra lại
       </p>
+      <p
+        v-if="status_submit === 'WRONG_SECRET_KEY'"
+        class="text-center text-red-500"
+      >
+        Secret key bị lỗi
+      </p>
       <div class="flex flex-col gap-1">
         <label class="font-medium" for=""
           >Nhập ID Business <span class="text-red-500">*</span></label
@@ -85,7 +91,7 @@ const appStore = useAppStore()
 const commonStore = useCommonStore()
 
 /** Trạng thái của hành động submit form */
-const status_submit = ref<'SUCCESS' | 'ERROR' | ''>('')
+const status_submit = ref<'SUCCESS' | 'ERROR' | 'WRONG_SECRET_KEY' | ''>('')
 
 /** link hướng dẫn thiết lập */
 const link_guild = computed(() => $env.link_guild)
@@ -127,15 +133,17 @@ async function onSubmit() {
         token_business: commonStore.token_business,
       },
     })
-    status_submit.value = 'SUCCESS'
+
     // Nếu là lần đầu nhập id và token thì đồng bộ dữ liệu
     if (appStore.tab !== 'SETTING_NO_TOKEN' || !synchData) return
     await synchData(commonStore.token_business)
     // đẩy sang giao diện thông tin của người dùng
+
+    status_submit.value = 'SUCCESS'
     appStore.tab = 'USER'
   } catch (error) {
     console.log('verify widget', error)
-    status_submit.value = 'ERROR'
+    status_submit.value = 'WRONG_SECRET_KEY'
   }
 }
 </script>

@@ -126,6 +126,8 @@ provide(keySynchData, synchData)
 /** hàm call API đồng bộ dữ liệu sang merchant */
 async function synchData(token_business: string) {
   try {
+    // ghi lại thông tin khách hàng mới
+    appStore.data_client = await WIDGET.decodeClient()
     // nếu không có thông tin khách hàng thì không đồng bộ dữ liệu
     if (!size(appStore.data_client)) return
     // call API đóng bộ dữ liệu sang merchant
@@ -156,6 +158,7 @@ async function synchData(token_business: string) {
     )
   } catch (error) {
     console.log('synch to merchant', error)
+    throw error
   }
 }
 /** hàm xử lý lấy tất cả nhân viên */
