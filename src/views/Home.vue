@@ -128,6 +128,7 @@ async function synchData(token_business: string) {
   try {
     // ghi lại thông tin khách hàng mới
     appStore.data_client = await WIDGET.decodeClient()
+
     // nếu không có thông tin khách hàng thì không đồng bộ dữ liệu
     if (!size(appStore.data_client)) return
     // call API đóng bộ dữ liệu sang merchant
