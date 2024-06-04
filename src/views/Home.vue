@@ -189,6 +189,10 @@ async function load() {
     // bật loading
     commonStore.is_loading_full_screen = true
     //call API lấy token từ widget
+    await WIDGET.deleteConfig({
+      brand_name: 'widget-merchant',
+      type_config: 'CRM',
+    })
     let res: IConfigWidget | null = await WIDGET.getConfig({
       brand_name: 'widget-merchant',
       type_config: 'CRM',

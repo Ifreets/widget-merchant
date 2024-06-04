@@ -117,7 +117,7 @@ async function onSubmit() {
     //tắt loading
     commonStore.is_loading_full_screen = false
     // tokem id lỗi
-    if (!r.data._id)
+    if (!r?.data?._id)
       throw { message: 'ID hoặc Token bị lỗi, vui này kiểm tra lại' }
 
     // nếu thành công thì lưu token vừa nhập vào widget sdk
