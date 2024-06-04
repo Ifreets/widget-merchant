@@ -115,8 +115,6 @@ async function onSubmit() {
         'token-business': commonStore.token_business,
       },
     })
-    //tắt loading
-    commonStore.is_loading_full_screen = false
     // tokem id lỗi
     if (!r?.data?._id)
       throw { message: 'ID hoặc Token bị lỗi, vui này kiểm tra lại' }
@@ -131,13 +129,16 @@ async function onSubmit() {
         token_business: commonStore.token_business,
       },
     })
-    if (r.message == 'SAVE CONFIG SUCCESS')
+    if (!(r.message === 'SAVE CONFIG SUCCESS'))
       throw { message: 'Không lưu được ID và token trên chatbot' }
 
     // Nếu là lần đầu nhập id và token thì đồng bộ dữ liệu
     if (appStore.tab !== 'SETTING_NO_TOKEN' || !synchData) return
     await synchData(commonStore.token_business)
     // đẩy sang giao diện thông tin của người dùng
+
+    //tắt loading
+    commonStore.is_loading_full_screen = false
 
     status_submit.value = 'SUCCESS'
     appStore.tab = 'USER'
