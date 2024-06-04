@@ -18,13 +18,7 @@
         Thiết lập thành công
       </p>
       <p v-if="status_submit === 'ERROR'" class="text-center text-red-500">
-        ID hoặc Token bị lỗi, vui lòng kiểm tra lại
-      </p>
-      <p
-        v-if="status_submit === 'WRONG_SECRET_KEY'"
-        class="text-center text-red-500"
-      >
-        Secret key bị lỗi
+        {{ text_error }}
       </p>
       <div class="flex flex-col gap-1">
         <label class="font-medium" for=""
@@ -91,7 +85,10 @@ const appStore = useAppStore()
 const commonStore = useCommonStore()
 
 /** Trạng thái của hành động submit form */
-const status_submit = ref<'SUCCESS' | 'ERROR' | 'WRONG_SECRET_KEY' | ''>('')
+const status_submit = ref<'SUCCESS' | 'ERROR' | ''>('')
+
+/**  */
+const text_error = ref('ID hoặc Token bị lỗi, vui lòng kiểm tra lại')
 
 /** link hướng dẫn thiết lập */
 const link_guild = computed(() => $env.link_guild)
@@ -141,9 +138,10 @@ async function onSubmit() {
 
     status_submit.value = 'SUCCESS'
     appStore.tab = 'USER'
-  } catch (error) {
+  } catch (error: any) {
     console.log('verify widget', error)
-    status_submit.value = 'WRONG_SECRET_KEY'
+    if (error.message) text_error.value = error.message
+    status_submit.value = 'ERROR'
   }
 }
 </script>

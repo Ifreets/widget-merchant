@@ -142,7 +142,7 @@ async function synchData(token_business: string) {
     })
     // nếu đồng bộ thành công thì lấy danh sách nhân viên phụ trách khách hàng
     // và thông tin khác hàng đó
-    if (!result.id) return
+    if (!result.id) throw { message: 'Đồng bộ merchant thất bại' }
     list_employee.value = result.assigned_employees || []
     appStore.customer_info = {
       avatar: result?.avatar,
@@ -189,10 +189,6 @@ async function load() {
     // bật loading
     commonStore.is_loading_full_screen = true
     //call API lấy token từ widget
-    // await WIDGET.deleteConfig({
-    //   brand_name: 'widget-merchant',
-    //   type_config: 'CRM',
-    // })
     let res: IConfigWidget | null = await WIDGET.getConfig({
       brand_name: 'widget-merchant',
       type_config: 'CRM',
