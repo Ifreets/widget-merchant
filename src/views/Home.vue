@@ -126,6 +126,9 @@ provide(keySynchData, synchData)
 /** hàm call API đồng bộ dữ liệu sang merchant */
 async function synchData(token_business: string) {
   try {
+    // ghi lại thông tin khách hàng mới
+    appStore.data_client = await WIDGET.decodeClient()
+
     // nếu không có thông tin khách hàng thì không đồng bộ dữ liệu
     if (!size(appStore.data_client)) return
     // call API đóng bộ dữ liệu sang merchant
@@ -140,7 +143,7 @@ async function synchData(token_business: string) {
     })
     // nếu đồng bộ thành công thì lấy danh sách nhân viên phụ trách khách hàng
     // và thông tin khác hàng đó
-    if (result.message || !result) return
+    if (!result.id) throw { message: 'Đồng bộ merchant thất bại' }
     list_employee.value = result.assigned_employees || []
     appStore.customer_info = {
       avatar: result?.avatar,
@@ -156,6 +159,7 @@ async function synchData(token_business: string) {
     )
   } catch (error) {
     console.log('synch to merchant', error)
+    throw error
   }
 }
 /** hàm xử lý lấy tất cả nhân viên */
@@ -185,9 +189,11 @@ async function load() {
   try {
     // bật loading
     commonStore.is_loading_full_screen = true
-    // ghi lại thông tin khách hàng mới
-    appStore.data_client = await WIDGET.decodeClient()
     //call API lấy token từ widget
+    // await WIDGET.deleteConfig({
+    //   brand_name: 'widget-merchant',
+    //   type_config: 'CRM',
+    // })
     let res: IConfigWidget | null = await WIDGET.getConfig({
       brand_name: 'widget-merchant',
       type_config: 'CRM',
