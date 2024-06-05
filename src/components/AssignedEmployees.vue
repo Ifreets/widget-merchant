@@ -9,13 +9,11 @@
       class="flex justify-between items-center py-1 border-b"
     >
       <div class="flex items-center gap-2">
-        <object
-          class="h-8 w-8 rounded-xl"
-          :data="commonStore.getAvatarEmployee(item)"
-          type="image/png"
-        >
-          <img loading="lazy" :src="AvatarDefault" />
-        </object>
+        <Avatar
+          class="h-8 min-w-8 w-8 rounded-xl font-semibold text-base text-black overflow-hidden"
+          :avatar="commonStore.getAvatarEmployee(item)"
+          :name="commonStore.getNameEmployee(item)"
+        />
         <div class="flex flex-col">
           <p class="font-medium max-w-48 truncate">
             {{ commonStore.getNameEmployee(item) }}
@@ -37,8 +35,9 @@
 <script setup lang="ts">
 //* import function
 import { useAppStore, useCommonStore } from '@/stores'
-//* import icon && image
-import AvatarDefault from '@/assets/imgs/default-avatar.png'
+
+//* import component
+import Avatar from '@/components/Avatar.vue'
 
 //* props
 const props = defineProps<{
