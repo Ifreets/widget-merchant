@@ -1,22 +1,10 @@
 <template>
   <div>
-    <img
-      v-if="!is_show_default"
-      :src="avatar"
-      @error="is_show_default = true"
-    />
-    <div
-      v-if="is_show_default"
-      class="bg-gray-300 h-full w-full flex items-center justify-center"
-    >
+    <img v-if="!is_show_default" :src="avatar" @error="is_show_default = true" />
+    <div v-if="is_show_default" class="bg-gray-300 h-full w-full flex items-center justify-center">
       {{ short_name }}
     </div>
   </div>
-  <!-- <object :data="avatar" type="image/png">
-    <div class="bg-gray-300 h-full w-full flex items-center justify-center">
-      {{ short_name }}
-    </div>
-  </object> -->
 </template>
 
 <script setup lang="ts">
