@@ -135,6 +135,8 @@ async function onSubmit() {
     // Nếu là lần đầu nhập id và token thì đồng bộ dữ liệu
     if (appStore.tab !== 'SETTING_NO_TOKEN' || !synchData) {
       status_submit.value = 'SUCCESS'
+      //tắt loading
+      commonStore.is_loading_full_screen = false
       return
     }
     await synchData(commonStore.token_business)
