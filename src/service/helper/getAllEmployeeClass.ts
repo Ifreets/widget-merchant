@@ -9,32 +9,24 @@ class EmployeeFetcher {
   #token_business: string
   /** danh sách nhân viên phụ trách khách hàng */
   #list_assigned_employee?: string[]
-  constructor(
-    id_business: string,
-    token_business: string,
-    list_assigned_employee: string[]
-  ) {
-    if (!list_assigned_employee)
-      throw 'Chưa khởi tạo danh sách nhân viên phụ trách'
+  constructor(id_business: string, token_business: string) {
     if (!id_business) throw 'Chưa khởi tạo id doanh nghiệp'
     if (!token_business) throw 'Chưa khởi tạo token doanh nghiệp'
     this.#id_business = id_business
     this.#token_business = token_business
-    this.#list_assigned_employee = list_assigned_employee
+    this.#list_assigned_employee = []
   }
   /** singleton */
   public static getInstance(
     id_business: string,
-    token_business: string,
-    list_assigned_employee: string[]
+    token_business: string
   ): EmployeeFetcher {
     // kiểm tra xem đã khởi tạo instance chưa, nếu chưa thì tạo mới
     // nếu đã tạo trả về instance đã tạo trước đó
     if (!EmployeeFetcher.#instance) {
       EmployeeFetcher.#instance = new EmployeeFetcher(
         id_business,
-        token_business,
-        list_assigned_employee
+        token_business
       )
     }
     return EmployeeFetcher.#instance
@@ -74,15 +66,21 @@ class EmployeeFetcher {
       throw error
     }
   }
+  /** hàm đặt giá trị cho danh sách nhân viên phụ trách */
+  public setListAssignedEmployee(list_assigned_employee: string[]) {
+    this.#list_assigned_employee = list_assigned_employee
+  }
+
   public async getAllEmployee(): Promise<Record<string, any> | null> {
     try {
       /** biến kiểm tra xem nhân viên phụ trách có thông tin trong danh sách tất cả
       nhân viên không */
       let id_exist: boolean = false
-
+      console.log(this.#list_assigned_employee)
       // nếu danh sách nhân viên phụ trách rỗng thì không cần lấy thông tin nữa
       if (!this.#list_assigned_employee?.length) return null
       // lấy danh sách từ localStorage
+
       let list_employee_localstorage = JSON.parse(
         localStorage.getItem(this.#id_business + '-data') || '{}'
       )
