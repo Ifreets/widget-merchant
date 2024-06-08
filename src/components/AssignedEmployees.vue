@@ -1,7 +1,7 @@
 <template>
   <ul
     v-if="appStore.tab === 'USER'"
-    class="max-h-[100px] overflow-y-auto scrollbar-thin"
+    class="h-[calc(100vh-200px)] overflow-y-auto scrollbar-thin"
   >
     <li
       v-if="props.list_employee?.length"
