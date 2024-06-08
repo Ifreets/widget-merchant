@@ -13,11 +13,17 @@
         <span class="py-1 text-xs">Quay lại</span>
       </p>
     </div>
-    <form class="flex flex-col gap-4 rounded-lg p-3 bg-slate-100">
-      <p v-if="status_submit === 'SUCCESS'" class="text-center text-green-600">
-        Thiết lập thành công
+    <form class="flex flex-col gap-3 rounded-lg p-3 bg-slate-100">
+      <p
+        v-if="status_submit === 'SUCCESS'"
+        class="text-center text-green-600 font-medium"
+      >
+        Thiết lập thành công !
       </p>
-      <p v-if="status_submit === 'ERROR'" class="text-center text-red-500">
+      <p
+        v-if="status_submit === 'ERROR'"
+        class="text-center text-red-500 font-medium"
+      >
         {{ text_error }}
       </p>
       <div class="flex flex-col gap-1">
@@ -26,7 +32,7 @@
         >
         <input
           v-model="commonStore.id_business"
-          class="outline-none pb-1.5 pt-1 px-3 rounded-md border"
+          class="outline-none py-2 px-3 rounded-md border"
           type="text"
           placeholder="Nhập ID"
         />
@@ -37,7 +43,7 @@
         >
         <input
           v-model="commonStore.token_business"
-          class="outline-none pb-1.5 pt-1 px-3 rounded-md border"
+          class="outline-none py-2 px-3 rounded-md border"
           type="text"
           placeholder="Nhập Token"
         />
@@ -90,7 +96,7 @@ const commonStore = useCommonStore()
 const status_submit = ref<'SUCCESS' | 'ERROR' | ''>('')
 
 /**  */
-const text_error = ref('ID hoặc Token bị lỗi, vui lòng kiểm tra lại')
+const text_error = ref('ID hoặc Token bị lỗi, vui lòng kiểm tra lại !')
 
 /** link hướng dẫn thiết lập */
 const link_guild = computed(() => $env.link_guild)
@@ -103,7 +109,7 @@ async function onSubmit() {
   try {
     // khi chưa nhập đủ các field sẽ báo lỗi
     if (!commonStore.id_business || !commonStore.token_business)
-      throw { message: 'ID hoặc Token bị lỗi, vui này kiểm tra lại' }
+      throw { message: 'ID hoặc Token bị lỗi, vui này kiểm tra lại !' }
 
     // bật loading
     commonStore.is_loading_full_screen = true
@@ -119,7 +125,7 @@ async function onSubmit() {
     })
     // tokem id lỗi
     if (!r?.data?._id)
-      throw { message: 'ID hoặc Token bị lỗi, vui này kiểm tra lại' }
+      throw { message: 'ID hoặc Token bị lỗi, vui này kiểm tra lại !' }
 
     // nếu thành công thì lưu token vừa nhập vào widget sdk
     // lưu id, token vào widget sdk

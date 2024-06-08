@@ -28,10 +28,7 @@
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <img
-                  :src="InfoIcon"
-                  class="h-4 w-4"
-                />
+                <img :src="InfoIcon" class="h-4 w-4" />
               </a>
             </div>
             <div class="font-medium">
@@ -49,7 +46,7 @@
             <p
               class="w-1/2 rounded py-1 cursor-pointer"
               :class="
-                appStore.tab === 'USER' ? 'text-black bg-white shadow-md' : ''
+                appStore.tab === 'USER' ? 'text-black bg-white shadow' : ''
               "
               @click="appStore.tab = 'USER'"
             >
@@ -58,7 +55,7 @@
             <p
               class="w-1/2 rounded py-1 cursor-pointer"
               :class="
-                appStore.tab === 'ORDER' ? 'text-black bg-white shadow-md' : ''
+                appStore.tab === 'ORDER' ? 'text-black bg-white shadow' : ''
               "
               @click="appStore.tab = 'ORDER'"
             >
@@ -70,15 +67,10 @@
             :list_employee="list_employee"
           />
           <div v-if="appStore.tab === 'ORDER'">
-            <p class="text-center py-1 font-medium">
-              Tính năng đang được phát triển...
-            </p>
+            <p class="text-center py-2">Tính năng đang được phát triển...</p>
           </div>
         </div>
-        <div
-          v-if="WIDGET.is_admin"
-          class="flex justify-end"
-        >
+        <div v-if="WIDGET.is_admin" class="flex justify-end">
           <p
             class="bg-slate-200 text-slate-700 py-1 px-2 rounded-md cursor-pointer text-xs font-medium"
             @click="appStore.tab = 'SETTING'"
