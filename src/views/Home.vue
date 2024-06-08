@@ -7,7 +7,7 @@
       >
         <div class="w-full flex gap-2.5">
           <Avatar
-            class="h-16 min-w-16 w-16 rounded-3xl font-semibold text-3xl overflow-hidden"
+            class="h-16 min-w-16 w-16 font-semibold text-3xl overflow-hidden"
             :avatar="appStore?.getUserAvatar()"
             :name="appStore?.getClientName() || ''"
           />

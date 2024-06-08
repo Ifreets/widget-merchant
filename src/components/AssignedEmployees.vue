@@ -10,7 +10,7 @@
     >
       <div class="flex items-center gap-2">
         <Avatar
-          class="h-8 min-w-8 w-8 rounded-xl font-semibold text-base text-black overflow-hidden"
+          class="h-8 min-w-8 w-8 font-semibold text-base text-black overflow-hidden"
           :avatar="commonStore.getAvatarEmployee(item)"
           :name="commonStore.getNameEmployee(item)"
         />
@@ -29,7 +29,7 @@
         {{ commonStore.getNameDepartment(item) }}
       </p>
     </li>
-    <p v-else class="text-center py-1 font-medium">Danh sách nhân viên trống</p>
+    <p v-else class="text-center py-2">Danh sách nhân viên trống</p>
   </ul>
 </template>
 <script setup lang="ts">
