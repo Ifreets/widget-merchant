@@ -1,20 +1,35 @@
 <template>
   <div class="w-full h-full flex justify-center items-center bg-slate-300">
     <div class="w-screen h-screen sm:w-[395px] sm:h-[300px] bg-white text-sm">
-      <div v-if="['USER', 'ORDER'].includes(appStore.tab)" class="p-3 flex flex-col gap-2.5">
+      <div
+        v-if="['USER', 'ORDER'].includes(appStore.tab)"
+        class="p-3 flex flex-col gap-2.5"
+      >
         <div class="w-full flex gap-2.5">
-          <Avatar class="h-16 min-w-16 w-16 rounded-3xl font-semibold text-3xl overflow-hidden"
-            :avatar="appStore?.getUserAvatar()" :name="appStore?.getClientName() || ''" />
+          <Avatar
+            class="h-16 min-w-16 w-16 rounded-3xl font-semibold text-3xl overflow-hidden"
+            :avatar="appStore?.getUserAvatar()"
+            :name="appStore?.getClientName() || ''"
+          />
           <div class="w-full flex flex-col gap-1">
-            <div class="h-fit w-full flex justify-between items-center border-b py-1">
+            <div
+              class="h-fit w-full flex justify-between items-center border-b py-1"
+            >
               <p class="text-base truncate w-52 xs:w-64">
                 <span class="font-medium">
                   {{ appStore?.getClientName() }}
                 </span>
                 {{ appStore?.getClientID() }}
               </p>
-              <a :href="appStore?.getLinkToMerchant()" target="_blank" rel="noopener noreferrer">
-                <img :src="InfoIcon" class="h-4 w-4" />
+              <a
+                :href="appStore?.getLinkToMerchant()"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img
+                  :src="InfoIcon"
+                  class="h-4 w-4"
+                />
               </a>
             </div>
             <div class="font-medium">
@@ -24,26 +39,46 @@
           </div>
         </div>
         <div class="py-1 px-3 bg-slate-100 rounded-lg">
-          <div class="flex py-2 text-center font-medium text-[#71717A] border-b">
-            <p class="w-1/2 rounded py-1 cursor-pointer" :class="appStore.tab === 'USER' ? 'text-black bg-white shadow-md' : ''
-              " @click="appStore.tab = 'USER'">
+          <div
+            class="flex py-2 text-center font-medium text-[#71717A] border-b"
+          >
+            <p
+              class="w-1/2 rounded py-1 cursor-pointer"
+              :class="
+                appStore.tab === 'USER' ? 'text-black bg-white shadow-md' : ''
+              "
+              @click="appStore.tab = 'USER'"
+            >
               Nhân sự phụ trách
             </p>
-            <p class="w-1/2 rounded py-1 cursor-pointer" :class="appStore.tab === 'ORDER' ? 'text-black bg-white shadow-md' : ''
-              " @click="appStore.tab = 'ORDER'">
+            <p
+              class="w-1/2 rounded py-1 cursor-pointer"
+              :class="
+                appStore.tab === 'ORDER' ? 'text-black bg-white shadow-md' : ''
+              "
+              @click="appStore.tab = 'ORDER'"
+            >
               Đơn hàng
             </p>
           </div>
-          <AssignedEmployees v-if="appStore.tab === 'USER'" :list_employee="list_employee" />
+          <AssignedEmployees
+            v-if="appStore.tab === 'USER'"
+            :list_employee="list_employee"
+          />
           <div v-if="appStore.tab === 'ORDER'">
             <p class="text-center py-1 font-medium">
               Tính năng đang được phát triển...
             </p>
           </div>
         </div>
-        <div v-if="WIDGET.is_admin" class="flex justify-end">
-          <p class="bg-slate-200 text-slate-700 pb-0.5 px-2 rounded-md cursor-pointer"
-            @click="appStore.tab = 'SETTING'">
+        <div
+          v-if="WIDGET.is_admin"
+          class="flex justify-end"
+        >
+          <p
+            class="bg-slate-200 text-slate-700 pb-0.5 px-2 rounded-md cursor-pointer"
+            @click="appStore.tab = 'SETTING'"
+          >
             Thiết lập
           </p>
         </div>
@@ -57,6 +92,7 @@
 //* import function
 import { request } from '@/service/helper/asyncRequest'
 import { useAppStore, useCommonStore } from '@/stores'
+import EmployeeFetcher from '@/service/helper/getAllEmployeeClass'
 
 //* import library
 import { onMounted, provide, ref, type InjectionKey } from 'vue'
@@ -144,11 +180,14 @@ async function fetchAllEmployee(
 ) {
   try {
     /** lấy danh sách toàn bộ nhân viên */
-    let result = await getAllEmployee(
+    const GETALLEMPLOYEE = EmployeeFetcher(
       id_business,
       token_business,
       list_employee
     )
+    let result = await GETALLEMPLOYEE.getAllEmployee()
+    console.log('getAllEmployee', result)
+
     if (!result) return
     commonStore.listAllEmployee = result
   } catch (error) {
@@ -160,11 +199,6 @@ async function load() {
   try {
     // bật loading
     commonStore.is_loading_full_screen = true
-    //call API lấy token từ widget
-    // await WIDGET.deleteConfig({
-    //   brand_name: 'widget-merchant',
-    //   type_config: 'CRM',
-    // })
     let res: IConfigWidget | null = await WIDGET.getConfig({
       brand_name: 'widget-merchant',
       type_config: 'CRM',
