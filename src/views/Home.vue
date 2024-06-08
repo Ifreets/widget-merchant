@@ -6,27 +6,30 @@
         class="p-3 flex flex-col gap-2.5"
       >
         <div class="w-full flex gap-2.5">
-          <img
-            loading="lazy"
-            :src="appStore?.getUserAvatar()"
-            class="h-16 w-16 rounded-3xl"
+          <Avatar
+            class="h-16 min-w-16 w-16 rounded-3xl font-semibold text-3xl overflow-hidden"
+            :avatar="appStore?.getUserAvatar()"
+            :name="appStore?.getClientName() || ''"
           />
           <div class="w-full flex flex-col gap-1">
             <div
               class="h-fit w-full flex justify-between items-center border-b py-1"
             >
-              <p class="text-base truncate w-64">
+              <p class="text-base truncate w-52 xs:w-64">
                 <span class="font-medium">
                   {{ appStore?.getClientName() }}
                 </span>
-                {{ appStore?.getClientEmail() }}
+                {{ appStore?.getClientID() }}
               </p>
               <a
                 :href="appStore?.getLinkToMerchant()"
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <img :src="InfoIcon" class="h-4 w-4" />
+                <img
+                  :src="InfoIcon"
+                  class="h-4 w-4"
+                />
               </a>
             </div>
             <div class="font-medium">
@@ -68,7 +71,10 @@
             </p>
           </div>
         </div>
-        <div class="flex justify-end">
+        <div
+          v-if="WIDGET.is_admin"
+          class="flex justify-end"
+        >
           <p
             class="bg-slate-200 text-slate-700 pb-0.5 px-2 rounded-md cursor-pointer"
             @click="appStore.tab = 'SETTING'"
@@ -86,6 +92,7 @@
 //* import function
 import { request } from '@/service/helper/asyncRequest'
 import { useAppStore, useCommonStore } from '@/stores'
+import EmployeeFetcher from '@/service/helper/getAllEmployeeClass'
 
 //* import library
 import { onMounted, provide, ref, type InjectionKey } from 'vue'
@@ -95,6 +102,7 @@ import size from 'lodash/size'
 //* import component
 import AssignedEmployees from '@/components/AssignedEmployees.vue'
 import Setting from '@/components/Setting.vue'
+import Avatar from '@/components/Avatar.vue'
 
 //* import icon
 import InfoIcon from '@/assets/icons/info-icon.svg'
@@ -147,7 +155,6 @@ async function synchData(token_business: string) {
     list_employee.value = result.assigned_employees || []
     appStore.customer_info = {
       avatar: result?.avatar,
-      email: result?.suggest_email,
       phone: result?.suggest_phone,
       id_contact_merchant: result?.identifier_id,
     }
@@ -173,11 +180,14 @@ async function fetchAllEmployee(
 ) {
   try {
     /** lấy danh sách toàn bộ nhân viên */
-    let result = await getAllEmployee(
+    const GETALLEMPLOYEE = EmployeeFetcher(
       id_business,
       token_business,
       list_employee
     )
+    let result = await GETALLEMPLOYEE.getAllEmployee()
+    console.log('getAllEmployee', result)
+
     if (!result) return
     commonStore.listAllEmployee = result
   } catch (error) {
@@ -189,11 +199,6 @@ async function load() {
   try {
     // bật loading
     commonStore.is_loading_full_screen = true
-    //call API lấy token từ widget
-    // await WIDGET.deleteConfig({
-    //   brand_name: 'widget-merchant',
-    //   type_config: 'CRM',
-    // })
     let res: IConfigWidget | null = await WIDGET.getConfig({
       brand_name: 'widget-merchant',
       type_config: 'CRM',

@@ -133,13 +133,16 @@ async function onSubmit() {
       throw { message: 'Không lưu được ID và token trên chatbot' }
 
     // Nếu là lần đầu nhập id và token thì đồng bộ dữ liệu
-    //tắt loading
-    commonStore.is_loading_full_screen = false
     if (appStore.tab !== 'SETTING_NO_TOKEN' || !synchData) {
       status_submit.value = 'SUCCESS'
+      //tắt loading
+      commonStore.is_loading_full_screen = false
       return
     }
     await synchData(commonStore.token_business)
+
+    //tắt loading
+    commonStore.is_loading_full_screen = false
     // đẩy sang giao diện thông tin của người dùng
     appStore.tab = 'USER'
   } catch (error: any) {

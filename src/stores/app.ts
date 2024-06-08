@@ -10,9 +10,7 @@ export const useAppStore = defineStore('app_store', () => {
   const customer_info = ref<{
     /** link ảnh đại diện */
     avatar?: string
-    /** email */
-    email?: string
-    /** số điện thoại */
+    /** số diện thoại */
     phone?: string
     /** id contact merchent */
     id_contact_merchant?: string
@@ -22,9 +20,9 @@ export const useAppStore = defineStore('app_store', () => {
     return data_client?.value?.public_profile?.client_name
   }
   /** email khách hàng */
-  function getClientEmail() {
-    if (!customer_info?.value?.email) return ''
-    return '(' + customer_info?.value?.email + ')'
+  function getClientID() {
+    if (!customer_info?.value?.id_contact_merchant) return ''
+    return '(@' + customer_info?.value?.id_contact_merchant + ')'
   }
   /** đường dẫn đến contact merchant */
   function getLinkToMerchant() {
@@ -51,7 +49,7 @@ export const useAppStore = defineStore('app_store', () => {
     data_client,
     customer_info,
     getClientName,
-    getClientEmail,
+    getClientID,
     getLinkToMerchant,
     getUserAvatar,
   }
