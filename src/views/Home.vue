@@ -3,7 +3,7 @@
     <div class="w-screen h-screen sm:w-[395px] sm:h-[300px] bg-white text-sm">
       <div
         v-if="['USER', 'ORDER'].includes(appStore.tab)"
-        class="p-3 flex flex-col gap-2.5"
+        class="p-3 flex flex-col gap-2.5 text-gray-900"
       >
         <div class="w-full flex gap-2.5">
           <Avatar
@@ -20,7 +20,9 @@
                 <span class="font-medium">
                   {{ appStore?.getClientName() }}
                 </span>
-                {{ appStore?.getClientID() }}
+                <span class="text-gray-900 ml-0.5 text-sm">{{
+                  appStore?.getClientID()
+                }}</span>
               </p>
               <a
                 :href="appStore?.getLinkToMerchant()"
@@ -31,8 +33,10 @@
               </a>
             </div>
             <div class="font-medium">
-              <p class="text-sky-600">Số điện thoại</p>
-              <p class="truncate w-60">{{ appStore?.customer_info?.phone }}</p>
+              <p class="text-sky-500">số điện thoại</p>
+              <p class="truncate w-60 text-gray-900">
+                {{ appStore?.customer_info?.phone }}
+              </p>
             </div>
           </div>
         </div>
@@ -71,7 +75,7 @@
         </div>
         <div v-if="WIDGET.is_admin" class="flex justify-end">
           <p
-            class="bg-slate-200 text-slate-700 pb-0.5 px-2 rounded-md cursor-pointer"
+            class="bg-slate-200 text-slate-700 py-1 px-2 rounded-md cursor-pointer text-xs font-medium"
             @click="appStore.tab = 'SETTING'"
           >
             Thiết lập
