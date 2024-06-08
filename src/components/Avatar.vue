@@ -7,7 +7,7 @@
     />
     <div
       v-if="is_show_default"
-      class="bg-gray-300 h-full w-full flex items-center justify-center"
+      class="bg-blue-600 text-white h-full w-full flex items-center justify-center"
     >
       {{ short_name }}
     </div>
