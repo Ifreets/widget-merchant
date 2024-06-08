@@ -1,16 +1,16 @@
 <template>
   <div
     v-if="['SETTING', 'SETTING_NO_TOKEN'].includes(appStore?.tab)"
-    class="p-3 flex flex-col gap-2.5"
+    class="p-3 flex flex-col gap-2.5 text-gray-900"
   >
     <div class="h-5">
       <p
         @click="appStore.tab = 'USER'"
         v-if="appStore?.tab === 'SETTING'"
-        class="flex items-center font-medium bg-slate-200 w-fit px-2 rounded-md cursor-pointer gap-1"
+        class="flex items-center font-medium bg-slate-200 w-fit px-3 rounded-md cursor-pointer gap-0.5"
       >
         <img :src="ArrowIcon" alt="" />
-        <span class="pb-0.5">Quay lại</span>
+        <span class="py-1 text-xs">Quay lại</span>
       </p>
     </div>
     <form class="flex flex-col gap-4 rounded-lg p-3 bg-slate-100">
@@ -45,7 +45,7 @@
       <div class="flex justify-between items-center">
         <button
           @click.prevent="onSubmit"
-          class="active:bg-green-500 rounded-md py-2 px-4 w-fit border bg-white hover:shadow-md"
+          class="active:bg-green-500 rounded-md py-1.5 px-4 w-fit border bg-white hover:shadow-md"
         >
           Kết nối
         </button>
@@ -53,7 +53,9 @@
           <a :href="link_guild" target="_blank" rel="noopener noreferrer">
             <p class="flex items-center gap-0.5 cursor-pointer">
               <img :src="GuidanceIcon" alt="" />
-              <span class="pb-0.5"><u>Hướng dẫn thiết lập</u></span>
+              <span class="pb-0.5 text-xs px-0.5"
+                ><u>Hướng dẫn thiết lập</u></span
+              >
             </p>
           </a>
         </div>
