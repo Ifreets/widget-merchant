@@ -3,7 +3,9 @@ import { ref } from 'vue'
 import type { CustomerInfo } from 'bbh-chatbox-widget-js-sdk'
 export const useAppStore = defineStore('app_store', () => {
   /** tab hiện tại của app */
-  const tab = ref<'USER' | 'ORDER' | 'SETTING' | 'SETTING_NO_TOKEN' | ''>('')
+  const tab = ref<'USER' | 'ORDER' | 'SETTING' | 'SETTING_NO_TOKEN' | ''>(
+    'USER'
+  )
   /** dữ liệu khách hàng */
   const data_client = ref<CustomerInfo>({})
   /** thông tin khách hàng */
