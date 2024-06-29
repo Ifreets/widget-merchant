@@ -28,7 +28,10 @@
                 target="_blank"
                 rel="noopener noreferrer"
               >
-                <img :src="InfoIcon" class="h-4 w-4" />
+                <img
+                  :src="InfoIcon"
+                  class="h-4 w-4"
+                />
               </a>
             </div>
             <div class="font-medium">
@@ -70,7 +73,10 @@
             <p class="text-center py-2">Tính năng đang được phát triển...</p>
           </div>
         </div>
-        <div v-if="WIDGET.is_admin" class="flex justify-end">
+        <div
+          v-if="WIDGET.is_admin"
+          class="flex justify-end"
+        >
           <p
             class="bg-slate-200 text-slate-700 py-1 px-2 rounded-md cursor-pointer text-xs font-medium"
             @click="appStore.tab = 'SETTING'"

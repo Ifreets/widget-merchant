@@ -9,7 +9,10 @@
         v-if="appStore?.tab === 'SETTING'"
         class="flex items-center font-medium bg-slate-200 w-fit px-3 rounded-md cursor-pointer gap-0.5"
       >
-        <img :src="ArrowIcon" alt="" />
+        <img
+          :src="ArrowIcon"
+          alt=""
+        />
         <span class="py-1 text-xs">Quay lại</span>
       </p>
     </div>
@@ -27,7 +30,9 @@
         {{ text_error }}
       </p>
       <div class="flex flex-col gap-1">
-        <label class="font-medium" for=""
+        <label
+          class="font-medium"
+          for=""
           >Nhập ID Business <span class="text-red-500">*</span></label
         >
         <input
@@ -38,7 +43,9 @@
         />
       </div>
       <div class="flex flex-col gap-1">
-        <label class="font-medium" for=""
+        <label
+          class="font-medium"
+          for=""
           >Nhập Token Business <span class="text-red-500">*</span></label
         >
         <input
@@ -56,9 +63,16 @@
           Kết nối
         </button>
         <div>
-          <a :href="link_guild" target="_blank" rel="noopener noreferrer">
+          <a
+            :href="link_guild"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             <p class="flex items-center gap-0.5 cursor-pointer">
-              <img :src="GuidanceIcon" alt="" />
+              <img
+                :src="GuidanceIcon"
+                alt=""
+              />
               <span class="pb-0.5 text-xs px-0.5"
                 ><u>Hướng dẫn thiết lập</u></span
               >
