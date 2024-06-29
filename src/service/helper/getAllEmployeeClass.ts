@@ -88,7 +88,7 @@ class EmployeeFetcher {
       //kiểm tra các nhân viên phụ trách có thông tin trong danh sách của localStorage không
       if (list_employee_localstorage) {
         id_exist = this.#list_assigned_employee.every(
-          (id) => id in list_employee_localstorage
+          id => id in list_employee_localstorage
         )
       }
       // nếu hôm nay chưa lấy danh sách hoặc các nhân viên phụ trách không có thông tin
