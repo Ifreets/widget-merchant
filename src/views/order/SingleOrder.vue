@@ -7,8 +7,11 @@
       class="text-white py-2 px-3 flex justify-between"
       :class="status.bg_color"
     >
-      <div class="flex items-center gap-2.5">
-        <ArrowIcon />
+      <div
+        class="flex items-center gap-2.5 cursor-pointer"
+        @click="is_show_info = !is_show_info"
+      >
+        <ArrowIcon :class="{ '-rotate-90': !is_show_info }" />
         {{ props.order?.order_id }}
       </div>
       <div class="flex gap-5">
@@ -16,7 +19,10 @@
         <img :src="LinkIcon" />
       </div>
     </div>
-    <div class="p-3 flex flex-col gap-1">
+    <div
+      class="p-3 flex flex-col gap-1"
+      v-if="is_show_info"
+    >
       <ul class="flex gap-1 overflow-auto scrollbar-horizontal pb-1">
         <li
           class="flex gap-1 min-w-max"
@@ -62,19 +68,62 @@
           <img :src="CreditCardIcon" />
           <p class="font-semibold">Thanh toán</p>
         </div>
-        <div>
+        <div class="flex flex-col gap-1">
           <div class="flex justify-between">
-            <p><span></span><span>Tổng tiền</span></p>
-            <p>604.000</p>
+            <p class="flex items-center">
+              <span class="h-1 w-1 mx-2 rounded-full bg-black block"></span>
+              <span>Tổng tiền</span>
+            </p>
+            <p class="font-bold text-green-700">604.000</p>
           </div>
           <div class="flex justify-between">
-            <p><span></span><span>Đã thanh toán</span></p>
-            <p>300.000</p>
+            <p class="flex items-center">
+              <span class="h-1 w-1 mx-2 rounded-full bg-black block"></span>
+              <span>Đã thanh toán</span>
+            </p>
+            <p class="font-bold text-blue-700">300.000</p>
           </div>
           <div class="flex justify-between">
-            <p><span></span><span>Còn phải thu</span></p>
-            <p>304.000</p>
+            <p class="flex items-center">
+              <span class="h-1 w-1 mx-2 rounded-full bg-black block"></span>
+              <span>Còn phải thu</span>
+            </p>
+            <p class="font-bold text-red-500">304.000</p>
           </div>
+        </div>
+      </div>
+      <div class="flex gap-1">
+        <img :src="PenIcon" />
+        <p class="whitespace-nowrap">Ghi chú:</p>
+        <p class="truncate pl-4">
+          Trước khi đến phải gọi khách để khách biết trước
+        </p>
+      </div>
+      <div class="flex justify-between">
+        <p class="flex gap-1">
+          <img :src="CalendarIcon" />
+          <span>Dự kiến nhận hàng:</span>
+        </p>
+        <p class="font-semibold text-slate-500">Chưa có</p>
+      </div>
+      <div class="flex justify-between">
+        <p class="flex gap-1">
+          <img :src="ClockIcon" />
+          <span>Cập nhật lần cuối:</span>
+        </p>
+        <p>5 phút trước</p>
+      </div>
+      <div class="flex justify-between">
+        <div class="flex items-center gap-1">
+          <img :src="BagIcon" />
+          <p>Người sửa cuối</p>
+        </div>
+        <div class="flex items-center gap-1">
+          <img
+            :src="AvatarOrderIcon"
+            class="w-4 h-4"
+          />
+          <p>Nguyễn Đình Tùng</p>
         </div>
       </div>
     </div>
@@ -83,7 +132,7 @@
 
 <script setup lang="ts">
 // * library
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 
 // * components
 import StepOrder from '@/views/order/StepOrder.vue'
@@ -99,11 +148,17 @@ import ShipIcon from '@/assets/icons/ship.svg'
 import BagIcon from '@/assets/icons/bag.svg'
 import WeightIcon from '@/assets/icons/weight.svg'
 import CreditCardIcon from '@/assets/icons/credit-card.svg'
+import PenIcon from '@/assets/icons/pen.svg'
+import CalendarIcon from '@/assets/icons/calendar.svg'
+import ClockIcon from '@/assets/icons/clock.svg'
+import AvatarOrderIcon from '@/assets/imgs/avatar-order.png'
 
 // * props
 const props = defineProps<{
   order: any
 }>()
+
+const is_show_info = ref<boolean>(false)
 
 // * trạng thái hiện tại của đơn hàng
 const status = computed(() => getStatus(props.order))
