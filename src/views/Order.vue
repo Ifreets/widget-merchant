@@ -1,6 +1,9 @@
 <template>
-  <article class="py-1 px-3 text-sm flex flex-col gap-2">
-    <Header v-model="current_tab" />
+  <article class="py-1 px-3 text-sm flex flex-col gap-2 overflow-hidden h-dvh">
+    <Header
+      v-model="current_tab"
+      class="flex-shrink-0"
+    />
     <Orders
       v-if="current_tab === 'ORDERS'"
       :orders="orders"
