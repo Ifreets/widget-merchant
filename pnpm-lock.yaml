@@ -8,6 +8,9 @@ importers:
 
   .:
     dependencies:
+      '@popperjs/core':
+        specifier: ^2.11.8
+        version: 2.11.8
       async:
         specifier: ^3.2.4
         version: 3.2.5
@@ -17,6 +20,9 @@ importers:
       bbh-chatbox-widget-js-sdk:
         specifier: ^1.0.5
         version: 1.0.5
+      floating-vue:
+        specifier: ^5.2.2
+        version: 5.2.2(vue@3.4.27(typescript@4.7.4))
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -38,6 +44,9 @@ importers:
       vue:
         specifier: ^3.2.45
         version: 3.4.27(typescript@4.7.4)
+      vue-cleave-component:
+        specifier: ^3.0.2
+        version: 3.0.2(vue@3.4.27(typescript@4.7.4))
       vue-router:
         specifier: ^4.1.6
         version: 4.3.2(vue@3.4.27(typescript@4.7.4))
@@ -228,6 +237,15 @@ packages:
     cpu: [x64]
     os: [win32]
 
+  '@floating-ui/core@1.6.4':
+    resolution: {integrity: sha512-a4IowK4QkXl4SCWTGUR0INAfEOX3wtsYw3rKK5InQEHMGObkR8Xk44qYQD9P4r6HHw0iIfK6GUKECmY8sTkqRA==}
+
+  '@floating-ui/dom@1.1.1':
+    resolution: {integrity: sha512-TpIO93+DIujg3g7SykEAGZMDtbJRrmnYRCNYSjJlvIbGhBjRSNTLVbNeDQBrzy9qDgUbiWdc7KA0uZHZ2tJmiw==}
+
+  '@floating-ui/utils@0.2.4':
+    resolution: {integrity: sha512-dWO2pw8hhi+WrXq1YJy2yCuWoL20PddgGaqTgVe4cOS9Q6qklXCiA1tJEqX6BEwRNSCP84/afac9hd4MS+zEUA==}
+
   '@isaacs/cliui@8.0.2':
     resolution: {integrity: sha512-O8jcjabXaleOG9DQ0+ARXWZBTfnP4WNAqzuiJK7ll44AmxGKv/J2M4TPjxjY3znBCfvBXFzucm1twdyFybFqEA==}
     engines: {node: '>=12'}
@@ -265,6 +283,9 @@ packages:
   '@pkgjs/parseargs@0.11.0':
     resolution: {integrity: sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==}
     engines: {node: '>=14'}
+
+  '@popperjs/core@2.11.8':
+    resolution: {integrity: sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==}
 
   '@types/async@3.2.24':
     resolution: {integrity: sha512-8iHVLHsCCOBKjCF2KwFe0p9Z3rfM9mL+sSP8btyR5vTjJRAqpBYD28/ZLgXPf0pjG1VxOvtCV/BgXkQbpSe8Hw==}
@@ -447,6 +468,9 @@ packages:
     resolution: {integrity: sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw==}
     engines: {node: '>= 8.10.0'}
 
+  cleave.js@1.6.0:
+    resolution: {integrity: sha512-ivqesy3j5hQVG3gywPfwKPbi/7ZSftY/UNp5uphnqjr25yI2CP8FS2ODQPzuLXXnNLi29e2+PgPkkiKUXLs/Nw==}
+
   color-convert@1.9.3:
     resolution: {integrity: sha512-QfAUtd+vFdAtFQcC8CCyYt1fYWxSqAiK2cSD6zDB8N3cpsEBAvRxp9zOGg6G/SHHJYAT88/az/IuDGALsNVbGg==}
 
@@ -592,6 +616,15 @@ packages:
   fill-range@7.1.1:
     resolution: {integrity: sha512-YsGpe3WHLK8ZYi4tWDg2Jy3ebRz2rXowDxnld4bkQB00cc/1Zw9AWnC0i9ztDJitivtQvaI9KaLyKrc+hBW0yg==}
     engines: {node: '>=8'}
+
+  floating-vue@5.2.2:
+    resolution: {integrity: sha512-afW+h2CFafo+7Y9Lvw/xsqjaQlKLdJV7h1fCHfcYQ1C4SVMlu7OAekqWgu5d4SgvkBVU0pVpLlVsrSTBURFRkg==}
+    peerDependencies:
+      '@nuxt/kit': ^3.2.0
+      vue: ^3.2.0
+    peerDependenciesMeta:
+      '@nuxt/kit':
+        optional: true
 
   follow-redirects@1.15.6:
     resolution: {integrity: sha512-wWN62YITEaOpSK584EZXJafH1AGpO8RVgElfkuXbTOrPX4fIfOyEpW/CsiNd8JdYrAoOvafRTOEnvsO++qCqFA==}
@@ -1265,6 +1298,12 @@ packages:
       terser:
         optional: true
 
+  vue-cleave-component@3.0.2:
+    resolution: {integrity: sha512-brQGSDQF1e2gfpd4J3eojz5kWc267DL+20TIHY6Pla2IahcMZEd56zoyaKjkxB+F9gsXSoPnqVIh2sb6pbuTjQ==}
+    engines: {node: '>=12.13.0'}
+    peerDependencies:
+      vue: ^3.2.0
+
   vue-demi@0.14.7:
     resolution: {integrity: sha512-EOG8KXDQNwkJILkx/gPcoL/7vH+hORoBaKgGe+6W7VFMvCYJfmF2dGbvgDroVnI8LU7/kTu8mbjRZGBU1z9NTA==}
     engines: {node: '>=12'}
@@ -1275,6 +1314,11 @@ packages:
     peerDependenciesMeta:
       '@vue/composition-api':
         optional: true
+
+  vue-resize@2.0.0-alpha.1:
+    resolution: {integrity: sha512-7+iqOueLU7uc9NrMfrzbG8hwMqchfVfSzpVlCMeJQe4pyibqyoifDNbKTZvwxZKDvGkB+PdFeKvnGZMoEb8esg==}
+    peerDependencies:
+      vue: ^3.0.0
 
   vue-router@4.3.2:
     resolution: {integrity: sha512-hKQJ1vDAZ5LVkKEnHhmm1f9pMiWIBNGF5AwU67PdH7TyXCj/a4hTccuUuYCAMgJK6rO/NVYtQIEN3yL8CECa7Q==}
@@ -1411,6 +1455,16 @@ snapshots:
   '@esbuild/win32-x64@0.18.20':
     optional: true
 
+  '@floating-ui/core@1.6.4':
+    dependencies:
+      '@floating-ui/utils': 0.2.4
+
+  '@floating-ui/dom@1.1.1':
+    dependencies:
+      '@floating-ui/core': 1.6.4
+
+  '@floating-ui/utils@0.2.4': {}
+
   '@isaacs/cliui@8.0.2':
     dependencies:
       string-width: 5.1.2
@@ -1451,6 +1505,8 @@ snapshots:
 
   '@pkgjs/parseargs@0.11.0':
     optional: true
+
+  '@popperjs/core@2.11.8': {}
 
   '@types/async@3.2.24': {}
 
@@ -1681,6 +1737,8 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
+  cleave.js@1.6.0: {}
+
   color-convert@1.9.3:
     dependencies:
       color-name: 1.1.3
@@ -1890,6 +1948,12 @@ snapshots:
   fill-range@7.1.1:
     dependencies:
       to-regex-range: 5.0.1
+
+  floating-vue@5.2.2(vue@3.4.27(typescript@4.7.4)):
+    dependencies:
+      '@floating-ui/dom': 1.1.1
+      vue: 3.4.27(typescript@4.7.4)
+      vue-resize: 2.0.0-alpha.1(vue@3.4.27(typescript@4.7.4))
 
   follow-redirects@1.15.6: {}
 
@@ -2559,7 +2623,16 @@ snapshots:
       fsevents: 2.3.3
       sass: 1.77.2
 
+  vue-cleave-component@3.0.2(vue@3.4.27(typescript@4.7.4)):
+    dependencies:
+      cleave.js: 1.6.0
+      vue: 3.4.27(typescript@4.7.4)
+
   vue-demi@0.14.7(vue@3.4.27(typescript@4.7.4)):
+    dependencies:
+      vue: 3.4.27(typescript@4.7.4)
+
+  vue-resize@2.0.0-alpha.1(vue@3.4.27(typescript@4.7.4)):
     dependencies:
       vue: 3.4.27(typescript@4.7.4)
 
