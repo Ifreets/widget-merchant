@@ -9,14 +9,20 @@
     >
       <div
         class="flex items-center gap-2.5 cursor-pointer"
-        @click="is_show_info = !is_show_info"
+        @click="choosed_order_id = props.order?.id"
       >
         <ArrowIcon :class="{ '-rotate-90': !is_show_info }" />
         {{ props.order?.order_id }}
       </div>
-      <div class="flex gap-5">
-        <img :src="EditIcon" />
-        <img :src="LinkIcon" />
+      <div class="flex gap-2">
+        <img
+          :src="EditIcon"
+          class="w-4.5 h-4.5 cursor-pointer"
+        />
+        <img
+          :src="LinkIcon"
+          class="w-4.5 h-4.5 cursor-pointer"
+        />
       </div>
     </div>
     <div
@@ -132,7 +138,7 @@
 
 <script setup lang="ts">
 // * library
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
 
 // * components
 import StepOrder from '@/views/order/StepOrder.vue'
@@ -158,7 +164,11 @@ const props = defineProps<{
   order: any
 }>()
 
-const is_show_info = ref<boolean>(false)
+const choosed_order_id = defineModel({ default: '' })
+
+const is_show_info = computed(() => {
+  return props.order?.id === choosed_order_id.value
+})
 
 // * trạng thái hiện tại của đơn hàng
 const status = computed(() => getStatus(props.order))

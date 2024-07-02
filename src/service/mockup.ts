@@ -352,7 +352,7 @@ export const mockup_orders = [
     ],
   },
   {
-    id: '81fc509b-8496-497b-9b10-9166fb6c5e06',
+    id: '81fc509b-8496-497b-9b10-9166fb6c5e07',
     order_id: 'ORD038165',
     products: [
       {
@@ -704,7 +704,7 @@ export const mockup_orders = [
     ],
   },
   {
-    id: '81fc509b-8496-497b-9b10-9166fb6c5e06',
+    id: '81fc509b-8496-497b-9b10-9166fb6c5e08',
     order_id: 'ORD038165',
     products: [
       {
