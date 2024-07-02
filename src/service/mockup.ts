@@ -1056,3 +1056,27 @@ export const mockup_orders = [
     ],
   },
 ]
+
+export const mockup_products = [
+  {
+    name: 'Bình hoa 101',
+    mount: 8,
+    inventory_mount: 21,
+    discount: 80000,
+    total_price: 320000,
+  },
+  {
+    name: 'Bình hoa 101',
+    mount: 8,
+    inventory_mount: 21,
+    discount: 80000,
+    total_price: 320000,
+  },
+  {
+    name: 'Bình hoa 101',
+    mount: 8,
+    inventory_mount: 21,
+    discount: 80000,
+    total_price: 320000,
+  },
+]
