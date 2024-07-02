@@ -6,6 +6,9 @@ module.exports = {
       screens: {
         xs: '360px',
       },
+      fontSize: {
+        'xs-10': '10px',
+      },
     },
   },
   plugins: [],
