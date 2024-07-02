@@ -1,11 +1,11 @@
-import { createPinia } from "pinia";
+import { createPinia } from 'pinia'
 
-import type { App } from "vue";
-import type { Cb } from "@/service/interface";
+import type { App } from 'vue'
+import type { Cb } from '@/service/interface'
 
 export const loadApp = (APP: App, proceed: Cb) => {
-    // init store
-    APP.use(createPinia());
+  // init store
+  APP.use(createPinia())
 
-    proceed();
-};
+  proceed()
+}

@@ -12,22 +12,22 @@
   </div>
 </template>
 <script setup lang="ts">
-import WIDGET from "bbh-chatbox-widget-js-sdk";
+import WIDGET from 'bbh-chatbox-widget-js-sdk'
 
-import { confirm } from "@/service/helper/alert";
+import { confirm } from '@/service/helper/alert'
 
 /** hàm kích hoạt widget */
 async function onOauth() {
   try {
     // kích hoạt widget
-    await WIDGET.oAuth();
+    await WIDGET.oAuth()
     // mở ra modal thông báo thành công
-    let result = await confirm("success", "Oauth thành công", "Nhấn OK để tắt");
+    let result = await confirm('success', 'Oauth thành công', 'Nhấn OK để tắt')
     // nếu nhấn OK tắt, đóng giao diện
-    if (!result.isConfirmed) return;
-    window.close();
+    if (!result.isConfirmed) return
+    window.close()
   } catch (error) {
-    console.log("oauth widget", error);
+    console.log('oauth widget', error)
   }
 }
 </script>
