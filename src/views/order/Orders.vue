@@ -10,16 +10,24 @@
     class="overflow-y-auto h-full scrollbar-thin flex flex-col gap-2"
   >
     <section v-for="order in props.orders">
-      <SingleOrder :order="order" />
+      <SingleOrder
+        :order="order"
+        v-model="choosed_order_id"
+      />
     </section>
   </article>
 </template>
 <script setup lang="ts">
-//* components
+// * libraries
+import { ref } from 'vue'
+
+// * components
 import SingleOrder from '@/views/order/SingleOrder.vue'
 
 // * props
 const props = defineProps<{
   orders: any[]
 }>()
+
+const choosed_order_id = ref<string>(props.orders[0].id)
 </script>

@@ -140,7 +140,7 @@
               </td>
             </tr>
             <tr class="bg-slate-200 font-semibold sticky bottom-0">
-              <td class="text-end rounded-s py-1">Tổng</td>
+              <td class="text-end rounded-s py-1 pr-3">Tổng</td>
               <td class="text-center py-1">24</td>
               <td class="text-end py-1">63</td>
               <td class="text-end py-1">240.000</td>
