@@ -1,5 +1,8 @@
 <template>
-  <div ref="fancy_ref">
+  <div
+    ref="fancy_ref"
+    class="w-full relative"
+  >
     <div
       @click="showBox"
       ref="trigger_ref"
@@ -8,7 +11,7 @@
     </div>
     <div
       ref="box_ref"
-      class="fixed z-[1000]"
+      class="absolute z-50 w-full right-0"
     >
       <slot
         v-if="show == true"
@@ -19,14 +22,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick } from 'vue'
+import { ref, nextTick, watch } from 'vue'
 import { createPopper } from '@popperjs/core'
 
-import type { ComponentRef } from '@/service/interface'
+import type { ComponentRef } from '@/service/interface/'
 
 const $props = defineProps<{
   place?: any
   on?: Boolean
+  show_box?: Boolean
 }>()
 
 /**Ẩn hiện data modal */
@@ -40,21 +44,31 @@ const trigger_ref = ref<ComponentRef>()
 /**Lấy phần tử html của cả component */
 const fancy_ref = ref<ComponentRef>()
 
+/** Hiện box từ bên ngoài */
+watch(
+  () => $props.show_box,
+  () => {
+    console.log('$props.show_box ===>', $props.show_box)
+    showBox()
+  }
+)
+
 /**Mở modal */
 function showBox() {
-  /**Hiện modal dropdown */
-  show.value = !show.value
+  /** Hiện modal dropdown */
+  show.value = true
 
   /** Tạo event khi click vào phần html trigger, gọi sang hàm handleClick */
   document.addEventListener('click', handleClick)
 
-  /** Khi component render xong thì sẽ tạo mới hàm poper và truyền phần tử html vào */
+  /**
+   * Khi component render xong thì sẽ
+   * - Tạo mới hàm poper
+   * - Truyền phần tử html vào
+   * */
   nextTick(() => {
-    let trigger = trigger_ref.value,
-      box = box_ref.value
-
-    poperInstant.value = createPopper(trigger, box, {
-      placement: $props.place || 'top',
+    poperInstant.value = createPopper(trigger_ref.value, box_ref.value, {
+      placement: $props.place || 'bottom',
     })
   })
 }

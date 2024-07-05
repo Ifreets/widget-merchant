@@ -1,3 +1,18 @@
+import { isNaN } from "lodash"
+
+/**
+ * format số thành dạng hiển thị tiền tệ
+ * vd: 10000000 -> 10.000.000
+ */
+export const currency = (input?: number) => {
+  if (!input) return ''
+  /** Làm tròn chữ số thập phân */
+  input = Math.round(input)
+  /** Format tiền tệ */
+  let result = new Intl.NumberFormat('vi').format(input)
+  return isNaN(result) ? '' : result
+}
+
 export const nonAccentVn = (input: string): string => {
   input = input.toLowerCase()
 
@@ -24,3 +39,6 @@ export const convertName = (name: any): string => {
     .toUpperCase()
   return name
 }
+
+/**tạo mới obj để ngắt sự liên kết trong ô nhớ */
+export const copy = (object: Object) => JSON.parse(JSON.stringify(object))

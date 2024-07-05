@@ -1,5 +1,6 @@
 import type { ContactInfo } from "./contact";
 import type { ActionStep, StaffInfo } from "./setting";
+import type { ProvinceData, WardData, DistrictData } from "./locations";
 
 /** Dữ liệu sản phẩm trong đơn hàng */
 export interface OrderProduct {
@@ -29,6 +30,8 @@ export interface OrderProduct {
     service_fee?: number;
     /** cân nặng tính tiền */
     weight?: number;
+    /** Số lượng tồn kho */
+    inventory_quantity?: number;
 }
 
 /** Dữ liệu đơn hàng */
@@ -55,6 +58,7 @@ export interface Order {
     /** Tiền thuế phải nộp */
     vat?: number;
 
+    /** Tổng tiền */
     total_price?: number
 
     /** Tổng tiền khách sẽ phải thanh toán */
@@ -114,6 +118,16 @@ export interface Order {
 
     /** Địa chỉ nhận hàng */
     address?: string
+
+    /** Thông tin vị trí */
+    location?: {
+        /** Tỉnh thành */
+        province?: ProvinceData
+        /** Quận huyện */
+        district?: DistrictData
+        /** Phường xã */
+        ward?: WardData
+    }
 
     /** Trạng thái freeship */
     is_freeship?: boolean
@@ -179,4 +193,7 @@ export interface Order {
 
     /** Thời gian update */
     updatedAt?: Date
+
+    /** Số lượng tồn kho */
+    inventory_quantity?: number;
 }
