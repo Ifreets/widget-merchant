@@ -13,7 +13,6 @@ export const syncContact = async () => {
             uri: 'https://api-contact.merchant.vn/contact/chatbox_sync_contact',
             method: 'POST',
             body: appStore.data_client,
-            json: true,
             headers: {
                 'token-business': commonStore.token_business,
             },
@@ -32,7 +31,6 @@ export const getOrder = async (data: {}) => {
             uri: 'https://api-product.merchant.vn/order/get_order',
             method: 'POST',
             body: data,
-            json: true,
             headers: {
                 'token-business': commonStore.token_business,
             },
@@ -49,7 +47,6 @@ export const createOrder = async (data: {}) => {
             uri: 'https://api-product.merchant.vn/order/create_order',
             method: 'POST',
             body: data,
-            json: true,
             headers: {
                 'token-business': commonStore.token_business,
             },
@@ -66,7 +63,6 @@ export const updateOrder = async (data: {}) => {
             uri: 'https://api-product.merchant.vn/order/update_order',
             method: 'POST',
             body: data,
-            json: true,
             headers: {
                 'token-business': commonStore.token_business,
             },
@@ -85,7 +81,6 @@ export const getProduct = async (data: {}) => {
             uri: 'https://api-product.merchant.vn/product/get_product',
             method: 'POST',
             body: data,
-            json: true,
             headers: {
                 'token-business': commonStore.token_business,
             },
@@ -102,7 +97,6 @@ export const getPackage = async (data: {}) => {
             uri: 'https://api-product.merchant.vn/package/get_package',
             method: 'POST',
             body: data,
-            json: true,
             headers: {
                 'token-business': commonStore.token_business,
             },
@@ -121,7 +115,6 @@ export const getProvince = async (data: {}) => {
             uri: 'https://api-product.merchant.vn/locations/province',
             method: 'POST',
             body: data,
-            json: true,
             headers: {
                 'token-business': commonStore.token_business,
             },
@@ -138,7 +131,6 @@ export const getDistrict = async (data: {}) => {
             uri: 'https://api-product.merchant.vn/locations/district',
             method: 'POST',
             body: data,
-            json: true,
             headers: {
                 'token-business': commonStore.token_business,
             },
@@ -155,7 +147,6 @@ export const getWard = async (data: {}) => {
             uri: 'https://api-product.merchant.vn/locations/ward',
             method: 'POST',
             body: data,
-            json: true,
             headers: {
                 'token-business': commonStore.token_business,
             },
@@ -173,7 +164,23 @@ export const getSetting = async (data: {}) => {
             uri: 'https://api-product.merchant.vn/setting/get_setting',
             method: 'POST',
             body: data,
-            json: true,
+            headers: {
+                'token-business': commonStore.token_business,
+            },
+        })
+    } catch (e) {
+        throw e
+    }
+}
+
+// * API employee
+export const getEmployee = async (data: {}) => {
+    try {
+        const commonStore = useCommonStore()
+        return await request({
+            uri: 'https://api.merchant.vn/v1/systems/employee/get_employee',
+            method: 'POST',
+            body: data,
             headers: {
                 'token-business': commonStore.token_business,
             },

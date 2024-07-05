@@ -1,6 +1,7 @@
 <template>
   <article class="h-full flex flex-col overflow-hidden">
     <section class="h-full flex flex-col gap-2 overflow-auto scrollbar-thin">
+      <OrderJourney :order="order" />
       <div class="flex flex-col gap-2">
         <div class="flex items-center gap-2">
           <img :src="UserIcon" />
@@ -40,7 +41,7 @@
               >
                 <span
                   class="truncate block text-slate-500"
-                  v-if="!get(order, 'location.province.name')"
+                  v-if="!get(order, 'locations.province.name')"
                 >
                   Tỉnh, thành phố
                 </span>
@@ -48,7 +49,7 @@
                   class="truncate block text-slate-500"
                   v-else
                 >
-                  {{ get(order, 'location.province.name') }}
+                  {{ get(order, 'locations.province.name') }}
                 </span>
                 <ArrowIcon class="text-gray-500" />
               </button>
@@ -81,7 +82,7 @@
               >
                 <span
                   class="truncate block text-slate-500"
-                  v-if="!get(order, 'location.district.name_with_type')"
+                  v-if="!get(order, 'locations.district.name_with_type')"
                 >
                   Quận, Huyện
                 </span>
@@ -89,7 +90,7 @@
                   class="truncate block text-slate-500"
                   v-else
                 >
-                  {{ get(order, 'location.district.name_with_type') }}
+                  {{ get(order, 'locations.district.name_with_type') }}
                 </span>
                 <ArrowIcon class="text-gray-500" />
               </button>
@@ -122,7 +123,7 @@
               >
                 <span
                   class="truncate block text-slate-500"
-                  v-if="!get(order, 'location.ward.name_with_type')"
+                  v-if="!get(order, 'locations.ward.name_with_type')"
                 >
                   Phường, xã
                 </span>
@@ -130,7 +131,7 @@
                   class="truncate block text-slate-500"
                   v-else
                 >
-                  {{ get(order, 'location.ward.name_with_type') }}
+                  {{ get(order, 'locations.ward.name_with_type') }}
                 </span>
                 <ArrowIcon class="text-gray-500" />
               </button>
@@ -290,7 +291,7 @@
               <td class="text-end py-1">{{ order.inventory_quantity }}</td>
               <td class="text-end py-1">{{ order.discount }}</td>
               <td class="text-end py-1 rounded-e pr-2">
-                {{  currency(order.total_price) || 0 }}
+                {{ currency(order.total_price) || 0 }}
               </td>
             </tr>
           </tbody>
@@ -301,53 +302,55 @@
           <img :src="CreditCardIcon" />
           <p class="font-semibold">Thanh toán</p>
         </div>
-        <div class="flex justify-between">
+        <div class="grid grid-cols-2 items-center">
           <p>- Tổng tiền</p>
-          <p class="font-bold text-base">0</p>
+          <p class="font-bold text-base text-end text-green-600">
+            {{ currency(order.total_money) || 0 }}
+          </p>
         </div>
-        <div class="flex justify-between">
+        <div class="grid grid-cols-2 items-center">
           <p>- Hình thức thanh toán</p>
-          <Dropbox
-            place="bottom"
-            class="relative"
-          >
-            <template #trigger>
-              <button
-                class="flex items-center gap-1"
-                @click="show_dropbox = true"
-              >
-                <span>{{ payment_methods[payment_method] }}</span>
-                <ArrowIcon />
-              </button>
-            </template>
-            <template #box>
-              <ul
-                class="relative right-0 bg-white shadow-md rounded-md overflow-x-hidden border"
-                v-if="show_dropbox"
-              >
-                <li
-                  v-for="(item, key) in payment_methods"
-                  class="whitespace-nowrap py-1 px-3 cursor-pointer"
-                  :class="
-                    key === payment_method
-                      ? 'bg-slate-500 text-white'
-                      : 'hover:bg-slate-200'
-                  "
-                  @click="selectPayment(key)"
+          <div class="flex justify-end relative">
+            <Dropbox place="bottom">
+              <template #trigger>
+                <button
+                  class="flex items-center gap-1 text-end absolute right-0 -top-2.5"
+                  @click="show_dropbox = true"
                 >
-                  {{ item }}
-                </li>
-              </ul>
-            </template>
-          </Dropbox>
+                  <span>{{ payment_methods[payment_method] }}</span>
+                  <ArrowIcon />
+                </button>
+              </template>
+              <template #box>
+                <div
+                  class="w-full rounded-md p-1 shadow-md mt-3 border bg-white"
+                  v-if="show_dropbox"
+                >
+                  <div
+                    v-for="(value, key) in payment_methods"
+                    @click="selectPayment(key)"
+                    class="px-3 py-1.5 hover:bg-slate-100"
+                  >
+                    {{ value }}
+                  </div>
+                </div>
+              </template>
+            </Dropbox>
+          </div>
         </div>
-        <div class="flex justify-between flex-wrap">
+        <div class="grid grid-cols-2 items-center">
           <p>- Đã thanh toán</p>
-          <cleave
+          <div
             v-if="payment_method === 'CASH'"
-            class="w-28 outline-none border-b border-black text-end text-blue-700 font-bold text-base"
-            :options="cleave_options"
-          />
+            class="flex justify-end"
+          >
+            <cleave
+              class="w-32 outline-none border-b border-black text-end text-blue-700 font-bold text-base"
+              :options="cleave_options"
+              v-model="order.money_paid"
+              @change="calculatorOrder(true)"
+            />
+          </div>
           <p
             v-if="payment_method === 'MOMO' || payment_method === 'TRANSFER'"
             class="font-bold text-base text-blue-700"
@@ -411,9 +414,11 @@
             </div>
           </div>
         </div>
-        <div class="flex justify-between">
+        <div class="grid grid-cols-2">
           <p>- Còn phải thu</p>
-          <p class="font-bold text-base text-red-500">0</p>
+          <p class="font-bold text-base text-red-500 text-end">
+            {{ currency(order.money_unpaid) || 0 }}
+          </p>
         </div>
       </div>
       <div class="flex flex-col gap-2">
@@ -421,87 +426,155 @@
           <img :src="QuestionMaskIcon" />
           <p class="font-semibold">Thông tin khác</p>
         </div>
-        <p class="text-xs font-medium">Nhân viên phụ trách</p>
-        <div class="grid grid-cols-2 gap-2.5">
-          <Dropbox>
-            <template #trigger>
-              <button
-                class="w-full flex items-center justify-between py-2 px-3 border rounded-md"
-              >
-                <span class="text-xs text-slate-500">Kinh doanh</span>
-                <ArrowIcon />
-              </button>
-            </template>
-          </Dropbox>
-          <Dropbox>
-            <template #trigger>
-              <button
-                class="w-full flex items-center justify-between py-2 px-3 border rounded-md"
-              >
-                <span class="text-xs text-slate-500">Triển khai</span>
-                <ArrowIcon />
-              </button>
-            </template>
-          </Dropbox>
-        </div>
-        <div class="grid grid-cols-2 gap-2.5">
-          <Dropbox>
-            <template #trigger>
-              <button
-                class="w-full flex items-center justify-between py-2 px-3 border rounded-md"
-              >
-                <span class="text-xs text-slate-500">Quảng cáo</span>
-                <ArrowIcon />
-              </button>
-            </template>
-          </Dropbox>
-          <Dropbox>
-            <template #trigger>
-              <button
-                class="w-full flex items-center justify-between py-2 px-3 border rounded-md"
-              >
-                <span class="text-xs text-slate-500">Hỗ trợ</span>
-                <ArrowIcon />
-              </button>
-            </template>
-          </Dropbox>
+        <p class="font-medium">Nhân viên phụ trách</p>
+        <div class="grid grid-cols-2 gap-2 mb-2">
+          <div
+            v-for="(staff, index) in order.staffs"
+            v-show="staff.active"
+            class="relative"
+            :class="{
+              'col-span-2': index === 2,
+            }"
+          >
+            <Dropbox>
+              <template v-slot:trigger>
+                <div
+                  class="px-3 py-2.5 rounded-md border bg-white text-gray-500"
+                  @click="
+                    isAvailablelUpdate('')
+                      ? (show_dropbox = true)
+                      : (show_dropbox = false)
+                  "
+                >
+                  <p v-if="!staff.employee_id">
+                    {{ staff.title }}
+                  </p>
+                  <p
+                    v-if="staff.employee_id"
+                    class="w-10/12 truncate whitespace-nowrap"
+                  >
+                    {{
+                      getStaffName($merchant.employees_ids[staff.employee_id])
+                    }}
+                  </p>
+                  <ChevronDownIcon
+                    v-if="isAvailablelUpdate('')"
+                    class="w-4 absolute right-3 top-2.5"
+                  />
+                </div>
+              </template>
+              <template v-slot:box>
+                <div
+                  class="p-1 rounded-md border bg-white mt-1 z-10 max-h-80 overflow-auto w-fit"
+                  :class="{
+                    '-ml-11': index === 1 || index === 3,
+                  }"
+                  v-if="show_dropbox"
+                >
+                  <div
+                    @click="unSelectEmployee(index)"
+                    class="px-3 py-1.5 text-center rounded hover:bg-slate-100 cursor-pointer"
+                  >
+                    -- Chọn {{ staff.title }} --
+                  </div>
+                  <div
+                    v-for="employee in $merchant.employees_array"
+                    class="rounded-lg px-3 py-1.5 hover:bg-slate-100 whitespace-nowrap truncate cursor-pointer flex items-center gap-2"
+                    @click="selectEmployee(employee, index)"
+                    v-show="
+                      staff.department_id === '' ||
+                      staff.department_id === employee.department_id
+                    "
+                  >
+                    <span
+                      v-if="!employee?.avatar"
+                      class="rounded-full flex h-6 w-6 items-center justify-center bg-sky-600 font-normal text-white text-[9px]"
+                    >
+                      {{
+                        convertEmployeeName(
+                          employee.first_name,
+                          employee.last_name
+                        )
+                      }}
+                    </span>
+                    <object
+                      v-if="employee?.avatar"
+                      :data="employee?.avatar"
+                      type="image/png"
+                      class="rounded-full h-6 w-6"
+                    >
+                      <span
+                        class="rounded-full flex h-6 w-6 items-center justify-center bg-sky-600 font-normal text-white text-[9px]"
+                      >
+                        {{
+                          convertEmployeeName(
+                            employee.first_name,
+                            employee.last_name
+                          )
+                        }}
+                      </span>
+                    </object>
+                    <p>
+                      {{ getStaffName(employee) }}
+                    </p>
+                  </div>
+                </div>
+              </template>
+            </Dropbox>
+          </div>
         </div>
         <p class="font-medium">Ghi chú</p>
         <div class="grid grid-cols-2 gap-2.5">
           <input
             type="text"
-            class="w-full flex items-center justify-between py-2.5 px-3 outline-none border rounded-md placeholder:text-slate-500"
+            class="w-full flex items-center justify-between py-2.5 px-3 outline-none border rounded-md placeholder:text-slate-500 text-sm"
             placeholder="Ghi chú với khách"
+            v-model="order.note"
           />
           <input
             type="text"
-            class="w-full flex items-center justify-between py-2.5 px-3 outline-none border rounded-md placeholder:text-slate-500"
+            class="w-full flex items-center justify-between py-2.5 px-3 outline-none border rounded-md placeholder:text-slate-500 text-sm"
             placeholder="Ghi chú nội bộ"
+            v-model="order.internal_note"
           />
         </div>
       </div>
     </section>
-    <section
-      class="pt-3 pb-2 grid grid-cols-2 gap-2.5 text-base font-semibold flex-shrink-0"
+    <div 
+      v-if="order.order_journey && isAvailablelUpdate('')"
+      class="py-2 border-t"
     >
-      <button
-        class="bg-slate-200 text-slate-500 rounded-lg py-2 hover:brightness-90"
+      <div
+        v-for="(step, step_index) in order.order_journey"
+        v-show="checkStepActive() === step_index"
+        class="flex gap-2 text-base font-semibold"
       >
-        Làm lại
-      </button>
-      <button class="bg-black text-white rounded-lg py-2 hover:opacity-50">
-        Tạo đơn
-      </button>
-    </section>
+        <div
+          v-for="(status, status_index) in step"
+          class="w-full rounded-md flex items-center justify-center py-3 cursor-pointer font-semibold"
+          :class="{
+            [`${status.bg_color} ${status.text_color}`]: isNumber(status_index),
+            'bg-slate-500 text-white cursor-not-allowed': !checkOrderValid(),
+          }"
+          @click="activeStep(step_index, status_index, status.action)"
+        >
+          {{ status.title }}
+        </div>
+      </div>
+    </div>
   </article>
 </template>
 <script setup lang="ts">
-import { get } from 'lodash'
+import { get, isNumber, pick } from 'lodash'
 import { ref, onMounted } from 'vue'
 import { useMerchantStore } from '@/stores'
-import { copy, currency } from '@/service/helper/format'
+import { Toast } from '@/service/helper/toast'
+import { confirm2 as confirm } from '@/service/helper/alert'
 import { cleave_options, payment_methods } from '@/service/options'
+import { currency, convertEmployeeName } from '@/service/helper/format'
 import {
+  createOrder,
+  updateOrder,
   getProduct,
   getPackage,
   getDistrict,
@@ -511,6 +584,7 @@ import {
 // * Components
 import cleave from 'vue-cleave-component'
 import Dropbox from '@/components/Dropbox.vue'
+import OrderJourney from '@/views/order/OrderJourney.vue'
 
 // * Icons
 import BagIcon from '@/assets/icons/bag.svg'
@@ -532,10 +606,14 @@ import type {
   DistrictData,
   WardData,
   Order,
+  EmployeeData,
 } from '@/service/interface'
 
 /** store merchant */
 const $merchant = useMerchantStore()
+
+/** Toast */
+const $toast = new Toast()
 
 /** đơn hàng */
 const order = ref<Order>({
@@ -571,10 +649,10 @@ const order = ref<Order>({
     master: '',
     assistant: '',
   },
-  location: {},
-  order_journey: $merchant.setting?.online_status,
-  staffs: $merchant.setting?.online_staff,
-  inventory_quantity: 0
+  locations: {},
+  order_journey: $merchant.setting?.online_status || [],
+  staffs: $merchant.setting?.online_staff || [],
+  inventory_quantity: 0,
 })
 
 /** Danh sách phường xã */
@@ -600,6 +678,12 @@ const provinces = ref<ProvinceData[]>($merchant.provinces)
 
 onMounted(() => {
   loadProduct()
+  if (!order.value.id) {
+    order.value.order_journey = $merchant.setting?.online_status
+    order.value.staffs = $merchant.setting?.online_staff
+    order.value.contact_id = $merchant.contact?.identifier_id
+    order.value.contact_info = $merchant.contact
+  }
 })
 
 /** chọn phương thức thanh toán */
@@ -621,9 +705,9 @@ function getContactPhone() {
 /** Chọn tỉnh thành */
 async function selectProvince(item: ProvinceData) {
   show_dropbox.value = false
-  if (order.value.location) order.value.location.province = item
-  if (order.value.location) order.value.location.district = {}
-  if (order.value.location) order.value.location.ward = {}
+  if (order.value.locations) order.value.locations.province = item
+  if (order.value.locations) order.value.locations.district = {}
+  if (order.value.locations) order.value.locations.ward = {}
   districts.value = await getDistrict({
     province_id: item.code,
   })
@@ -632,8 +716,8 @@ async function selectProvince(item: ProvinceData) {
 /** Chọn quận huyện */
 async function selectDistrict(item: DistrictData) {
   show_dropbox.value = false
-  if (order.value.location) order.value.location.district = item
-  if (order.value.location) order.value.location.ward = {}
+  if (order.value.locations) order.value.locations.district = item
+  if (order.value.locations) order.value.locations.ward = {}
   wards.value = await getWard({
     district_id: item.code,
   })
@@ -642,7 +726,7 @@ async function selectDistrict(item: DistrictData) {
 /** Chọn phường xã */
 function selectWard(item: WardData) {
   show_dropbox.value = false
-  if (order.value.location) order.value.location.ward = item
+  if (order.value.locations) order.value.locations.ward = item
 }
 
 /** Lấy thông tin sản phẩm */
@@ -651,6 +735,7 @@ async function loadProduct() {
     search: search_product.value,
   })
 }
+
 /** Chọn sản phẩm thêm vào đơn hàng */
 function selectProduct(item: Product, still_show_box?: boolean) {
   // if (!isAvailablelUpdate("product")) return (show_dropbox.value = false);
@@ -697,6 +782,7 @@ function selectProduct(item: Product, still_show_box?: boolean) {
   /** Tính giá trị đơn hàng */
   calculatorOrder()
 }
+
 /** Loại bỏ sản phẩm khỏi order */
 function removeProduct(index: number) {
   order.value.products = order.value.products?.filter((item, i) => {
@@ -704,6 +790,7 @@ function removeProduct(index: number) {
   })
   calculatorOrder()
 }
+
 /** Tính giá trị đơn hàng */
 function calculatorOrder(is_update_order?: boolean) {
   /** Đơn giá */
@@ -727,7 +814,7 @@ function calculatorOrder(is_update_order?: boolean) {
     /** Tính phần trăng thuế */
     let percent_vat = Number(item.vat) / 100
 
-    if(item.inventory_quantity) inventory_quantity += item.inventory_quantity
+    if (item.inventory_quantity) inventory_quantity += item.inventory_quantity
 
     // * Tính giá trị sản phẩm gmv
     if (item.product_type === 'gmv') {
@@ -844,6 +931,44 @@ function calculatorOrder(is_update_order?: boolean) {
   if (is_update_order) updateAnOrder()
 }
 
+/** Tạo đơn hàng */
+async function createNewOrder(status?: string) {
+  try {
+    if (!checkOrderValid()) return
+    if (!order.value.contact_id) {
+      return $toast.error('Vui lòng chọn khách hàng trước khi tạo đơn hàng')
+    }
+    // * Check địa chỉ
+    if (!order.value.address) {
+      return $toast.error('Vui lòng nhập chỉ trước khi tạo đơn hàng')
+    }
+    // * Check tỉnh thành
+    if (!order.value?.locations?.province?.code) {
+      return $toast.error('Vui lòng chọn tỉnh thành trước khi tạo đơn hàng')
+    }
+    // * Check quận huyện
+    if (!order.value?.locations?.district?.code) {
+      return $toast.error('Vui lòng chọn quận huyện trước khi tạo đơn hàng')
+    }
+    // * Check phường xã
+    if (!order.value?.locations?.ward?.code) {
+      return $toast.error('Vui lòng chọn phường xã trước khi tạo đơn hàng')
+    }
+
+    let new_order = await createOrder({
+      ...formatOrderData(order.value),
+      status: status ? status : 'DRART_ORDER',
+    })
+
+    console.log("new_order", new_order)
+
+    order.value = new_order
+    $toast.success('Tạo đơn hàng thành công')
+  } catch (e) {
+    $toast.error(e as string)
+  }
+}
+
 /** Cập nhật order */
 async function updateAnOrder(status?: string) {
   // * Nếu order chưa có id thì dừng lại
@@ -852,13 +977,258 @@ async function updateAnOrder(status?: string) {
   // * Nếu có trạng thái truyền vào thì cho thay đổi status order
   if (status) order.value.status = status
 
-  // try {
-  //   if (!checkOrderValid()) return
-  //   await updateOrder({
-  //     body: formatOrderData(order.value),
-  //   })
-  // } catch (e) {
-  //   $toast.error(e as string)
-  // }
+  try {
+    if (!checkOrderValid()) return
+    await updateOrder(formatOrderData(order.value))
+  } catch (e) {
+    $toast.error(e as string)
+  }
+}
+
+/** Check xem đối tượng có được quyền update hay không */
+function isAvailablelUpdate(
+  type: 'product' | 'customer' | 'money' | 'address' | ''
+) {
+  // * Nếu là đơn hàng đang tạo thì không cần check
+  if (!order.value.order_id) return true
+
+  // * Các trường hợp được update sản phẩm
+  switch (order.value.status) {
+    case 'DRART_ORDER':
+      if (type === 'product') return true
+      if (type === 'customer') return true
+      if (type === 'money') return true
+      if (type === 'address') return true
+      if (type === '') return true
+      break
+    case 'CONFIRM_ITEMS':
+      if (type === 'product') return false
+      if (type === 'customer') return true
+      if (type === 'money') return true
+      if (type === 'address') return true
+      if (type === '') return true
+      break
+    case 'CONFIRM_BUYER':
+      if (type === 'product') return false
+      if (type === 'customer') return false
+      if (type === 'money') return true
+      if (type === 'address') return true
+      if (type === '') return true
+      break
+    case 'CONFIRM_METHOD_PAY':
+      if (type === 'product') return false
+      if (type === 'customer') return false
+      if (type === 'money') return false
+      if (type === 'address') return true
+      if (type === '') return true
+      break
+    case 'CONFIRM_DELIVERY_ADDRESS':
+      if (type === 'product') return false
+      if (type === 'customer') return false
+      if (type === 'money') return false
+      if (type === 'address') return false
+      if (type === '') return true
+      break
+    case 'INVENTORY_EXPORT':
+      if (type === 'product') return false
+      if (type === 'customer') return false
+      if (type === 'money') return false
+      if (type === 'address') return true
+      if (type === '') return true
+      break
+    case 'INVENTORY_IMPORT':
+      return false
+    case 'CANCEL_ORDER':
+      return false
+    case 'ORDER_SUCESS':
+      return false
+    case 'CANCEL_ORDER':
+      return false
+    default:
+      return false
+  }
+}
+
+/** Lấy ra tên của nhân viên */
+function getStaffName(staff: EmployeeData) {
+  return staff.first_name + ' ' + staff.last_name
+}
+
+/** Bỏ chọn nhân viên */
+function unSelectEmployee(index: number) {
+  let staffs = order.value.staffs || []
+  if (staffs[index]) {
+    staffs[index] = {
+      ...staffs[index],
+      business_id: '',
+      branch_id: '',
+      team_id: '',
+      employee_id: '',
+      user_id: '',
+    }
+    order.value.staffs = staffs
+  }
+  show_dropbox.value = false
+}
+
+/** Chọn nhân viên */
+function selectEmployee(employee: EmployeeData, index: number) {
+  let staffs = order.value.staffs || []
+  if (staffs[index]) {
+    staffs[index] = {
+      ...staffs[index],
+      ...pick(employee, ['branch_id', 'business_id', 'team_id', 'user_id']),
+      employee_id: employee._id,
+    }
+    order.value.staffs = staffs
+  }
+  show_dropbox.value = false
+}
+
+/** Kiểm tra đơn hàng có hợp lệ hay không? */
+function checkOrderValid() {
+  // * Kiểm tra sản phẩm
+  if (!order.value.products?.length) return false
+  return true
+}
+
+/** Format dữ liệu */
+function formatOrderData(order: Order) {
+  order.money_paid = Number(order.money_paid)
+  return order
+}
+
+// * Check xem trạng thái đơn hàng nào đang được kích hoạt
+function checkStepActive() {
+  let result
+  const order_journey = order.value?.order_journey || []
+  order_journey.map((step, index_step) => {
+    step.map(status => {
+      if (status.is_active) result = index_step
+    })
+  })
+  if (!result && result !== 0) return 0
+  return result + 1
+}
+
+/** Kích hoạt step tiếp theo */
+async function activeStep(
+  step_index: number,
+  status_index: number,
+  action: string
+) {
+  try {
+    // * Nếu dữ liệu đơn hàng không hợp lệ thì dừng lại
+    if (!checkOrderValid()) return
+
+    /** Kích hoạt 1 bước trong hành trình đơn hàng */
+    function activeStatus() {
+      order.value.order_journey?.map((step, index_step) => {
+        step.map((status, index_status) => {
+          if (index_step === step_index && index_status === status_index) {
+            status.is_active = true
+          } else status.is_active = false
+        })
+      })
+    }
+
+    // * Không xử lý gì cả
+    if (action === 'NONE') {
+      activeStatus()
+      updateAnOrder()
+    }
+
+    // * Tạo đơn nháp
+    if (action === 'DRART_ORDER') {
+      if (
+        order.value.custom_fields?.sales_channel === 'online' &&
+        !order.value.contact_id
+      ) {
+        return $toast.error('Vui lòng chọn khách hàng trước khi tạo đơn hàng')
+      }
+      activeStatus()
+      createNewOrder()
+    }
+
+    // * Xác nhận không thay đổi sản phẩm
+    if (action === 'CONFIRM_ITEMS') {
+      activeStatus()
+      updateAnOrder('CONFIRM_ITEMS')
+    }
+
+    // * Xác nhận không thay đổi sản phẩm
+    if (action === 'CONFIRM_BUYER') {
+      activeStatus()
+      updateAnOrder('CONFIRM_BUYER')
+    }
+
+    // * Xác nhận không thay đổi phương thức thanh toán
+    if (action === 'CONFIRM_METHOD_PAY') {
+      activeStatus()
+      updateAnOrder('CONFIRM_METHOD_PAY')
+    }
+
+    // * Xác nhận không thay đổi địa chỉ nhận hàng
+    if (action === 'CONFIRM_DELIVERY_ADDRESS') {
+      activeStatus()
+      updateAnOrder('CONFIRM_DELIVERY_ADDRESS')
+    }
+
+    // * Xác nhận xuất kho hàng
+    if (action === 'INVENTORY_EXPORT') {
+      order.value.is_inventory_export = true
+      activeStatus()
+      updateAnOrder('INVENTORY_EXPORT')
+    }
+
+    // * Xác nhận nhập kho hàng
+    if (action === 'INVENTORY_IMPORT') {
+      // * Nếu token chưa được xuất kho thì thông báo lỗi
+      if (!order.value.is_inventory_export) {
+        return $toast.error('Đơn hàng chưa được xuất kho')
+      }
+
+      confirm(
+        'question',
+        'Bạn có chắc chắc muốn hủy đơn hàng này?',
+        '',
+        async (e, r) => {
+          if (e) return
+          activeStatus()
+          updateAnOrder('INVENTORY_IMPORT')
+          $toast.success('Hủy đơn hàng thành công')
+        }
+      )
+    }
+
+    // * Đơn thành công
+    if (action === 'ORDER_SUCESS') {
+      activeStatus()
+      updateAnOrder('ORDER_SUCESS')
+    }
+
+    // * Đơn hủy
+    if (action === 'CANCEL_ORDER') {
+      confirm(
+        'question',
+        'Bạn có chắc chắc muốn hủy đơn hàng này?',
+        '',
+        async (e, r) => {
+          if (e) return
+          activeStatus()
+          updateAnOrder('CANCEL_ORDER')
+          $toast.success('Hủy đơn hàng thành công')
+        }
+      )
+    }
+
+    // * Đơn thành công
+    if (action === 'ALERT') {
+      activeStatus()
+      updateAnOrder('ALERT')
+    }
+  } catch (e) {
+    $toast.error(e as string)
+  }
 }
 </script>

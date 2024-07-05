@@ -17,7 +17,9 @@ import { ref, onMounted } from 'vue'
 import { mockup_orders } from '@/service/mockup'
 import WIDGET from 'bbh-chatbox-widget-js-sdk'
 import { useAppStore, useCommonStore, useMerchantStore } from '@/stores'
-import { syncContact, getProvince, getSetting } from '@/service/api/merchant'
+import { 
+  syncContact, getProvince, getSetting, getEmployee 
+} from '@/service/api/merchant'
 
 // * components
 import Header from '@/views/order/Header.vue'
@@ -70,7 +72,13 @@ async function synchData() {
     const setting = await getSetting({ type: "order" })
 
     // * Lưu lại setting
-    merchantStore.saveSetting(setting)
+    merchantStore.saveSetting(setting.value)
+
+    /** Lấy danh sách nhân viên */
+    const employees = await getEmployee({})
+
+    // * Lưu lại danh sách nhân viên
+    merchantStore.saveEmployees(employees.data)
     
   } catch (error) {
     console.log('synch to merchant', error)

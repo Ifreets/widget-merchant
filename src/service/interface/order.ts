@@ -120,7 +120,7 @@ export interface Order {
     address?: string
 
     /** Thông tin vị trí */
-    location?: {
+    locations?: {
         /** Tỉnh thành */
         province?: ProvinceData
         /** Quận huyện */

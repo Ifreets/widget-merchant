@@ -40,5 +40,11 @@ export const convertName = (name: any): string => {
   return name
 }
 
+/** convert tên nhân viên */
+export function convertEmployeeName(first_name: string, last_name: string) {
+  let name = nonAccentVn(`${first_name} ${last_name}`);
+  return name = convertName(name)
+}
+
 /**tạo mới obj để ngắt sự liên kết trong ô nhớ */
 export const copy = (object: Object) => JSON.parse(JSON.stringify(object))
