@@ -21,6 +21,7 @@
     "autoprefixer": "^10.4.13",
     "axios": "^1.7.2",
     "bbh-chatbox-widget-js-sdk": "^1.0.5",
+    "date-fns": "^3.6.0",
     "floating-vue": "^5.2.2",
     "i": "^0.3.7",
     "lodash": "^4.17.21",

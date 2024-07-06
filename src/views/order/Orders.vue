@@ -1,33 +1,55 @@
 <template>
   <p
-    v-if="!props.orders?.length"
+    v-if="!orders?.length"
     class="text-center py-3 text-slate-500"
   >
     Chưa có đơn nào được tạo
   </p>
   <article
-    v-if="props.orders?.length"
+    v-if="orders?.length"
     class="overflow-y-auto h-full scrollbar-thin flex flex-col gap-2"
   >
-    <section v-for="order in props.orders">
-      <SingleOrder
+    <section v-for="order in orders">
+      <OrderInfo
         :order="order"
-        v-model="choosed_order_id"
       />
     </section>
   </article>
 </template>
 <script setup lang="ts">
-// * libraries
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+import { useCommonStore } from '@/stores';
+import { getOrder } from '@/service/api/merchant';
 
-// * components
+// * Components
+import OrderInfo from '@/views/order/OrderInfo.vue'
 import SingleOrder from '@/views/order/SingleOrder.vue'
+
+// * Interfaces
+import type { Order } from '@/service/interface';
 
 // * props
 const props = defineProps<{
-  orders: any[]
+  contact_id: string
 }>()
 
-const choosed_order_id = ref<string>(props.orders[0].id)
+/** Danh sách đơn hàng */
+const orders = ref<Order[]>([])
+
+/** Id đơn hàng đang chọn */
+const choosed_order_id = ref<string>('')
+
+/** Hiện box từ bên ngoài */
+watch(
+  () => props.contact_id,
+  () => getOrders()
+)
+
+/** Lấy danh sách đơn hàng */
+async function getOrders() {
+  orders.value = await getOrder({
+    contact_id: props.contact_id
+  })
+}
+
 </script>

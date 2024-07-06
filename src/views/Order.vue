@@ -6,7 +6,7 @@
     />
     <Orders
       v-if="current_tab === 'ORDERS'"
-      :orders="orders"
+      :contact_id="contact_id"
     />
     <CreateOrder v-if="current_tab === 'CREATE_ORDER'" />
   </article>
@@ -17,8 +17,11 @@ import { ref, onMounted } from 'vue'
 import { mockup_orders } from '@/service/mockup'
 import WIDGET from 'bbh-chatbox-widget-js-sdk'
 import { useAppStore, useCommonStore, useMerchantStore } from '@/stores'
-import { 
-  syncContact, getProvince, getSetting, getEmployee 
+import {
+  syncContact,
+  getProvince,
+  getSetting,
+  getEmployee,
 } from '@/service/api/merchant'
 
 // * components
@@ -37,8 +40,8 @@ const merchantStore = useMerchantStore()
 /** tab hiện tại */
 const current_tab = ref<'ORDERS' | 'CREATE_ORDER'>('ORDERS')
 
-/** danh sách đơn hàng */
-const orders = ref<any[]>(mockup_orders)
+/** id contact */
+const contact_id = ref<string>('')
 
 // lắng nghe sự kiện từ chatbox
 WIDGET.onEvent(async () => {
@@ -52,12 +55,14 @@ onMounted(async () => {
 /** hàm call API đồng bộ dữ liệu sang merchant */
 async function synchData() {
   try {
-
     // * ghi lại thông tin khách hàng mới
     appStore.data_client = await WIDGET.decodeClient()
 
     /** Thông tin contact từ merchant */
     const contact = await syncContact()
+
+    // * Lưu lại id contact
+    contact_id.value = contact.identifier_id
 
     // * Lưu lại thông tin contact
     merchantStore.saveMerchantContact(contact)
@@ -69,7 +74,7 @@ async function synchData() {
     merchantStore.saveProvinces(provinces)
 
     /** Lấy setting */
-    const setting = await getSetting({ type: "order" })
+    const setting = await getSetting({ type: 'order' })
 
     // * Lưu lại setting
     merchantStore.saveSetting(setting.value)
@@ -79,7 +84,6 @@ async function synchData() {
 
     // * Lưu lại danh sách nhân viên
     merchantStore.saveEmployees(employees.data)
-    
   } catch (error) {
     console.log('synch to merchant', error)
   }

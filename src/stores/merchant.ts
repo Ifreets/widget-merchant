@@ -9,17 +9,25 @@ import Setting from '@/components/Setting.vue'
 export const useMerchantStore = defineStore('merchant_store', () => {
 
     // * Variables
+    /** Thiết lập đơn hàng */
     const setting = ref<SettingData>()
     /** Dữ liệu contact */
     const contact = ref<ContactInfo>()
+    /** Hiển thị đơn hàng */
+    const show_order_id = ref<string>('')
     /** Dữ liệu tỉnh thành */
     const provinces = ref<ProvinceData[]>([])
     /** Dữ liệu nhân viên dạng array */
     const employees_array = ref<EmployeeData[]>([])
     /** Dữ liệu nhân viên dạng object */
     const employees_ids = ref<{ [index: string]: EmployeeData }>({})
+    const saveShowOrderId = (id: string) => {
 
     // * Functions
+    /** Lưu lại id đơn hàng đang hiện ra */
+        show_order_id.value = id
+    }
+    /** Lưu dữ liệu setting */
     const saveSetting = (data: SettingData) => {
         setting.value = data
     }
@@ -40,11 +48,13 @@ export const useMerchantStore = defineStore('merchant_store', () => {
     }
 
     return {
+        show_order_id,
         setting,
         contact,
         provinces,
         employees_ids,
         employees_array,
+        saveShowOrderId,
         saveSetting,
         saveEmployees,
         saveProvinces,
