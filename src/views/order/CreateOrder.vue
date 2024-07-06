@@ -1,13 +1,14 @@
 <template>
   <article class="h-full flex flex-col overflow-hidden">
     <section class="h-full flex flex-col gap-2 overflow-auto scrollbar-thin">
+      <!-- Hành trình đơn hàng -->
       <OrderJourney :order="order" />
+      <!-- Thông tin đơn hàng -->
       <div class="flex flex-col gap-2">
         <div class="flex items-center gap-2">
           <img :src="UserIcon" />
           <p class="font-semibold">
             Khách hàng
-            {{ getContactPhone() }}
           </p>
         </div>
         <div class="grid grid-cols-2 gap-2">
@@ -177,6 +178,8 @@
                 type="text"
                 class="flex-grow outline-none placeholder:text-slate-500"
                 placeholder="Nhập mã, tên sản phẩm..."
+                v-model="search_product"
+                v-on:keyup="start_search"
               />
               <ArrowIcon class="flex-shink-0 text-gray-500" />
             </div>
@@ -246,7 +249,7 @@
               class="cursor-pointer hover:bg-slate-200 group"
             >
               <td class="py-1 pl-2 rounded-s">
-                <p class="w-10/12 truncate">
+                <p class="w-32 truncate">
                   {{ product.product_name }}
                 </p>
               </td>
@@ -547,11 +550,11 @@
       <div
         v-for="(step, step_index) in order.order_journey"
         v-show="checkStepActive() === step_index"
-        class="flex gap-2 text-base font-semibold"
+        class="flex gap-2 flex-row-reverse"
       >
         <div
           v-for="(status, status_index) in step"
-          class="w-full rounded-md flex items-center justify-center py-3 cursor-pointer font-semibold"
+          class="w-full rounded-md flex items-center justify-center py-2 cursor-pointer font-medium"
           :class="{
             [`${status.bg_color} ${status.text_color}`]: isNumber(status_index),
             'bg-slate-500 text-white cursor-not-allowed': !checkOrderValid(),
@@ -565,10 +568,10 @@
   </article>
 </template>
 <script setup lang="ts">
-import { get, isNumber, pick } from 'lodash'
 import { ref, onMounted } from 'vue'
 import { useMerchantStore } from '@/stores'
 import { Toast } from '@/service/helper/toast'
+import { get, isNumber, pick, debounce } from 'lodash'
 import { confirm2 as confirm } from '@/service/helper/alert'
 import { cleave_options, payment_methods } from '@/service/options'
 import { currency, convertEmployeeName } from '@/service/helper/format'
@@ -655,6 +658,14 @@ const order = ref<Order>({
   inventory_quantity: 0,
 })
 
+/** Tìm kiếm sản phẩm */
+const start_search = debounce(() => {
+  loadProduct()
+}, 500)
+
+/** Load lại hành trình đơn hàng */
+const load_order_journey = ref<boolean>(false)
+
 /** Danh sách phường xã */
 const wards = ref<WardData[]>([])
 
@@ -678,12 +689,19 @@ const provinces = ref<ProvinceData[]>($merchant.provinces)
 
 onMounted(() => {
   loadProduct()
+  if($merchant.order_edit.id) {
+    order.value = $merchant.order_edit
+    load_order_journey.value = true
+    calculatorOrder()
+    return
+  }
   if (!order.value.id) {
     order.value.order_journey = $merchant.setting?.online_status
     order.value.staffs = $merchant.setting?.online_staff
     order.value.contact_id = $merchant.contact?.identifier_id
     order.value.contact_info = $merchant.contact
   }
+  load_order_journey.value = true
 })
 
 /** chọn phương thức thanh toán */

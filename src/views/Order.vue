@@ -5,16 +5,15 @@
       class="flex-shrink-0"
     />
     <Orders
-      v-if="current_tab === 'ORDERS'"
+      v-if="merchantStore.current_tab === 'ORDERS'"
       :contact_id="contact_id"
     />
-    <CreateOrder v-if="current_tab === 'CREATE_ORDER'" />
+    <CreateOrder v-if="merchantStore.current_tab === 'CREATE_ORDER'" />
   </article>
 </template>
 <script setup lang="ts">
 // * libraries
 import { ref, onMounted } from 'vue'
-import { mockup_orders } from '@/service/mockup'
 import WIDGET from 'bbh-chatbox-widget-js-sdk'
 import { useAppStore, useCommonStore, useMerchantStore } from '@/stores'
 import {
@@ -55,6 +54,13 @@ onMounted(async () => {
 /** hàm call API đồng bộ dữ liệu sang merchant */
 async function synchData() {
   try {
+
+    // * lưu lại total order
+    merchantStore.saveTotalOrder(0)
+
+    // * lưu lại tab hiện tại
+    merchantStore.saveCurrentTab('')
+    
     // * ghi lại thông tin khách hàng mới
     appStore.data_client = await WIDGET.decodeClient()
 
@@ -84,6 +90,10 @@ async function synchData() {
 
     // * Lưu lại danh sách nhân viên
     merchantStore.saveEmployees(employees.data)
+
+    // * lưu lại tab hiện tại
+    merchantStore.saveCurrentTab('ORDERS')
+
   } catch (error) {
     console.log('synch to merchant', error)
   }

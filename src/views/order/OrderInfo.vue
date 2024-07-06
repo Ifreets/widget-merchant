@@ -22,6 +22,7 @@
         <img
           :src="EditIcon"
           class="w-4.5 h-4.5 cursor-pointer"
+          @click.stop="editOrder"
         />
         <img
           :src="LinkIcon"
@@ -147,14 +148,14 @@
           >
             {{
               convertEmployeeName(
-                merchantStore.employees_ids[last_employee].first_name,
-                merchantStore.employees_ids[last_employee].last_name
+                merchantStore.employees_ids[last_employee]?.first_name,
+                merchantStore.employees_ids[last_employee]?.last_name
               )
             }}
           </span>
           <object
             v-if="merchantStore.employees_ids[last_employee]?.avatar"
-            :data="merchantStore.employees_ids[last_employee].avatar"
+            :data="merchantStore.employees_ids[last_employee]?.avatar"
             type="image/png"
             class="w-4 h-4 rounded-full"
           >
@@ -163,15 +164,15 @@
             >
               {{
                 convertEmployeeName(
-                  merchantStore.employees_ids[last_employee].first_name,
-                  merchantStore.employees_ids[last_employee].last_name
+                  merchantStore.employees_ids[last_employee]?.first_name,
+                  merchantStore.employees_ids[last_employee]?.last_name
                 )
               }}
             </span>
           </object>
           <p>
-            {{ merchantStore.employees_ids[last_employee].first_name }}
-            {{ merchantStore.employees_ids[last_employee].last_name }}
+            {{ merchantStore.employees_ids[last_employee]?.first_name }}
+            {{ merchantStore.employees_ids[last_employee]?.last_name }}
           </p>
         </div>
       </div>
@@ -280,4 +281,11 @@ function openOrderDetail() {
   let order_id = props.order?.order_id
   window.open(`https://merchant.vn/a/order?id=${order_id}`, '_blank')
 }
+
+/** Chỉnh sửa đơn hàng */
+function editOrder() {
+  merchantStore.saveOrderEdit(props.order)
+  merchantStore.saveCurrentTab('CREATE_ORDER')
+}
+
 </script>

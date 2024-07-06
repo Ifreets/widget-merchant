@@ -1,14 +1,17 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import type {
-    ContactInfo, ProvinceData, SettingData, EmployeeData
+    ContactInfo, ProvinceData, SettingData, EmployeeData, Order
 } from '@/service/interface'
-import Setting from '@/components/Setting.vue'
 
 /** Store của merchant */
 export const useMerchantStore = defineStore('merchant_store', () => {
 
     // * Variables
+    /** Dữ liệu đơn hàng đang cần chỉnh sửa */
+    const order_edit = ref<Order>({})
+    /** Tổng số đơn hàng */
+    const total_order = ref<number>(0)
     /** Thiết lập đơn hàng */
     const setting = ref<SettingData>()
     /** Dữ liệu contact */
@@ -19,13 +22,23 @@ export const useMerchantStore = defineStore('merchant_store', () => {
     const provinces = ref<ProvinceData[]>([])
     /** Dữ liệu nhân viên dạng array */
     const employees_array = ref<EmployeeData[]>([])
+    /** Tab hiện tại đang chọn */
+    const current_tab = ref<'ORDERS' | 'CREATE_ORDER' | ''>('ORDERS')
     /** Dữ liệu nhân viên dạng object */
     const employees_ids = ref<{ [index: string]: EmployeeData }>({})
-    const saveShowOrderId = (id: string) => {
 
     // * Functions
+    /** Lưu lại tab đang chọn */
+    const saveCurrentTab = (tab: 'ORDERS' | 'CREATE_ORDER' | '') => {
+        current_tab.value = tab
+    }
     /** Lưu lại id đơn hàng đang hiện ra */
+    const saveShowOrderId = (id: string) => {
         show_order_id.value = id
+    }
+    /** Lưu dữ liệu đơn hàng cần chỉnh sửa */
+    const saveOrderEdit = (order: Order) => {
+        order_edit.value = order
     }
     /** Lưu dữ liệu setting */
     const saveSetting = (data: SettingData) => {
@@ -46,18 +59,28 @@ export const useMerchantStore = defineStore('merchant_store', () => {
             employees_ids.value[item._id] = item
         })
     }
+    /** Lưu tổng số đơn hàng */
+    const saveTotalOrder = (total: number) => {
+        total_order.value = total
+    }
 
     return {
-        show_order_id,
         setting,
         contact,
         provinces,
+        order_edit,
+        total_order,
+        current_tab,
         employees_ids,
+        show_order_id,
         employees_array,
-        saveShowOrderId,
         saveSetting,
         saveEmployees,
         saveProvinces,
+        saveOrderEdit,
+        saveTotalOrder,
+        saveCurrentTab,
+        saveShowOrderId,
         saveMerchantContact,
     }
 })

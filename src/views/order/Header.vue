@@ -6,26 +6,38 @@
       <span
         class="text-center py-1 rounded"
         :class="{
-          'font-semibold bg-white': tab === 'ORDERS',
-          'text-gray-500': tab !== 'ORDERS',
+          'font-semibold bg-white': merchantStore.current_tab === 'ORDERS',
+          'text-gray-500': merchantStore.current_tab !== 'ORDERS',
         }"
-        @click="tab = 'ORDERS'"
+        @click="orderTab"
       >
-        Đơn hàng (0)
+        Đơn hàng ({{ merchantStore.total_order }})
       </span>
       <span
         class="text-center py-1 rounded"
         :class="{
-          'font-semibold bg-white': tab === 'CREATE_ORDER',
-          'text-gray-500': tab !== 'CREATE_ORDER',
+          'font-semibold bg-white':
+            merchantStore.current_tab === 'CREATE_ORDER',
+          'text-gray-500': merchantStore.current_tab !== 'CREATE_ORDER',
         }"
-        @click="tab = 'CREATE_ORDER'"
+        @click="merchantStore.current_tab = 'CREATE_ORDER'"
       >
-        Tạo đơn
+        <span v-if="!merchantStore.order_edit.id">
+          Tạo đơn
+        </span>
+        <span v-if="merchantStore.order_edit.id">
+          #{{ merchantStore.order_edit.order_id }}
+        </span>
       </span>
     </div>
   </header>
 </template>
 <script setup lang="ts">
-const tab = defineModel<'ORDERS' | 'CREATE_ORDER'>({ default: 'ORDERS' })
+import { useMerchantStore } from '@/stores'
+const merchantStore = useMerchantStore()
+/** Chuyển qua tab đơn hàng */
+function orderTab() {
+  merchantStore.current_tab = 'ORDERS'
+  merchantStore.saveOrderEdit({})
+}
 </script>

@@ -28,7 +28,7 @@ export const getOrder = async (data: {}) => {
     try {
         const commonStore = useCommonStore()
         return await request({
-            uri: 'https://api-product.merchant.vn/order/get_order',
+            uri: 'https://api-product.merchant.vn/order/get_order_by_contact_id',
             method: 'POST',
             body: data,
             headers: {
