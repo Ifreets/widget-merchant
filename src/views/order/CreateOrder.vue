@@ -32,6 +32,7 @@
           type="text"
           placeholder="Địa chỉ"
           v-model="order.address"
+          :readonly="!isAvailablelUpdate('address')"
         />
         <div class="grid grid-cols-3 gap-2">
           <Dropbox>
@@ -58,7 +59,7 @@
             <template #box>
               <div
                 class="w-40 rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-40 overflow-auto mt-2"
-                v-if="show_dropbox"
+                v-if="show_dropbox && isAvailablelUpdate('address')"
               >
                 <!-- <input
                   type="text"
@@ -99,7 +100,7 @@
             <template #box>
               <div
                 class="w-40 rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-40 overflow-auto mt-2"
-                v-if="show_dropbox"
+                v-if="show_dropbox && isAvailablelUpdate('address')"
               >
                 <!-- <input
                   type="text"
@@ -140,7 +141,7 @@
             <template #box>
               <div
                 class="w-52 rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-40 overflow-auto mt-2 -ml-20"
-                v-if="show_dropbox"
+                v-if="show_dropbox && isAvailablelUpdate('address')"
               >
                 <!-- <input
                   type="text"
@@ -180,6 +181,7 @@
                 placeholder="Nhập mã, tên sản phẩm..."
                 v-model="search_product"
                 v-on:keyup="start_search"
+                :readonly="!isAvailablelUpdate('product')"
               />
               <ArrowIcon class="flex-shink-0 text-gray-500" />
             </div>
@@ -187,7 +189,7 @@
           <template #box>
             <div
               class="w-full rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-40 overflow-auto mt-3"
-              v-if="show_dropbox"
+              v-if="show_dropbox && isAvailablelUpdate('product')"
             >
               <div
                 v-for="product in products"
@@ -281,6 +283,7 @@
                     {{ currency(product.total_price) || 0 }}
                   </p>
                   <img
+                    v-if="isAvailablelUpdate('product')"
                     class="hidden group-hover:block mr-4"
                     :src="CancelIcon"
                     v-tooltip="'Xóa'"
@@ -352,6 +355,7 @@
               :options="cleave_options"
               v-model="order.money_paid"
               @change="calculatorOrder(true)"
+              :readonly="!isAvailablelUpdate('money')"
             />
           </div>
           <p
@@ -472,7 +476,7 @@
                   :class="{
                     '-ml-11': index === 1 || index === 3,
                   }"
-                  v-if="show_dropbox"
+                  v-if="show_dropbox && isAvailablelUpdate('money')"
                 >
                   <div
                     @click="unSelectEmployee(index)"
@@ -533,12 +537,14 @@
             class="w-full flex items-center justify-between py-2.5 px-3 outline-none border rounded-md placeholder:text-slate-500 text-sm"
             placeholder="Ghi chú với khách"
             v-model="order.note"
+            :readonly="!isAvailablelUpdate('')"
           />
           <input
             type="text"
             class="w-full flex items-center justify-between py-2.5 px-3 outline-none border rounded-md placeholder:text-slate-500 text-sm"
             placeholder="Ghi chú nội bộ"
             v-model="order.internal_note"
+            :readonly="!isAvailablelUpdate('')"
           />
         </div>
       </div>
@@ -568,7 +574,7 @@
   </article>
 </template>
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, readonly } from 'vue'
 import { useMerchantStore } from '@/stores'
 import { Toast } from '@/service/helper/toast'
 import { get, isNumber, pick, debounce } from 'lodash'
