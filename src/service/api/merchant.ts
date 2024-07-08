@@ -1,6 +1,6 @@
 //* import function
-import { request } from '@/service/helper/asyncRequest'
 import { useAppStore, useCommonStore } from '@/stores'
+import { request } from '@/service/helper/asyncRequest'
 
 
 // * API khách hàng
@@ -145,6 +145,38 @@ export const getWard = async (data: {}) => {
         const commonStore = useCommonStore()
         return await request({
             uri: 'https://api-product.merchant.vn/locations/ward',
+            method: 'POST',
+            body: data,
+            headers: {
+                'token-business': commonStore.token_business,
+            },
+        })
+    } catch (e) {
+        throw e
+    }
+}
+/** Nhận diện địa chỉ */
+export const detectAddress = async (data: {}) => {
+    try {
+        const commonStore = useCommonStore()
+        return await request({
+            uri: 'https://api-product.merchant.vn/locations/detect_address',
+            method: 'POST',
+            body: data,
+            headers: {
+                'token-business': commonStore.token_business,
+            },
+        })
+    } catch (e) {
+        throw e
+    }
+}
+/** Lấy ra thông tin chi tiết địa chỉ */
+export const getAddress = async (data: {}) => {
+    try {
+        const commonStore = useCommonStore()
+        return await request({
+            uri: 'https://api-product.merchant.vn/locations/get_address',
             method: 'POST',
             body: data,
             headers: {

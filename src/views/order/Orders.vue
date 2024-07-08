@@ -58,6 +58,9 @@ async function getOrders() {
   orders.value = await getOrder({
     contact_id: props.contact_id
   })
+  if(orders.value[0] && orders.value[0].id) {
+    merchantStore.saveShowOrderId(orders.value[0].id)
+  }
   merchantStore.saveTotalOrder(orders.value.length)
 }
 

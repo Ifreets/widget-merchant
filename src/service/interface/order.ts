@@ -1,6 +1,8 @@
 import type { ContactInfo } from "./contact";
 import type { ActionStep, StaffInfo } from "./setting";
-import type { ProvinceData, WardData, DistrictData } from "./locations";
+import type { 
+    ProvinceData, WardData, DistrictData, StreetData 
+} from "./locations";
 
 /** Dữ liệu sản phẩm trong đơn hàng */
 export interface OrderProduct {
@@ -127,6 +129,10 @@ export interface Order {
         district?: DistrictData
         /** Phường xã */
         ward?: WardData
+        /** Dữ liệu tên đường */
+        street?: StreetData
+        /** Số nhà */
+        house_number?: StreetData
     }
 
     /** Trạng thái freeship */

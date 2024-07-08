@@ -7,9 +7,7 @@
       <div class="flex flex-col gap-2">
         <div class="flex items-center gap-2">
           <img :src="UserIcon" />
-          <p class="font-semibold">
-            Khách hàng
-          </p>
+          <p class="font-semibold">Khách hàng</p>
         </div>
         <div class="grid grid-cols-2 gap-2">
           <input
@@ -27,13 +25,40 @@
             disabled
           />
         </div>
-        <input
-          class="px-3 py-2.5 border rounded-md outline-none placeholder:text-slate-500"
-          type="text"
-          placeholder="Địa chỉ"
-          v-model="order.address"
-          :readonly="!isAvailablelUpdate('address')"
-        />
+        <div class="w-full">
+          <Dropbox>
+            <template #trigger>
+              <div @click="show_dropbox = true">
+                <input
+                  class="px-3 py-2.5 border rounded-md outline-none placeholder:text-slate-500 w-full"
+                  type="text"
+                  placeholder="Địa chỉ"
+                  v-model="order.address"
+                  :readonly="!isAvailablelUpdate('address')"
+                  @keyup="search_address"
+                />
+              </div>
+            </template>
+            <template #box>
+              <div
+                v-if="
+                  show_dropbox &&
+                  isAvailablelUpdate('address') &&
+                  addresses.length
+                "
+                class="w-full p-1 bg-white rounded-md border shadow-md flex flex-col gap-1 mt-1"
+              >
+                <div
+                  v-for="address in addresses"
+                  @click="getDetailLocation(address)"
+                  class="px-3 py-1.5 hover:bg-slate-100 rounded-md w-full"
+                >
+                  {{ address.address_name }}
+                </div>
+              </div>
+            </template>
+          </Dropbox>
+        </div>
         <div class="grid grid-cols-3 gap-2">
           <Dropbox>
             <template #trigger>
@@ -61,11 +86,6 @@
                 class="w-40 rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-40 overflow-auto mt-2"
                 v-if="show_dropbox && isAvailablelUpdate('address')"
               >
-                <!-- <input
-                  type="text"
-                  class="px-2 py-1 border rounded-md focus:outline-none"
-                  placeholder="Tìm kiếm"
-                /> -->
                 <div
                   v-for="item in provinces"
                   @click="selectProvince(item)"
@@ -102,11 +122,6 @@
                 class="w-40 rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-40 overflow-auto mt-2"
                 v-if="show_dropbox && isAvailablelUpdate('address')"
               >
-                <!-- <input
-                  type="text"
-                  class="px-2 py-1 border rounded-md focus:outline-none"
-                  placeholder="Tìm kiếm"
-                /> -->
                 <div
                   v-for="item in districts"
                   @click="selectDistrict(item)"
@@ -228,8 +243,7 @@
               <th class="text-start rounded-s font-medium py-1 pl-2">
                 Tên sản phẩm
               </th>
-              <th class="w-8 text-center font-medium py-1">SL</th>
-              <th class="text-end font-medium py-1">Tồn</th>
+              <th class="text-center font-medium py-1">SL</th>
               <th class="text-end font-medium py-1">Giảm giá</th>
               <th class="text-end font-medium py-1 pr-2 rounded-e">
                 Tổng tiền
@@ -257,14 +271,13 @@
               </td>
               <td class="text-end py-1">
                 <cleave
-                  class="w-8 text-center border-b border-black outline-none bg-transparent"
+                  class="text-center border-b border-black outline-none bg-transparent w-24"
                   :options="cleave_options"
                   v-model="product.quantity"
                   @change="calculatorOrder(true)"
                   type="tel"
                 />
               </td>
-              <td class="text-end py-1">{{ product.inventory_quantity }}</td>
               <td class="text-end py-1">
                 <cleave
                   class="w-14 text-end border-b border-black outline-none bg-transparent"
@@ -294,7 +307,6 @@
             <tr class="bg-slate-200 font-semibold sticky bottom-0">
               <td class="text-end rounded-s py-1 pr-3">Tổng</td>
               <td class="text-center py-1">{{ order.quantity }}</td>
-              <td class="text-end py-1">{{ order.inventory_quantity }}</td>
               <td class="text-end py-1">{{ order.discount }}</td>
               <td class="text-end py-1 rounded-e pr-2">
                 {{ currency(order.total_price) || 0 }}
@@ -344,10 +356,9 @@
             </Dropbox>
           </div>
         </div>
-        <div class="grid grid-cols-2 items-center">
+        <div class="grid grid-cols-2 items-center" v-if="payment_method === 'CASH'">
           <p>- Đã thanh toán</p>
           <div
-            v-if="payment_method === 'CASH'"
             class="flex justify-end"
           >
             <cleave
@@ -358,12 +369,15 @@
               :readonly="!isAvailablelUpdate('money')"
             />
           </div>
-          <p
-            v-if="payment_method === 'MOMO' || payment_method === 'TRANSFER'"
-            class="font-bold text-base text-blue-700"
-          >
-            Chờ thanh toán
-          </p>
+        </div>
+        <div
+          class="w-full mt-1"
+          v-if="payment_method === 'MOMO' || payment_method === 'TRANSFER'"
+        >
+          <div class="grid grid-cols-2">
+            <p>- Đã thanh toán</p>
+            <p class="font-bold text-base text-blue-700 text-end">Chờ thanh toán</p>
+          </div>
           <div
             v-if="payment_method === 'MOMO'"
             class="w-full flex items-center gap-2.5"
@@ -374,9 +388,9 @@
             />
             <div class="flex flex-col gap-1">
               <p>Thông tin Link thanh toán</p>
-              <div class="text-xs-10 border py-1 px-3 rounded-md bg-slate-100">
-                <p>Số tài khoản:123123123</p>
-                <p>Tên tài khoản: CTCP Công nghệ Chatbot</p>
+              <div class="text-xs border py-1 px-3 rounded-md bg-slate-100 w-full">
+                <p>Số TK:123123123</p>
+                <p>Tên TK: CTCP Công nghệ Chatbot</p>
                 <p>Ngân hàng: Techcombank</p>
                 <p>Link TT: https://pay.merchant.vn/138m</p>
               </div>
@@ -402,9 +416,9 @@
             />
             <div class="flex flex-col gap-1">
               <p>Thông tin Link thanh toán</p>
-              <div class="text-[10px] border py-1 px-3 rounded-md bg-slate-100">
-                <p>Số tài khoản:123123123</p>
-                <p>Tên tài khoản: CTCP Công nghệ Chatbot</p>
+              <div class="text-xs border py-1 px-3 rounded-md bg-slate-100 w-full">
+                <p>Số TK:123123123</p>
+                <p>Tên TK: CTCP Công nghệ Chatbot</p>
                 <p>Ngân hàng: Techcombank</p>
                 <p>Link TT: https://pay.merchant.vn/138m</p>
               </div>
@@ -549,7 +563,7 @@
         </div>
       </div>
     </section>
-    <div 
+    <div
       v-if="order.order_journey && isAvailablelUpdate('')"
       class="py-2 border-t"
     >
@@ -580,7 +594,7 @@ import { Toast } from '@/service/helper/toast'
 import { get, isNumber, pick, debounce } from 'lodash'
 import { confirm2 as confirm } from '@/service/helper/alert'
 import { cleave_options, payment_methods } from '@/service/options'
-import { currency, convertEmployeeName } from '@/service/helper/format'
+import { currency, convertEmployeeName, copy } from '@/service/helper/format'
 import {
   createOrder,
   updateOrder,
@@ -588,6 +602,8 @@ import {
   getPackage,
   getDistrict,
   getWard,
+  detectAddress,
+  getAddress,
 } from '@/service/api/merchant'
 
 // * Components
@@ -616,6 +632,10 @@ import type {
   WardData,
   Order,
   EmployeeData,
+  DetectData,
+  DetailData,
+  Addresses,
+  LocationDetail,
 } from '@/service/interface'
 
 /** store merchant */
@@ -669,8 +689,10 @@ const start_search = debounce(() => {
   loadProduct()
 }, 500)
 
-/** Load lại hành trình đơn hàng */
-const load_order_journey = ref<boolean>(false)
+/** Tìm kiếm địa chỉ */
+const search_address = debounce(() => {
+  searchAddress()
+}, 500)
 
 /** Danh sách phường xã */
 const wards = ref<WardData[]>([])
@@ -693,21 +715,22 @@ const payment_method = ref<PaymentMethods>('CASH')
 /** Danh sách tỉnh thành */
 const provinces = ref<ProvinceData[]>($merchant.provinces)
 
+/** Danh sách địa chỉ */
+const addresses = ref<Addresses[]>([])
+
 onMounted(() => {
   loadProduct()
-  if($merchant.order_edit.id) {
+  if ($merchant.order_edit.id) {
     order.value = $merchant.order_edit
-    load_order_journey.value = true
     calculatorOrder()
     return
   }
   if (!order.value.id) {
-    order.value.order_journey = $merchant.setting?.online_status
+    order.value.order_journey = copy($merchant.setting?.online_status|| [])
     order.value.staffs = $merchant.setting?.online_staff
     order.value.contact_id = $merchant.contact?.identifier_id
     order.value.contact_info = $merchant.contact
   }
-  load_order_journey.value = true
 })
 
 /** chọn phương thức thanh toán */
@@ -984,7 +1007,7 @@ async function createNewOrder(status?: string) {
       status: status ? status : 'DRART_ORDER',
     })
 
-    console.log("new_order", new_order)
+    console.log('new_order', new_order)
 
     order.value = new_order
     $toast.success('Tạo đơn hàng thành công')
@@ -1253,6 +1276,71 @@ async function activeStep(
     }
   } catch (e) {
     $toast.error(e as string)
+  }
+}
+
+/** Tìm kiếm địa chỉ */
+async function searchAddress() {
+  addresses.value = await detectAddress({
+    address: order.value.address,
+  })
+}
+
+/** Chọn địa chỉ */
+async function getDetailLocation(address: Addresses) {
+  /** Gán địa chỉ */
+  order.value.address = address.address_name
+
+  // * Tắt dropbox
+  show_dropbox.value = false
+
+  /** Lấy dữ liệu chi tiết */
+  let location_detail = (await getAddress({
+    address_id: address.address_id,
+  })) as LocationDetail
+
+  // * Gán dữ liệu loction
+  if (order.value.locations) {
+    order.value.locations.province = {
+      code: location_detail.province?.id,
+      name: location_detail.province?.name,
+      name_with_type: location_detail.province?.name,
+    }
+
+    order.value.locations.district = {
+      code: location_detail.district?.id,
+      name: location_detail.district?.name,
+      name_with_type: location_detail.district?.name,
+    }
+
+    order.value.locations.ward = {
+      code: location_detail.ward?.id,
+      name: location_detail.ward?.name,
+      name_with_type: location_detail.ward?.name,
+    }
+
+    order.value.locations.street = {
+      code: location_detail.street?.id,
+      name: location_detail.street?.name,
+    }
+
+    order.value.locations.house_number = {
+      code: location_detail.house_number?.id,
+      name: location_detail.house_number?.name,
+    }
+  }
+
+  // * Lấy thêm thông tin quận huyện
+  if (location_detail.province?.id) {
+    districts.value = await getDistrict({
+      province_id: location_detail.province?.id,
+    })
+  }
+  // * Lấy thêm thông tin phường xã
+  if (location_detail.district?.id) {
+    wards.value = await getWard({
+      district_id: location_detail.district?.id,
+    })
   }
 }
 </script>

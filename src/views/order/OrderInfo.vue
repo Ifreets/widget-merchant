@@ -19,11 +19,11 @@
         {{ props.order?.order_id }}
       </div>
       <div class="flex gap-2">
-        <img
+        <!-- <img
           :src="EditIcon"
           class="w-4.5 h-4.5 cursor-pointer"
           @click.stop="editOrder"
-        />
+        /> -->
         <img
           :src="LinkIcon"
           class="w-4.5 h-4.5 cursor-pointer"
@@ -176,6 +176,25 @@
           </p>
         </div>
       </div>
+      <div class="w-full flex items-center mt-2 px-8 justify-center">
+        <button
+          @click.stop="editOrder"
+          class="flex items-center justify-center rounded-md bg-gray-100 w-full py-2 gap-1"
+        >
+          <img
+            v-if="!isOrderDone()"
+            :src="EditBlackIcon"
+            class="w-5"
+          />
+          <img
+            v-if="isOrderDone()"
+            :src="BlackSearch"
+            class="w-5"
+          />
+          <p class="text-sm font-medium" v-if="!isOrderDone()">Cập nhật đơn</p>
+          <p class="text-sm font-medium" v-if="isOrderDone()">Chi tiết đơn</p>
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -192,20 +211,23 @@ import { convertEmployeeName } from '@/service/helper/format'
 import OrderJourney from '@/views/order/OrderJourney.vue'
 
 // * icons
-import ArrowIcon from '@/components/icons/ArrowIcon.vue'
+import BagIcon from '@/assets/icons/bag.svg'
+import PenIcon from '@/assets/icons/pen.svg'
 import EditIcon from '@/assets/icons/edit.svg'
 import LinkIcon from '@/assets/icons/link.svg'
-import DoubleArrowIcon from '@/assets/icons/double-arrow.svg'
 import UserIcon from '@/assets/icons/user.svg'
-import PhoneIcon from '@/assets/icons/phone.svg'
 import ShipIcon from '@/assets/icons/ship.svg'
-import BagIcon from '@/assets/icons/bag.svg'
-import WeightIcon from '@/assets/icons/weight.svg'
-import CreditCardIcon from '@/assets/icons/credit-card.svg'
-import PenIcon from '@/assets/icons/pen.svg'
-import CalendarIcon from '@/assets/icons/calendar.svg'
+import PhoneIcon from '@/assets/icons/phone.svg'
 import ClockIcon from '@/assets/icons/clock.svg'
+import WeightIcon from '@/assets/icons/weight.svg'
+import CalendarIcon from '@/assets/icons/calendar.svg'
+import ArrowIcon from '@/components/icons/ArrowIcon.vue'
+import BlackSearch from '@/assets/icons/black-search.svg'
+import EditBlackIcon from '@/assets/icons/edit-black.svg'
+import CreditCardIcon from '@/assets/icons/credit-card.svg'
+import DoubleArrowIcon from '@/assets/icons/double-arrow.svg'
 
+// * Interfaces
 import type { Order, ActionStep } from '@/service/interface'
 
 // * props
@@ -259,13 +281,7 @@ function getFullName(order: any) {
 
 /** Lấy địa chỉ */
 function getAddress() {
-  let province = props.order.locations?.province || {}
-  let district = props.order.locations?.district || {}
-  let ward = props.order.locations?.ward || {}
   let address = props.order?.address || ''
-  if (ward.name) address += `, ${ward.name}`
-  if (district.name) address += `, ${district.name}`
-  if (province.name) address += `, ${province.name}`
   return address
 }
 
@@ -288,4 +304,19 @@ function editOrder() {
   merchantStore.saveCurrentTab('CREATE_ORDER')
 }
 
+/** Kiểm tra xem hành trình đơn hàng kết thúc hay chưa */
+function isOrderDone() {
+  switch (props.order.status) {
+    case 'DRART_ORDER': return false
+    case 'CONFIRM_ITEMS':return false
+    case 'CONFIRM_BUYER': return false
+    case 'CONFIRM_METHOD_PAY': return false
+    case 'CONFIRM_DELIVERY_ADDRESS': return false
+    case 'INVENTORY_EXPORT': return true
+    case 'INVENTORY_IMPORT': return true
+    case 'CANCEL_ORDER': return true
+    case 'ORDER_SUCESS': return true
+    default:return false
+  }
+}
 </script>
