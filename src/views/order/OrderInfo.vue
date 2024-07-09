@@ -2,7 +2,7 @@
   <div>
     <!-- Order ID -->
     <div
-      class="text-white py-2 px-3 flex justify-between"
+      class="text-white py-2 px-3 flex justify-between cursor-pointer"
       :class="{
         [current_action?.bg_color || 'bg-black']: true,
         'rounded-t-lg': merchantStore.show_order_id === props.order?.id,
@@ -10,7 +10,7 @@
       }"
       @click="toogleOrder()"
     >
-      <div class="flex items-center gap-2.5 cursor-pointer">
+      <div class="flex items-center gap-2.5">
         <ArrowIcon
           :class="{
             '-rotate-90': merchantStore.show_order_id !== props.order?.id,
@@ -176,10 +176,11 @@
           </p>
         </div>
       </div>
+      <!-- Cập nhật hoặc xem đơn hàng -->
       <div class="w-full flex items-center mt-2 px-8 justify-center">
         <button
           @click.stop="editOrder"
-          class="flex items-center justify-center rounded-md bg-gray-100 w-full py-2 gap-1"
+          class="flex items-center justify-center rounded-md bg-gray-100 w-full py-2 gap-1 hover:bg-gray-200 cursor-pointer"
         >
           <img
             v-if="!isOrderDone()"

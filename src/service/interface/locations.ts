@@ -5,6 +5,7 @@ export interface ProvinceData {
     type?: string,
     name_with_type?: string,
     code?: string
+    is_hidden?: boolean
 }
 
 /** Dữ liệu quận huyện */
@@ -17,6 +18,7 @@ export interface DistrictData {
     path_with_type?: string,
     code?: string,
     parent_code?: string
+    is_hidden?: boolean
 }
 
 /** Dữ liệu xã phường */
@@ -29,6 +31,7 @@ export interface WardData {
     path_with_type?: string,
     code?: string,
     parent_code?: string
+    is_hidden?: boolean
 }
 
 export interface StreetData {

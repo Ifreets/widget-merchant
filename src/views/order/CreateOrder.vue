@@ -59,36 +59,49 @@
             </template>
           </Dropbox>
         </div>
-        <div class="grid grid-cols-3 gap-2">
+        <div class="grid grid-cols-1">
           <Dropbox>
             <template #trigger>
-              <button
-                class="w-full flex items-center justify-between p-2 border rounded-md"
-                @click="show_dropbox = true"
+              <div
+                class="w-full relative flex items-center"
+                @click="show_dropbox = true, search_locations = ''"
               >
-                <span
-                  class="truncate block text-slate-500"
+                <input
+                  type="text"
+                  id="province-input"
+                  v-model="search_locations"
+                  placeholder="Tỉnh, thành phố"
+                  @keyup="searchLocation('province')"
                   v-if="!get(order, 'locations.province.name')"
-                >
-                  Tỉnh, thành phố
-                </span>
-                <span
-                  class="truncate block text-slate-500"
-                  v-else
+                  class="w-full flex items-center justify-between p-2 border rounded-md focus:outline-none"
+                />
+                <div
+                  v-if="get(order, 'locations.province.name')"
+                  class="w-full flex items-center justify-between p-2 border rounded-md"
                 >
                   {{ get(order, 'locations.province.name') }}
-                </span>
-                <ArrowIcon class="text-gray-500" />
-              </button>
+                </div>
+                <ArrowIcon
+                  class="text-gray-500 absolute right-3"
+                  v-if="!get(order, 'locations.province.name')"
+                />
+                <img
+                  :src="DeleteIcon"
+                  @click="removeLocation('province')"
+                  class="absolute right-3 w-2 cursor-pointer"
+                  v-if="get(order, 'locations.province.name')"
+                />
+              </div>
             </template>
             <template #box>
               <div
-                class="w-40 rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-40 overflow-auto mt-2"
-                v-if="show_dropbox && isAvailablelUpdate('address')"
+                class="w-full rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-40 overflow-auto mt-2"
+                v-show="show_dropbox && isAvailablelUpdate('address')"
               >
                 <div
                   v-for="item in provinces"
                   @click="selectProvince(item)"
+                  v-show="!item.is_hidden"
                   class="px-3 py-1 hover:bg-slate-100"
                 >
                   {{ item.name }}
@@ -96,34 +109,49 @@
               </div>
             </template>
           </Dropbox>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
           <Dropbox>
             <template #trigger>
-              <button
-                class="w-full flex items-center justify-between p-2 border rounded-md"
-                @click="show_dropbox = true"
+              <div
+                class="w-full relative flex items-center"
+                @click="show_dropbox = true, search_locations = ''"
               >
-                <span
-                  class="truncate block text-slate-500"
-                  v-if="!get(order, 'locations.district.name_with_type')"
+                <input
+                  type="text"
+                  id="province-input"
+                  v-model="search_locations"
+                  placeholder="Quận, Huyện"
+                  @keyup="searchLocation('district')"
+                  v-if="!get(order, 'locations.district.name')"
+                  class="w-full flex items-center justify-between p-2 border rounded-md focus:outline-none"
+                />
+                <div
+                  v-if="get(order, 'locations.district.name')"
+                  class="w-full flex items-center justify-between p-2 border rounded-md"
                 >
-                  Quận, Huyện
-                </span>
-                <span
-                  class="truncate block text-slate-500"
-                  v-else
-                >
-                  {{ get(order, 'locations.district.name_with_type') }}
-                </span>
-                <ArrowIcon class="text-gray-500" />
-              </button>
+                  {{ get(order, 'locations.district.name') }}
+                </div>
+                <ArrowIcon
+                  class="text-gray-500 absolute right-3"
+                  v-if="!get(order, 'locations.district.name')"
+                />
+                <img
+                  :src="DeleteIcon"
+                  @click="removeLocation('district')"
+                  class="absolute right-3 w-2 cursor-pointer"
+                  v-if="get(order, 'locations.district.name')"
+                />
+              </div>
             </template>
             <template #box>
               <div
-                class="w-40 rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-40 overflow-auto mt-2"
+                class="w-full rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-40 overflow-auto mt-2"
                 v-if="show_dropbox && isAvailablelUpdate('address')"
               >
                 <div
                   v-for="item in districts"
+                  v-show="!item.is_hidden"
                   @click="selectDistrict(item)"
                   class="px-3 py-1 hover:bg-slate-100"
                 >
@@ -134,37 +162,45 @@
           </Dropbox>
           <Dropbox>
             <template #trigger>
-              <button
-                class="w-full flex items-center justify-between p-2 border rounded-md"
-                @click="show_dropbox = true"
+              <div
+                class="w-full relative flex items-center"
+                @click="show_dropbox = true, search_locations = ''"
               >
-                <span
-                  class="truncate block text-slate-500"
-                  v-if="!get(order, 'locations.ward.name_with_type')"
+                <input
+                  type="text"
+                  id="province-input"
+                  v-model="search_locations"
+                  placeholder="Phường, Xã"
+                  @keyup="searchLocation('ward')"
+                  v-if="!get(order, 'locations.ward.name')"
+                  class="w-full flex items-center justify-between p-2 border rounded-md focus:outline-none"
+                />
+                <div
+                  v-if="get(order, 'locations.ward.name')"
+                  class="w-full flex items-center justify-between p-2 border rounded-md"
                 >
-                  Phường, xã
-                </span>
-                <span
-                  class="truncate block text-slate-500"
-                  v-else
-                >
-                  {{ get(order, 'locations.ward.name_with_type') }}
-                </span>
-                <ArrowIcon class="text-gray-500" />
-              </button>
+                  {{ get(order, 'locations.ward.name') }}
+                </div>
+                <ArrowIcon
+                  class="text-gray-500 absolute right-3"
+                  v-if="!get(order, 'locations.ward.name')"
+                />
+                <img
+                  :src="DeleteIcon"
+                  @click="removeLocation('ward')"
+                  class="absolute right-3 w-2 cursor-pointer"
+                  v-if="get(order, 'locations.ward.name')"
+                />
+              </div>
             </template>
             <template #box>
               <div
-                class="w-52 rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-40 overflow-auto mt-2 -ml-20"
+                class="w-full rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-40 overflow-auto mt-2"
                 v-if="show_dropbox && isAvailablelUpdate('address')"
               >
-                <!-- <input
-                  type="text"
-                  class="px-2 py-1 border rounded-md focus:outline-none"
-                  placeholder="Tìm kiếm"
-                /> -->
                 <div
                   v-for="item in wards"
+                  v-show="!item.is_hidden"
                   @click="selectWard(item)"
                   class="px-3 py-1 hover:bg-slate-100"
                 >
@@ -237,83 +273,89 @@
             </div>
           </template>
         </Dropbox>
-        <table class="border-separate border-spacing-y-1">
-          <thead>
-            <tr class="bg-slate-500 text-white text-xs sticky top-0 z-10">
-              <th class="text-start rounded-s font-medium py-1 pl-2">
-                Tên sản phẩm
-              </th>
-              <th class="text-center font-medium py-1">SL</th>
-              <th class="text-end font-medium py-1">Giảm giá</th>
-              <th class="text-end font-medium py-1 pr-2 rounded-e">
-                Tổng tiền
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-if="!order.products?.length">
-              <td
-                colspan="5"
-                class="text-center py-3 text-slate-500"
-              >
-                Chưa có sản phẩm
-              </td>
-            </tr>
-            <tr
-              v-else
-              v-for="(product, index) in order.products"
-              class="cursor-pointer hover:bg-slate-200 group"
-            >
-              <td class="py-1 pl-2 rounded-s">
-                <p class="w-32 truncate">
-                  {{ product.product_name }}
-                </p>
-              </td>
-              <td class="text-end py-1">
-                <cleave
-                  class="text-center border-b border-black outline-none bg-transparent w-24"
-                  :options="cleave_options"
-                  v-model="product.quantity"
-                  @change="calculatorOrder(true)"
-                  type="tel"
-                />
-              </td>
-              <td class="text-end py-1">
-                <cleave
-                  class="w-14 text-end border-b border-black outline-none bg-transparent"
-                  :options="cleave_options"
-                  v-model="product.discount"
-                  @change="calculatorOrder(true)"
-                  type="tel"
-                />
-              </td>
-              <td class="text-end py-1 pr-2 rounded-e">
-                <div
-                  class="flex items-center justify-end group w-full"
-                  @click="removeProduct(index)"
+        <div class="w-full overflow-auto">
+          <table class="border-separate border-spacing-y-1 w-full">
+            <thead>
+              <tr class="bg-slate-500 text-white text-xs sticky top-0 z-10">
+                <th class="text-start rounded-s font-medium py-1 pl-2">
+                  Tên sản phẩm
+                </th>
+                <th class="text-center font-medium py-1">SL</th>
+                <th class="text-end font-medium py-1">Giảm giá</th>
+                <th class="text-end font-medium py-1 pr-2 rounded-e">
+                  Tổng tiền
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-if="!order.products?.length">
+                <td
+                  colspan="5"
+                  class="text-center py-3 text-slate-500"
                 >
-                  <p class="group-hover:hidden">
-                    {{ currency(product.total_price) || 0 }}
+                  Chưa có sản phẩm
+                </td>
+              </tr>
+              <tr
+                v-else
+                v-for="(product, index) in order.products"
+                class="cursor-pointer hover:bg-slate-200 group"
+              >
+                <td class="py-1 pl-2 rounded-s">
+                  <p class="w-28 truncate">
+                    {{ product.product_name }}
                   </p>
-                  <img
-                    v-if="isAvailablelUpdate('product')"
-                    class="hidden group-hover:block mr-4"
-                    :src="CancelIcon"
-                    v-tooltip="'Xóa'"
+                </td>
+                <td class="text-end py-1">
+                  <cleave
+                    class="text-end border-b border-black outline-none bg-transparent w-20"
+                    :options="cleave_options"
+                    v-model="product.quantity"
+                    @change="calculatorOrder(true)"
+                    type="tel"
                   />
-                </div>
-              </td>
-            </tr>
-            <tr class="bg-slate-200 font-semibold sticky bottom-0">
-              <td class="text-end rounded-s py-1 pr-3">Tổng</td>
-              <td class="text-center py-1">{{ order.quantity }}</td>
-              <td class="text-end py-1">{{ order.discount }}</td>
-              <td class="text-end py-1 rounded-e pr-2">
-                {{ currency(order.total_price) || 0 }}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+                </td>
+                <td class="text-end py-1">
+                  <cleave
+                    class="w-14 text-end border-b border-black outline-none bg-transparent"
+                    :options="cleave_options"
+                    v-model="product.discount"
+                    @change="calculatorOrder(true)"
+                    type="tel"
+                  />
+                </td>
+                <td class="text-end py-1 pr-2 rounded-e">
+                  <div
+                    class="flex items-center justify-end group w-full"
+                    @click="removeProduct(index)"
+                  >
+                    <p class="group-hover:hidden">
+                      {{ currency(product.total_price) || 0 }}
+                    </p>
+                    <img
+                      v-if="isAvailablelUpdate('product')"
+                      class="hidden group-hover:block mr-4"
+                      :src="CancelIcon"
+                      v-tooltip="'Xóa'"
+                    />
+                  </div>
+                </td>
+              </tr>
+              <tr class="bg-slate-200 font-semibold sticky bottom-0">
+                <td class="text-end rounded-s py-1 pr-3">Tổng</td>
+                <td class="text-end py-1">
+                  {{ order.quantity || 0 }}
+                </td>
+                <td class="text-end py-1">
+                  {{ currency(order.discount) || 0 }}
+                </td>
+                <td class="text-end py-1 rounded-e pr-2">
+                  {{ currency(order.total_price) || 0 }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
       <div class="flex flex-col gap-2">
         <div class="flex items-center gap-2">
@@ -356,11 +398,12 @@
             </Dropbox>
           </div>
         </div>
-        <div class="grid grid-cols-2 items-center" v-if="payment_method === 'CASH'">
+        <div
+          class="grid grid-cols-2 items-center"
+          v-if="payment_method === 'CASH'"
+        >
           <p>- Đã thanh toán</p>
-          <div
-            class="flex justify-end"
-          >
+          <div class="flex justify-end">
             <cleave
               class="w-32 outline-none border-b border-black text-end text-blue-700 font-bold text-base"
               :options="cleave_options"
@@ -376,7 +419,9 @@
         >
           <div class="grid grid-cols-2">
             <p>- Đã thanh toán</p>
-            <p class="font-bold text-base text-blue-700 text-end">Chờ thanh toán</p>
+            <p class="font-bold text-base text-blue-700 text-end">
+              Chờ thanh toán
+            </p>
           </div>
           <div
             v-if="payment_method === 'MOMO'"
@@ -388,7 +433,9 @@
             />
             <div class="flex flex-col gap-1">
               <p>Thông tin Link thanh toán</p>
-              <div class="text-xs border py-1 px-3 rounded-md bg-slate-100 w-full">
+              <div
+                class="text-xs border py-1 px-3 rounded-md bg-slate-100 w-full"
+              >
                 <p>Số TK:123123123</p>
                 <p>Tên TK: CTCP Công nghệ Chatbot</p>
                 <p>Ngân hàng: Techcombank</p>
@@ -416,7 +463,9 @@
             />
             <div class="flex flex-col gap-1">
               <p>Thông tin Link thanh toán</p>
-              <div class="text-xs border py-1 px-3 rounded-md bg-slate-100 w-full">
+              <div
+                class="text-xs border py-1 px-3 rounded-md bg-slate-100 w-full"
+              >
                 <p>Số TK:123123123</p>
                 <p>Tên TK: CTCP Công nghệ Chatbot</p>
                 <p>Ngân hàng: Techcombank</p>
@@ -460,7 +509,11 @@
             <Dropbox>
               <template v-slot:trigger>
                 <div
-                  class="px-3 py-2.5 rounded-md border bg-white text-gray-500"
+                  class="px-3 py-2.5 rounded-md border bg-white"
+                  :class="{
+                    'text-gray-500': !staff.employee_id,
+                    'text-gray-800': staff.employee_id,
+                  }"
                   @click="
                     isAvailablelUpdate('')
                       ? (show_dropbox = true)
@@ -588,9 +641,10 @@
   </article>
 </template>
 <script setup lang="ts">
-import { ref, onMounted, readonly } from 'vue'
 import { useMerchantStore } from '@/stores'
+import { ref, onMounted, readonly } from 'vue'
 import { Toast } from '@/service/helper/toast'
+import { nonAccentVn } from '@/service/helper/format'
 import { get, isNumber, pick, debounce } from 'lodash'
 import { confirm2 as confirm } from '@/service/helper/alert'
 import { cleave_options, payment_methods } from '@/service/options'
@@ -619,6 +673,7 @@ import CancelIcon from '@/assets/icons/cancel.svg'
 import QRMomoImage from '@/assets/imgs/qr-momo.png'
 import QRBankImage from '@/assets/imgs/qr-bank.png'
 import ProductIcon from '@/assets/icons/product.svg'
+import DeleteIcon from '@/assets/icons/delete-black.svg'
 import ArrowIcon from '@/components/icons/ArrowIcon.vue'
 import CreditCardIcon from '@/assets/icons/credit-card.svg'
 import QuestionMaskIcon from '@/assets/icons/question-mark.svg'
@@ -718,6 +773,9 @@ const provinces = ref<ProvinceData[]>($merchant.provinces)
 /** Danh sách địa chỉ */
 const addresses = ref<Addresses[]>([])
 
+/** Tìm kiếm tên địa điểm */
+const search_locations = ref<string>('')
+
 onMounted(() => {
   loadProduct()
   if ($merchant.order_edit.id) {
@@ -726,7 +784,7 @@ onMounted(() => {
     return
   }
   if (!order.value.id) {
-    order.value.order_journey = copy($merchant.setting?.online_status|| [])
+    order.value.order_journey = copy($merchant.setting?.online_status || [])
     order.value.staffs = $merchant.setting?.online_staff
     order.value.contact_id = $merchant.contact?.identifier_id
     order.value.contact_info = $merchant.contact
@@ -758,6 +816,7 @@ async function selectProvince(item: ProvinceData) {
   districts.value = await getDistrict({
     province_id: item.code,
   })
+  search_locations.value = ''
 }
 
 /** Chọn quận huyện */
@@ -768,12 +827,14 @@ async function selectDistrict(item: DistrictData) {
   wards.value = await getWard({
     district_id: item.code,
   })
+  search_locations.value = ''
 }
 
 /** Chọn phường xã */
 function selectWard(item: WardData) {
   show_dropbox.value = false
   if (order.value.locations) order.value.locations.ward = item
+  search_locations.value = ''
 }
 
 /** Lấy thông tin sản phẩm */
@@ -1289,7 +1350,7 @@ async function searchAddress() {
 /** Chọn địa chỉ */
 async function getDetailLocation(address: Addresses) {
   /** Gán địa chỉ */
-  order.value.address = address.address_name
+  order.value.address = address.address_name.split(' - ')[0]
 
   // * Tắt dropbox
   show_dropbox.value = false
@@ -1301,11 +1362,11 @@ async function getDetailLocation(address: Addresses) {
 
   // * Gán dữ liệu loction
   if (order.value.locations) {
-    order.value.locations.province = {
-      code: location_detail.province?.id,
-      name: location_detail.province?.name,
-      name_with_type: location_detail.province?.name,
-    }
+    provinces.value.map(item => {
+      if (item.code === location_detail.province?.id && order.value.locations) {
+        order.value.locations.province = item
+      }
+    })
 
     order.value.locations.district = {
       code: location_detail.district?.id,
@@ -1341,6 +1402,49 @@ async function getDetailLocation(address: Addresses) {
     wards.value = await getWard({
       district_id: location_detail.district?.id,
     })
+  }
+}
+
+/** Tìm kiếm location */
+function searchLocation(type: 'province' | 'district' | 'ward') {
+  let search = nonAccentVn(search_locations.value)
+  if (type === 'province') {
+    provinces.value.map(item => {
+      let name = nonAccentVn(item.name as string)
+      if (!search) item.is_hidden = false
+      else if (name.includes(search)) item.is_hidden = false
+      else item.is_hidden = true
+    })
+  }
+  if (type === 'district') {
+    districts.value.map(item => {
+      let name = nonAccentVn(item.name as string)
+      if (!search) item.is_hidden = false
+      else if (name.includes(search)) item.is_hidden = false
+      else item.is_hidden = true
+    })
+  }
+  if (type === 'ward') {
+    wards.value.map(item => {
+      let name = nonAccentVn(item.name as string)
+      if (!search) item.is_hidden = false
+      else if (name?.includes(search)) item.is_hidden = false
+      else item.is_hidden = true
+    })
+  }
+}
+
+/** Xóa location */
+function removeLocation(type: 'province' | 'district' | 'ward') {
+  search_locations.value = ''
+  if (order.value.locations?.province && type === 'province') {
+    order.value.locations.province = {}
+  }
+  if (order.value.locations?.district && type === 'district') {
+    order.value.locations.district = {}
+  }
+  if (order.value.locations?.ward && type === 'ward') {
+    order.value.locations.ward = {}
   }
 }
 </script>

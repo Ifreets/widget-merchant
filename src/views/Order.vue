@@ -54,13 +54,15 @@ onMounted(async () => {
 /** hàm call API đồng bộ dữ liệu sang merchant */
 async function synchData() {
   try {
-
     // * lưu lại total order
     merchantStore.saveTotalOrder(0)
 
     // * lưu lại tab hiện tại
     merchantStore.saveCurrentTab('')
-    
+
+    // * Reset order
+    merchantStore.saveOrderEdit({})
+
     // * ghi lại thông tin khách hàng mới
     appStore.data_client = await WIDGET.decodeClient()
 
@@ -72,6 +74,12 @@ async function synchData() {
 
     // * Lưu lại thông tin contact
     merchantStore.saveMerchantContact(contact)
+
+    // * lưu lại tab hiện tại
+    merchantStore.saveCurrentTab('ORDERS')
+
+    //tắt loading
+    commonStore.is_loading_full_screen = false
 
     /** Lấy danh sách tỉnh thành */
     const provinces = await getProvince({})
@@ -90,10 +98,6 @@ async function synchData() {
 
     // * Lưu lại danh sách nhân viên
     merchantStore.saveEmployees(employees.data)
-
-    // * lưu lại tab hiện tại
-    merchantStore.saveCurrentTab('ORDERS')
-
   } catch (error) {
     console.log('synch to merchant', error)
   }
@@ -122,9 +126,7 @@ async function load() {
 
     //đồng bộ dữ liệu
     await synchData()
-
-    //tắt loading
-    commonStore.is_loading_full_screen = false
+    
   } catch (error) {
     console.log('load home', error)
     //chuyển tab setting
