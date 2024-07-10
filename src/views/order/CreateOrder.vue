@@ -64,7 +64,7 @@
             <template #trigger>
               <div
                 class="w-full relative flex items-center"
-                @click="show_dropbox = true, search_locations = ''"
+                @click=";(show_dropbox = true), (search_locations = '')"
               >
                 <input
                   type="text"
@@ -72,24 +72,24 @@
                   v-model="search_locations"
                   placeholder="Tỉnh, thành phố"
                   @keyup="searchLocation('province')"
-                  v-if="!get(order, 'locations.province.name')"
+                  v-show="!get(order, 'locations.province.name')"
                   class="w-full flex items-center justify-between p-2 border rounded-md focus:outline-none"
                 />
                 <div
-                  v-if="get(order, 'locations.province.name')"
+                  v-show="get(order, 'locations.province.name')"
                   class="w-full flex items-center justify-between p-2 border rounded-md"
                 >
                   {{ get(order, 'locations.province.name') }}
                 </div>
                 <ArrowIcon
                   class="text-gray-500 absolute right-3"
-                  v-if="!get(order, 'locations.province.name')"
+                  v-show="!get(order, 'locations.province.name')"
                 />
                 <img
                   :src="DeleteIcon"
                   @click="removeLocation('province')"
                   class="absolute right-3 w-2 cursor-pointer"
-                  v-if="get(order, 'locations.province.name')"
+                  v-show="get(order, 'locations.province.name')"
                 />
               </div>
             </template>
@@ -115,39 +115,39 @@
             <template #trigger>
               <div
                 class="w-full relative flex items-center"
-                @click="show_dropbox = true, search_locations = ''"
+                @click=";(show_dropbox = true), (search_locations = '')"
               >
                 <input
                   type="text"
-                  id="province-input"
+                  id="district-input"
                   v-model="search_locations"
                   placeholder="Quận, Huyện"
                   @keyup="searchLocation('district')"
-                  v-if="!get(order, 'locations.district.name')"
+                  v-show="!get(order, 'locations.district.name')"
                   class="w-full flex items-center justify-between p-2 border rounded-md focus:outline-none"
                 />
                 <div
-                  v-if="get(order, 'locations.district.name')"
+                  v-show="get(order, 'locations.district.name')"
                   class="w-full flex items-center justify-between p-2 border rounded-md"
                 >
                   {{ get(order, 'locations.district.name') }}
                 </div>
                 <ArrowIcon
                   class="text-gray-500 absolute right-3"
-                  v-if="!get(order, 'locations.district.name')"
+                  v-show="!get(order, 'locations.district.name')"
                 />
                 <img
                   :src="DeleteIcon"
                   @click="removeLocation('district')"
                   class="absolute right-3 w-2 cursor-pointer"
-                  v-if="get(order, 'locations.district.name')"
+                  v-show="get(order, 'locations.district.name')"
                 />
               </div>
             </template>
             <template #box>
               <div
                 class="w-full rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-40 overflow-auto mt-2"
-                v-if="show_dropbox && isAvailablelUpdate('address')"
+                v-show="show_dropbox && isAvailablelUpdate('address')"
               >
                 <div
                   v-for="item in districts"
@@ -164,39 +164,39 @@
             <template #trigger>
               <div
                 class="w-full relative flex items-center"
-                @click="show_dropbox = true, search_locations = ''"
+                @click=";(show_dropbox = true), (search_locations = '')"
               >
                 <input
                   type="text"
-                  id="province-input"
+                  id="ward-input"
                   v-model="search_locations"
                   placeholder="Phường, Xã"
                   @keyup="searchLocation('ward')"
-                  v-if="!get(order, 'locations.ward.name')"
+                  v-show="!get(order, 'locations.ward.name')"
                   class="w-full flex items-center justify-between p-2 border rounded-md focus:outline-none"
                 />
                 <div
-                  v-if="get(order, 'locations.ward.name')"
+                  v-show="get(order, 'locations.ward.name')"
                   class="w-full flex items-center justify-between p-2 border rounded-md"
                 >
                   {{ get(order, 'locations.ward.name') }}
                 </div>
                 <ArrowIcon
                   class="text-gray-500 absolute right-3"
-                  v-if="!get(order, 'locations.ward.name')"
+                  v-show="!get(order, 'locations.ward.name')"
                 />
                 <img
                   :src="DeleteIcon"
                   @click="removeLocation('ward')"
                   class="absolute right-3 w-2 cursor-pointer"
-                  v-if="get(order, 'locations.ward.name')"
+                  v-show="get(order, 'locations.ward.name')"
                 />
               </div>
             </template>
             <template #box>
               <div
                 class="w-full rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-40 overflow-auto mt-2"
-                v-if="show_dropbox && isAvailablelUpdate('address')"
+                v-show="show_dropbox && isAvailablelUpdate('address')"
               >
                 <div
                   v-for="item in wards"
@@ -817,6 +817,7 @@ async function selectProvince(item: ProvinceData) {
     province_id: item.code,
   })
   search_locations.value = ''
+  focusInput('district-input')
 }
 
 /** Chọn quận huyện */
@@ -828,6 +829,7 @@ async function selectDistrict(item: DistrictData) {
     district_id: item.code,
   })
   search_locations.value = ''
+  focusInput('ward-input')
 }
 
 /** Chọn phường xã */
@@ -1439,12 +1441,41 @@ function removeLocation(type: 'province' | 'district' | 'ward') {
   search_locations.value = ''
   if (order.value.locations?.province && type === 'province') {
     order.value.locations.province = {}
+    focusInput('province-input')
+    resetHidden()
   }
   if (order.value.locations?.district && type === 'district') {
     order.value.locations.district = {}
+    focusInput('district-input')
+    resetHidden()
   }
   if (order.value.locations?.ward && type === 'ward') {
     order.value.locations.ward = {}
+    focusInput('ward-input')
+    resetHidden()
   }
 }
+
+/** Focus vào input */
+function focusInput(id: string) {
+  let input = document.getElementById(id) as HTMLInputElement
+  setTimeout(() => {
+    if (input) input.click()
+    if (input) input.focus()
+  }, 300)
+}
+
+/** Loại bỏ trạng thái ẩn hiện */
+function resetHidden() {
+  provinces.value.map(item => {
+    item.is_hidden = false
+  })
+  districts.value.map(item => {
+    item.is_hidden = false
+  })
+  wards.value.map(item => {
+    item.is_hidden = false
+  })
+}
+
 </script>
