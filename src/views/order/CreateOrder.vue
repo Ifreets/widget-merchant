@@ -71,7 +71,8 @@
                   id="province-input"
                   v-model="search_locations"
                   placeholder="Tỉnh, thành phố"
-                  @keyup="searchLocation('province')"
+                  @input="searchLocation('province')"
+                  @keyup.enter="selectFirstLocation('province')"
                   v-show="!get(order, 'locations.province.name')"
                   class="w-full flex items-center justify-between p-2 border rounded-md focus:outline-none"
                 />
@@ -90,6 +91,7 @@
                   @click="removeLocation('province')"
                   class="absolute right-3 w-2 cursor-pointer"
                   v-show="get(order, 'locations.province.name')"
+                  v-if="isAvailablelUpdate('address')"
                 />
               </div>
             </template>
@@ -99,10 +101,13 @@
                 v-show="show_dropbox && isAvailablelUpdate('address')"
               >
                 <div
-                  v-for="item in provinces"
+                  v-for="item, index in provinces"
                   @click="selectProvince(item)"
                   v-show="!item.is_hidden"
-                  class="px-3 py-1 hover:bg-slate-100"
+                  class="px-3 py-1 hover:bg-slate-100 rounded"
+                  :class="{
+                    'bg-slate-100': getFirstLocationIndex('province') === index
+                  }"
                 >
                   {{ item.name }}
                 </div>
@@ -122,7 +127,8 @@
                   id="district-input"
                   v-model="search_locations"
                   placeholder="Quận, Huyện"
-                  @keyup="searchLocation('district')"
+                  @input="searchLocation('district')"
+                  @keyup.enter="selectFirstLocation('district')"
                   v-show="!get(order, 'locations.district.name')"
                   class="w-full flex items-center justify-between p-2 border rounded-md focus:outline-none"
                 />
@@ -141,6 +147,7 @@
                   @click="removeLocation('district')"
                   class="absolute right-3 w-2 cursor-pointer"
                   v-show="get(order, 'locations.district.name')"
+                  v-if="isAvailablelUpdate('address')"
                 />
               </div>
             </template>
@@ -150,10 +157,13 @@
                 v-show="show_dropbox && isAvailablelUpdate('address')"
               >
                 <div
-                  v-for="item in districts"
+                  v-for="item, index in districts"
                   v-show="!item.is_hidden"
                   @click="selectDistrict(item)"
-                  class="px-3 py-1 hover:bg-slate-100"
+                  class="px-3 py-1 hover:bg-slate-100 rounded"
+                  :class="{
+                    'bg-slate-100': getFirstLocationIndex('district') === index
+                  }"
                 >
                   {{ item.name_with_type }}
                 </div>
@@ -171,7 +181,8 @@
                   id="ward-input"
                   v-model="search_locations"
                   placeholder="Phường, Xã"
-                  @keyup="searchLocation('ward')"
+                  @input="searchLocation('ward')"
+                  @keyup.enter="selectFirstLocation('ward')"
                   v-show="!get(order, 'locations.ward.name')"
                   class="w-full flex items-center justify-between p-2 border rounded-md focus:outline-none"
                 />
@@ -190,6 +201,7 @@
                   @click="removeLocation('ward')"
                   class="absolute right-3 w-2 cursor-pointer"
                   v-show="get(order, 'locations.ward.name')"
+                  v-if="isAvailablelUpdate('address')"
                 />
               </div>
             </template>
@@ -199,10 +211,13 @@
                 v-show="show_dropbox && isAvailablelUpdate('address')"
               >
                 <div
-                  v-for="item in wards"
+                  v-for="item, index in wards"
                   v-show="!item.is_hidden"
                   @click="selectWard(item)"
-                  class="px-3 py-1 hover:bg-slate-100"
+                  class="px-3 py-1 hover:bg-slate-100 rounded"
+                  :class="{
+                    'bg-slate-100': getFirstLocationIndex('ward') === index
+                  }"
                 >
                   {{ item.name_with_type }}
                 </div>
@@ -1478,4 +1493,50 @@ function resetHidden() {
   })
 }
 
+/** Chọn luôn địa chỉ hiện tại */
+function selectFirstLocation(type: 'province' | 'district' | 'ward') {
+  if (type === 'province') {
+    for (let i = 0; i < provinces.value.length; i++) {
+      if (!provinces.value[i].is_hidden) {
+        selectProvince(provinces.value[i])
+        return
+      }
+    }
+  }
+  if (type === 'district') {
+    for (let i = 0; i < districts.value.length; i++) {
+      if (!districts.value[i].is_hidden) {
+        selectDistrict(districts.value[i])
+        return
+      }
+    }
+  }
+  if (type === 'ward') {
+    for (let i = 0; i < wards.value.length; i++) {
+      if (!wards.value[i].is_hidden) {
+        selectWard(wards.value[i])
+        return
+      }
+    }
+  }
+}
+
+/** Lấy ra index đầu tiên không bị ẩn */
+function getFirstLocationIndex(type: 'province' | 'district' | 'ward') {
+  if (type === 'province') {
+    for (let i = 0; i < provinces.value.length; i++) {
+      if (!provinces.value[i].is_hidden) return i
+    }
+  }
+  if (type === 'district') {
+    for (let i = 0; i < districts.value.length; i++) {
+      if (!districts.value[i].is_hidden) return i
+    }
+  }
+  if (type === 'ward') {
+    for (let i = 0; i < wards.value.length; i++) {
+      if (!wards.value[i].is_hidden) return i
+    }
+  }
+}
 </script>
