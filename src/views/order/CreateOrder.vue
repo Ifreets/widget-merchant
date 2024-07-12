@@ -43,7 +43,7 @@
                   @keyup.down="controlLocation('address', 'down')"
                   @keydown.tab="tabEvent('address')"
                   :readonly="!isAvailablelUpdate('address')"
-                  class="px-3 py-2.5 border rounded-md outline-none placeholder:text-slate-500 w-full"
+                  class="px-3 py-2.5 border rounded-md placeholder:text-slate-500 w-full"
                 />
                 <img
                   :src="DeleteIcon"
@@ -108,7 +108,7 @@
                         get(order, 'locations.province.name') || ''
                     }
                   "
-                  class="w-full flex items-center justify-between p-2 border rounded-md focus:outline-none"
+                  class="w-full flex items-center justify-between p-2 border rounded-md"
                 />
                 <ArrowIcon
                   class="text-gray-500 absolute right-3"
@@ -175,7 +175,7 @@
                   @keyup.up="controlLocation('district', 'up')"
                   @keyup.down="controlLocation('district', 'down')"
                   @keydown.tab="tabEvent('district')"
-                  class="w-full flex items-center justify-between p-2 border rounded-md focus:outline-none"
+                  class="w-full flex items-center justify-between p-2 border rounded-md"
                 />
                 <ArrowIcon
                   class="text-gray-500 absolute right-3"
@@ -239,7 +239,7 @@
                   @keyup.up="controlLocation('ward', 'up')"
                   @keyup.down="controlLocation('ward', 'down')"
                   @keydown.tab="tabEvent('ward')"
-                  class="w-full flex items-center justify-between p-2 border rounded-md focus:outline-none"
+                  class="w-full flex items-center justify-between p-2 border rounded-md"
                 />
                 <ArrowIcon
                   class="text-gray-500 absolute right-3"
@@ -280,7 +280,7 @@
           <img :src="BagIcon" />
           <p class="font-semibold">Sản phẩm</p>
         </div>
-        <Dropbox class="border py-2 px-3 rounded-md">
+        <Dropbox class="border py-2 px-3 rounded-md group focus-within:border-blue-600 focus-within:border-2">
           <template #trigger>
             <div
               class="flex items-center gap-2"
@@ -300,7 +300,7 @@
                 @keyup.down="controlProduct('down')"
                 placeholder="Nhập mã, tên sản phẩm..."
                 :readonly="!isAvailablelUpdate('product')"
-                class="flex-grow outline-none placeholder:text-slate-500"
+                class="flex-grow outline-none placeholder:text-slate-500 focus:group:border-blue-700"
               />
               <ArrowIcon class="flex-shink-0 text-gray-500" />
             </div>
@@ -1007,6 +1007,9 @@ function selectProduct(item: Product, still_show_box?: boolean) {
   /** Xóa text tìm kiếm sản phẩm */
   search_product.value = ''
 
+  /** Tính giá trị đơn hàng */
+  loadProduct()
+
   /** Reset index sản phẩm */
   product_index.value = 0
 
@@ -1147,8 +1150,6 @@ function calculatorOrder(is_update_order?: boolean) {
     total_other_costs += Number(item.value)
   })
 
-  console.log('total_other_costs ===>', order.value.total_other_costs)
-
   order.value.total_other_costs = total_other_costs
 
   // * Tính tổng tiền khách cần trả
@@ -1192,9 +1193,10 @@ async function createNewOrder(status?: string) {
     })
     order.value = new_order
     /** Lưu lại đơn mới vào store */
-    $merchant.saveOrders([...new_order, ...$merchant.orders])
+    $merchant.saveOrders([new_order, ...$merchant.orders])
     $toast.success('Tạo đơn hàng thành công')
   } catch (e) {
+    console.log(e)
     $toast.error(e as string)
   }
 }

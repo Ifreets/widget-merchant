@@ -282,7 +282,13 @@ function getFullName(order: any) {
 
 /** Lấy địa chỉ */
 function getAddress() {
+  let province = props.order?.locations?.province?.name || ''
+  let district = props.order?.locations?.district?.name_with_type || ''
+  let ward = props.order?.locations?.ward?.name_with_type || ''
   let address = props.order?.address || ''
+  if(ward) address = `${address}, ${ward}`
+  if(district) address = `${address}, ${district}`
+  if(province) address = `${address}, ${province}`
   return address
 }
 
