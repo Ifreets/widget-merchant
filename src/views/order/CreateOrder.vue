@@ -1496,6 +1496,7 @@ function removeLocation(type: 'province' | 'district' | 'ward' | 'all') {
   }
   if (order.value.locations?.district && type === 'district') {
     order.value.locations.district = {}
+    order.value.locations.ward = {}
     focusInput('district-input')
   }
   if (order.value.locations?.ward && type === 'ward') {
