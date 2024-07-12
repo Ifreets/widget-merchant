@@ -38,7 +38,10 @@
                   placeholder="Địa chỉ"
                   v-model="order.address"
                   @input="search_address"
-                  @keyup.enter="selectFirstAddress"
+                  @keyup.enter="selectLocation('address')"
+                  @keyup.up="controlLocation('address', 'up')"
+                  @keyup.down="controlLocation('address', 'down')"
+                  @keydown.tab="tabEvent('address')"
                   :readonly="!isAvailablelUpdate('address')"
                   class="px-3 py-2.5 border rounded-md outline-none placeholder:text-slate-500 w-full"
                 />
@@ -65,7 +68,7 @@
                   @click="getDetailLocation(address)"
                   class="px-3 py-1.5 hover:bg-slate-100 rounded-md w-full"
                   :class="{
-                    'bg-slate-100': index === 0,
+                    'bg-slate-100': index === location_index,
                   }"
                 >
                   {{ address.address_name }}
@@ -79,25 +82,34 @@
             <template #trigger>
               <div
                 class="w-full relative flex items-center"
-                @click=";(show_dropbox = true), (search_provice = '')"
+                @click="show_dropbox = true"
               >
                 <input
                   type="text"
                   id="province-input"
                   v-model="search_provice"
-                  placeholder="Tỉnh, thành phố"
+                  :placeholder="
+                    get(order, 'locations.province.name') || `Tỉnh, thành phố`
+                  "
                   @input="searchLocation('province')"
-                  @keyup.enter="selectFirstLocation('province')"
-                  v-show="!get(order, 'locations.province.name')"
+                  @keyup.enter="selectLocation('province')"
+                  @keyup.up="controlLocation('province', 'up')"
+                  @keyup.down="controlLocation('province', 'down')"
+                  @keydown.tab="tabEvent('province')"
+                  @focusin="
+                    () => {
+                      search_provice = ''
+                      resetHidden()
+                    }
+                  "
+                  @focusout="
+                    () => {
+                      search_provice =
+                        get(order, 'locations.province.name') || ''
+                    }
+                  "
                   class="w-full flex items-center justify-between p-2 border rounded-md focus:outline-none"
                 />
-                <div
-                  @click="removeLocation('province')"
-                  v-show="get(order, 'locations.province.name')"
-                  class="w-full flex items-center justify-between p-2 border rounded-md"
-                >
-                  {{ get(order, 'locations.province.name') }}
-                </div>
                 <ArrowIcon
                   class="text-gray-500 absolute right-3"
                   v-show="!get(order, 'locations.province.name')"
@@ -117,12 +129,12 @@
                 v-show="show_dropbox && isAvailablelUpdate('address')"
               >
                 <div
+                  :id="`province-${index}`"
                   v-for="(item, index) in provinces"
                   @click="selectProvince(item)"
-                  v-show="!item.is_hidden"
                   class="px-3 py-1 hover:bg-slate-100 rounded"
                   :class="{
-                    'bg-slate-100': getFirstLocationIndex('province') === index,
+                    'bg-slate-100': index === province_index,
                   }"
                 >
                   {{ item.name }}
@@ -136,34 +148,44 @@
             <template #trigger>
               <div
                 class="w-full relative flex items-center"
-                @click=";(show_dropbox = true), (search_district = '')"
+                @click="show_dropbox = true"
               >
                 <input
                   type="text"
                   id="district-input"
                   v-model="search_district"
-                  placeholder="Quận, Huyện"
+                  :placeholder="
+                    get(order, 'locations.district.name_with_type') ||
+                    `Quận, huyện`
+                  "
+                  @focusin="
+                    () => {
+                      search_district = ''
+                      resetHidden()
+                    }
+                  "
+                  @focusout="
+                    () => {
+                      search_district =
+                        get(order, 'locations.district.name_with_type') || ''
+                    }
+                  "
                   @input="searchLocation('district')"
-                  @keyup.enter="selectFirstLocation('district')"
-                  v-show="!get(order, 'locations.district.name')"
+                  @keyup.enter="selectLocation('district')"
+                  @keyup.up="controlLocation('district', 'up')"
+                  @keyup.down="controlLocation('district', 'down')"
+                  @keydown.tab="tabEvent('district')"
                   class="w-full flex items-center justify-between p-2 border rounded-md focus:outline-none"
                 />
-                <div
-                  @click="removeLocation('district')"
-                  v-show="get(order, 'locations.district.name')"
-                  class="w-full flex items-center justify-between p-2 border rounded-md"
-                >
-                  {{ get(order, 'locations.district.name') }}
-                </div>
                 <ArrowIcon
                   class="text-gray-500 absolute right-3"
-                  v-show="!get(order, 'locations.district.name')"
+                  v-show="!get(order, 'locations.district.name_with_type')"
                 />
                 <img
                   :src="DeleteIcon"
                   @click="removeLocation('district')"
                   class="absolute right-3 w-2 cursor-pointer"
-                  v-show="get(order, 'locations.district.name')"
+                  v-show="get(order, 'locations.district.name_with_type')"
                   v-if="isAvailablelUpdate('address')"
                 />
               </div>
@@ -174,12 +196,12 @@
                 v-show="show_dropbox && isAvailablelUpdate('address')"
               >
                 <div
+                  :id="`district-${index}`"
                   v-for="(item, index) in districts"
-                  v-show="!item.is_hidden"
                   @click="selectDistrict(item)"
                   class="px-3 py-1 hover:bg-slate-100 rounded"
                   :class="{
-                    'bg-slate-100': getFirstLocationIndex('district') === index,
+                    'bg-slate-100': index === district_index,
                   }"
                 >
                   {{ item.name_with_type }}
@@ -191,34 +213,43 @@
             <template #trigger>
               <div
                 class="w-full relative flex items-center"
-                @click=";(show_dropbox = true), (search_ward = '')"
+                @click="show_dropbox = true"
               >
                 <input
                   type="text"
                   id="ward-input"
                   v-model="search_ward"
-                  placeholder="Phường, Xã"
+                  :placeholder="
+                    get(order, 'locations.ward.name_with_type') || `Phường, xã`
+                  "
+                  @focusin="
+                    () => {
+                      search_ward = ''
+                      resetHidden()
+                    }
+                  "
+                  @focusout="
+                    () => {
+                      search_ward =
+                        get(order, 'locations.ward.name_with_type') || ''
+                    }
+                  "
                   @input="searchLocation('ward')"
-                  @keyup.enter="selectFirstLocation('ward')"
-                  v-show="!get(order, 'locations.ward.name')"
+                  @keyup.enter="selectLocation('ward')"
+                  @keyup.up="controlLocation('ward', 'up')"
+                  @keyup.down="controlLocation('ward', 'down')"
+                  @keydown.tab="tabEvent('ward')"
                   class="w-full flex items-center justify-between p-2 border rounded-md focus:outline-none"
                 />
-                <div
-                  @click="removeLocation('ward')"
-                  v-show="get(order, 'locations.ward.name')"
-                  class="w-full flex items-center justify-between p-2 border rounded-md"
-                >
-                  {{ get(order, 'locations.ward.name') }}
-                </div>
                 <ArrowIcon
                   class="text-gray-500 absolute right-3"
-                  v-show="!get(order, 'locations.ward.name')"
+                  v-show="!get(order, 'locations.ward.name_with_type')"
                 />
                 <img
                   :src="DeleteIcon"
                   @click="removeLocation('ward')"
                   class="absolute right-3 w-2 cursor-pointer"
-                  v-show="get(order, 'locations.ward.name')"
+                  v-show="get(order, 'locations.ward.name_with_type')"
                   v-if="isAvailablelUpdate('address')"
                 />
               </div>
@@ -229,12 +260,12 @@
                 v-show="show_dropbox && isAvailablelUpdate('address')"
               >
                 <div
+                  :id="`ward-${index}`"
                   v-for="(item, index) in wards"
-                  v-show="!item.is_hidden"
                   @click="selectWard(item)"
                   class="px-3 py-1 hover:bg-slate-100 rounded"
                   :class="{
-                    'bg-slate-100': getFirstLocationIndex('ward') === index,
+                    'bg-slate-100': index === ward_index,
                   }"
                 >
                   {{ item.name_with_type }}
@@ -264,7 +295,9 @@
                 type="text"
                 v-model="search_product"
                 @input="start_search"
-                @keyup.enter="selectFirstProduct"
+                @keyup.enter="selectProductByIndex"
+                @keyup.up="controlProduct('up')"
+                @keyup.down="controlProduct('down')"
                 placeholder="Nhập mã, tên sản phẩm..."
                 :readonly="!isAvailablelUpdate('product')"
                 class="flex-grow outline-none placeholder:text-slate-500"
@@ -278,11 +311,12 @@
               v-if="show_dropbox && isAvailablelUpdate('product')"
             >
               <div
-                v-for="product, index in products"
+                v-for="(product, index) in products"
+                :id="`product-${index}`"
                 @click="selectProduct(product, false)"
                 class="py-2 px-2 rounded-md cursor-pointer hover:bg-slate-100 flex items-center gap-2"
                 :class="{
-                  'bg-slate-100': index === 0,
+                  'bg-slate-100': index === product_index,
                 }"
               >
                 <img
@@ -680,7 +714,7 @@
 </template>
 <script setup lang="ts">
 import { useMerchantStore } from '@/stores'
-import { ref, onMounted, readonly } from 'vue'
+import { ref, onMounted } from 'vue'
 import { Toast } from '@/service/helper/toast'
 import { nonAccentVn } from '@/service/helper/format'
 import { get, isNumber, pick, debounce } from 'lodash'
@@ -718,18 +752,17 @@ import QuestionMaskIcon from '@/assets/icons/question-mark.svg'
 
 /** Dữ liệu interface */
 import type {
+  Order,
   Product,
-  PaymentMethods,
+  WardData,
+  Addresses,
   ProvinceData,
   DistrictData,
-  WardData,
-  Order,
   EmployeeData,
-  DetectData,
-  DetailData,
-  Addresses,
   LocationDetail,
+  PaymentMethods,
 } from '@/service/interface'
+import { id, se } from 'date-fns/locale'
 
 /** store merchant */
 const $merchant = useMerchantStore()
@@ -791,6 +824,9 @@ const search_address = debounce(() => {
 /** Danh sách phường xã */
 const wards = ref<WardData[]>([])
 
+/** Snap danh sách phường xã */
+const snap_wards = ref<WardData[]>([])
+
 /** danh sách sản phẩm */
 const products = ref<Product[]>([])
 
@@ -803,11 +839,17 @@ const show_dropbox = ref<boolean>(false)
 /** Danh sách quận huyện */
 const districts = ref<DistrictData[]>([])
 
+/** Snap danh sách quận huyện */
+const snap_districts = ref<DistrictData[]>([])
+
 /** phương thức thanh toán */
 const payment_method = ref<PaymentMethods>('CASH')
 
 /** Danh sách tỉnh thành */
 const provinces = ref<ProvinceData[]>($merchant.provinces)
+
+/** Dữ liệu danh sách */
+const snap_provinces = ref<ProvinceData[]>($merchant.provinces)
 
 /** Danh sách địa chỉ */
 const addresses = ref<Addresses[]>([])
@@ -821,10 +863,31 @@ const search_district = ref<string>('')
 /** Nội dung tìm kiếm ward */
 const search_ward = ref<string>('')
 
+/** Index của sản phẩm */
+const product_index = ref<number>(0)
+
+/** Index của địa chỉ */
+const location_index = ref<number>(0)
+
+/** Index của province */
+const province_index = ref<number>(0)
+
+/** Index của district */
+const district_index = ref<number>(0)
+
+/** Index của ward */
+const ward_index = ref<number>(0)
+
 onMounted(() => {
   loadProduct()
   if ($merchant.order_edit.id) {
     order.value = $merchant.order_edit
+    if (order.value.locations) {
+      search_provice.value = order.value.locations.province?.name || ''
+      search_district.value =
+        order.value.locations.district?.name_with_type || ''
+      search_ward.value = order.value.locations.ward?.name_with_type || ''
+    }
     calculatorOrder()
     return
   }
@@ -855,35 +918,40 @@ function getContactPhone() {
 /** Chọn tỉnh thành */
 async function selectProvince(item: ProvinceData) {
   show_dropbox.value = false
+  search_provice.value = item.name || ''
+  search_district.value = ''
+  search_ward.value = ''
   if (order.value.locations) order.value.locations.province = item
   if (order.value.locations) order.value.locations.district = {}
   if (order.value.locations) order.value.locations.ward = {}
   districts.value = await getDistrict({
     province_id: item.code,
   })
+  snap_districts.value = districts.value
   focusInput('district-input')
-  search_district.value = ''
 }
 
 /** Chọn quận huyện */
 async function selectDistrict(item: DistrictData) {
   show_dropbox.value = false
+  search_district.value = item.name_with_type || ''
+  search_ward.value = ''
   if (order.value.locations) order.value.locations.district = item
   if (order.value.locations) order.value.locations.ward = {}
   wards.value = await getWard({
     district_id: item.code,
   })
+  snap_wards.value = wards.value
   focusInput('ward-input')
-  search_ward.value = ''
 }
 
 /** Chọn phường xã */
 function selectWard(item: WardData) {
-  if (order.value.locations) order.value.locations.ward = item
   show_dropbox.value = false
-  search_ward.value = ''
-  // * Focus vào input tìm kiếm sản phẩm
+  search_ward.value = item.name_with_type || ''
+  if (order.value.locations) order.value.locations.ward = item
   focusInput('product-input')
+  product_index.value = 0
 }
 
 /** Lấy thông tin sản phẩm */
@@ -935,6 +1003,12 @@ function selectProduct(item: Product, still_show_box?: boolean) {
 
   /** Tắt modal */
   if (!still_show_box) show_dropbox.value = false
+
+  /** Xóa text tìm kiếm sản phẩm */
+  search_product.value = ''
+
+  /** Reset index sản phẩm */
+  product_index.value = 0
 
   /** Tính giá trị đơn hàng */
   calculatorOrder()
@@ -1116,10 +1190,9 @@ async function createNewOrder(status?: string) {
       ...formatOrderData(order.value),
       status: status ? status : 'DRART_ORDER',
     })
-
-    console.log('new_order', new_order)
-
     order.value = new_order
+    /** Lưu lại đơn mới vào store */
+    $merchant.saveOrders([...new_order, ...$merchant.orders])
     $toast.success('Tạo đơn hàng thành công')
   } catch (e) {
     $toast.error(e as string)
@@ -1414,23 +1487,29 @@ async function getDetailLocation(address: Addresses) {
 
   // * Gán dữ liệu loction
   if (order.value.locations) {
+    // * Lưu dữ liệu tỉnh thành
     provinces.value.map(item => {
       if (item.code === location_detail.province?.id && order.value.locations) {
         order.value.locations.province = item
+        search_provice.value = item.name || ''
       }
     })
 
+    // * Lưu dữ liệu quận huyện
     order.value.locations.district = {
       code: location_detail.district?.id,
       name: location_detail.district?.name,
       name_with_type: location_detail.district?.name,
     }
+    search_district.value = location_detail.district?.name || ''
 
+    // * Lưu dữ liệu phường xã
     order.value.locations.ward = {
       code: location_detail.ward?.id,
       name: location_detail.ward?.name,
       name_with_type: location_detail.ward?.name,
     }
+    search_ward.value = location_detail.ward?.name || ''
 
     order.value.locations.street = {
       code: location_detail.street?.id,
@@ -1448,42 +1527,48 @@ async function getDetailLocation(address: Addresses) {
     districts.value = await getDistrict({
       province_id: location_detail.province?.id,
     })
+    snap_districts.value = districts.value
   }
   // * Lấy thêm thông tin phường xã
   if (location_detail.district?.id) {
     wards.value = await getWard({
       district_id: location_detail.district?.id,
     })
+    snap_wards.value = wards.value
   }
+  product_index.value = 0
 }
 
 /** Tìm kiếm location */
 function searchLocation(type: 'province' | 'district' | 'ward') {
   if (type === 'province') {
     let search = nonAccentVn(search_provice.value)
-    provinces.value.map(item => {
+    product_index.value = 0
+    provinces.value = snap_provinces.value.filter(item => {
       let name = nonAccentVn(item.name as string)
-      if (!search) item.is_hidden = false
-      else if (name.includes(search)) item.is_hidden = false
-      else item.is_hidden = true
+      if (!search) return true
+      if (name.includes(search)) return true
+      return false
     })
   }
   if (type === 'district') {
     let search = nonAccentVn(search_district.value)
-    districts.value.map(item => {
+    district_index.value = 0
+    districts.value = snap_districts.value.filter(item => {
       let name = nonAccentVn(item.name as string)
-      if (!search) item.is_hidden = false
-      else if (name.includes(search)) item.is_hidden = false
-      else item.is_hidden = true
+      if (!search) return true
+      if (name.includes(search)) return true
+      return false
     })
   }
   if (type === 'ward') {
     let search = nonAccentVn(search_ward.value)
-    wards.value.map(item => {
+    ward_index.value = 0
+    wards.value = snap_wards.value.filter(item => {
       let name = nonAccentVn(item.name as string)
-      if (!search) item.is_hidden = false
-      else if (name?.includes(search)) item.is_hidden = false
-      else item.is_hidden = true
+      if (!search) return true
+      if (name.includes(search)) return true
+      return false
     })
   }
 }
@@ -1492,6 +1577,8 @@ function searchLocation(type: 'province' | 'district' | 'ward') {
 function removeLocation(type: 'province' | 'district' | 'ward' | 'all') {
   if (order.value.locations?.province && type === 'province') {
     order.value.locations.province = {}
+    order.value.locations.district = {}
+    order.value.locations.ward = {}
     focusInput('province-input')
   }
   if (order.value.locations?.district && type === 'district') {
@@ -1511,6 +1598,9 @@ function removeLocation(type: 'province' | 'district' | 'ward' | 'all') {
       ward: {},
     }
     focusInput('address-input')
+    search_provice.value = ''
+    search_district.value = ''
+    search_ward.value = ''
   }
   resetHidden()
 }
@@ -1521,81 +1611,142 @@ function focusInput(id: string) {
   setTimeout(() => {
     if (input) input.click()
     if (input) input.focus()
-  }, 300)
+  }, 100)
 }
 
 /** Loại bỏ trạng thái ẩn hiện */
 function resetHidden() {
-  provinces.value.map(item => {
-    item.is_hidden = false
-  })
-  districts.value.map(item => {
-    item.is_hidden = false
-  })
-  wards.value.map(item => {
-    item.is_hidden = false
-  })
+  provinces.value = snap_provinces.value
+  districts.value = snap_districts.value
+  wards.value = snap_wards.value
 }
 
-/** Chọn luôn địa chỉ hiện tại */
-function selectFirstLocation(type: 'province' | 'district' | 'ward') {
-  if (type === 'province') {
-    for (let i = 0; i < provinces.value.length; i++) {
-      if (!provinces.value[i].is_hidden) {
-        selectProvince(provinces.value[i])
-        return
-      }
-    }
+/** Lấy địa chỉ theo index control */
+function selectLocation(type: 'province' | 'district' | 'ward' | 'address') {
+  if (addresses.value[location_index.value] && type === 'address') {
+    getDetailLocation(addresses.value[location_index.value])
   }
-  if (type === 'district') {
-    for (let i = 0; i < districts.value.length; i++) {
-      if (!districts.value[i].is_hidden) {
-        selectDistrict(districts.value[i])
-        return
-      }
-    }
+  if (provinces.value[province_index.value] && type === 'province') {
+    selectProvince(provinces.value[province_index.value])
   }
-  if (type === 'ward') {
-    for (let i = 0; i < wards.value.length; i++) {
-      if (!wards.value[i].is_hidden) {
-        selectWard(wards.value[i])
-        return
+  if (districts.value[district_index.value] && type === 'district') {
+    selectDistrict(districts.value[district_index.value])
+  }
+  if (wards.value[ward_index.value] && type === 'ward') {
+    selectWard(wards.value[ward_index.value])
+  }
+}
+
+/** Chọn option địa chỉ */
+function controlLocation(
+  type: 'province' | 'district' | 'ward' | 'address',
+  action: 'up' | 'down'
+) {
+  switch (type) {
+    case 'address':
+      if (action === 'down') {
+        if (location_index.value === addresses.value.length - 1) {
+          location_index.value = 0
+        } else location_index.value++
       }
-    }
+      if (action === 'up') {
+        if (location_index.value === 0) {
+          location_index.value = addresses.value.length - 1
+        } else location_index.value--
+      }
+      break
+    case 'province':
+      if (action === 'down') {
+        if (province_index.value === provinces.value.length - 1) {
+          province_index.value = 0
+        } else province_index.value++
+      }
+      if (action === 'up') {
+        if (province_index.value === 0) {
+          province_index.value = provinces.value.length - 1
+        } else province_index.value--
+      }
+      scrollToElement('province-' + province_index.value)
+      break
+    case 'district':
+      if (action === 'down') {
+        if (district_index.value === districts.value.length - 1) {
+          district_index.value = 0
+        } else district_index.value++
+      }
+      if (action === 'up') {
+        if (district_index.value === 0) {
+          district_index.value = districts.value.length - 1
+        } else district_index.value--
+      }
+      scrollToElement('district-' + district_index.value)
+      break
+    case 'ward':
+      if (action === 'down') {
+        if (ward_index.value === wards.value.length - 1) {
+          ward_index.value = 0
+        } else ward_index.value++
+      }
+      if (action === 'up') {
+        if (ward_index.value === 0) {
+          ward_index.value = wards.value.length - 1
+        } else ward_index.value--
+      }
+      scrollToElement('ward-' + ward_index.value)
+      break
   }
 }
 
 /** Lấy ra index đầu tiên không bị ẩn */
-function getFirstLocationIndex(type: 'province' | 'district' | 'ward') {
-  if (type === 'province') {
-    for (let i = 0; i < provinces.value.length; i++) {
-      if (!provinces.value[i].is_hidden) return i
-    }
-  }
-  if (type === 'district') {
-    for (let i = 0; i < districts.value.length; i++) {
-      if (!districts.value[i].is_hidden) return i
-    }
-  }
-  if (type === 'ward') {
-    for (let i = 0; i < wards.value.length; i++) {
-      if (!wards.value[i].is_hidden) return i
-    }
+function selectProductByIndex() {
+  if (products.value[product_index.value]) {
+    selectProduct(products.value[product_index.value], false)
   }
 }
 
-/** Lấy địa chỉ đầu tiên khi search ra */
-function selectFirstAddress() {
-  if (addresses.value.length) {
-    getDetailLocation(addresses.value[0])
+/** Chọn option sản phẩm */
+function controlProduct(action: 'up' | 'down') {
+  switch (action) {
+    case 'up':
+      if (product_index.value === 0) {
+        product_index.value = products.value.length - 1
+      } else product_index.value--
+      break
+    case 'down':
+      if (product_index.value === products.value.length - 1) {
+        product_index.value = 0
+      } else product_index.value++
+      break
+  }
+  scrollToElement('product-' + product_index.value)
+}
+
+/** Cuộn tới đối tượng */
+function scrollToElement(element_id: string) {
+  const element = document.getElementById(element_id)
+  if (element) {
+    element.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+      inline: 'center',
+    })
   }
 }
 
-/** Lấy ra index đầu tiên không bị ẩn */
-function selectFirstProduct() {
-  if (products.value.length) {
-    selectProduct(products.value[0], false)
+function tabEvent(type: 'province' | 'district' | 'ward' | 'address') {
+  switch (type) {
+    case 'address':
+      focusInput('province-input')
+      break
+    case 'province':
+      focusInput('district-input')
+      break
+    case 'district':
+      focusInput('ward-input')
+      break
+    case 'ward':
+      focusInput('product-input')
+      break
   }
 }
-
 </script>

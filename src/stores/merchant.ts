@@ -1,13 +1,19 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import type {
-    ContactInfo, ProvinceData, SettingData, EmployeeData, Order
+    Order,
+    ContactInfo,
+    SettingData,
+    ProvinceData,
+    EmployeeData,
 } from '@/service/interface'
 
 /** Store của merchant */
 export const useMerchantStore = defineStore('merchant_store', () => {
 
     // * Variables
+    /** Danh sách order */
+    const orders = ref<Order[]>([])
     /** Dữ liệu đơn hàng đang cần chỉnh sửa */
     const order_edit = ref<Order>({})
     /** Tổng số đơn hàng */
@@ -22,15 +28,19 @@ export const useMerchantStore = defineStore('merchant_store', () => {
     const provinces = ref<ProvinceData[]>([])
     /** Dữ liệu nhân viên dạng array */
     const employees_array = ref<EmployeeData[]>([])
-    /** Tab hiện tại đang chọn */
-    const current_tab = ref<'ORDERS' | 'CREATE_ORDER' | ''>('ORDERS')
     /** Dữ liệu nhân viên dạng object */
     const employees_ids = ref<{ [index: string]: EmployeeData }>({})
+    /** Tab hiện tại đang chọn */
+    const current_tab = ref<'ORDERS' | 'CREATE_ORDER' | ''>('ORDERS')
 
     // * Functions
-    /** Lưu lại tab đang chọn */
-    const saveCurrentTab = (tab: 'ORDERS' | 'CREATE_ORDER' | '') => {
-        current_tab.value = tab
+    /** Lưu lại danh sách đơn hàng */
+    const saveOrders = (data: Order[]) => {
+        orders.value = data
+    }
+    /** Lưu tổng số đơn hàng */
+    const saveTotalOrder = (total: number) => {
+        total_order.value = total
     }
     /** Lưu lại id đơn hàng đang hiện ra */
     const saveShowOrderId = (id: string) => {
@@ -59,12 +69,13 @@ export const useMerchantStore = defineStore('merchant_store', () => {
             employees_ids.value[item._id] = item
         })
     }
-    /** Lưu tổng số đơn hàng */
-    const saveTotalOrder = (total: number) => {
-        total_order.value = total
+    /** Lưu lại tab đang chọn */
+    const saveCurrentTab = (tab: 'ORDERS' | 'CREATE_ORDER' | '') => {
+        current_tab.value = tab
     }
 
     return {
+        orders,
         setting,
         contact,
         provinces,
@@ -74,6 +85,7 @@ export const useMerchantStore = defineStore('merchant_store', () => {
         employees_ids,
         show_order_id,
         employees_array,
+        saveOrders,
         saveSetting,
         saveEmployees,
         saveProvinces,

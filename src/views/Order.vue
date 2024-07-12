@@ -66,6 +66,9 @@ async function synchData() {
     // * ghi lại thông tin khách hàng mới
     appStore.data_client = await WIDGET.decodeClient()
 
+    // * lưu lại tab hiện tại
+    merchantStore.saveCurrentTab('ORDERS')
+
     /** Thông tin contact từ merchant */
     const contact = await syncContact()
 
@@ -74,9 +77,6 @@ async function synchData() {
 
     // * Lưu lại thông tin contact
     merchantStore.saveMerchantContact(contact)
-
-    // * lưu lại tab hiện tại
-    merchantStore.saveCurrentTab('ORDERS')
 
     //tắt loading
     commonStore.is_loading_full_screen = false

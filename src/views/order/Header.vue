@@ -11,7 +11,7 @@
         }"
         @click="orderTab"
       >
-        Đơn hàng ({{ merchantStore.total_order }})
+        Đơn hàng ({{ merchantStore.orders?.length }})
       </span>
       <span
         class="text-center py-1 rounded"
