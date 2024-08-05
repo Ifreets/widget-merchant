@@ -1,7 +1,7 @@
 
 /** hàm kiểm tra xem có phải số điện thoại hay không */
 export function checkPhone(phone: string) {
-  const regex = /^\+?(?:[0-9] ?){10,12}[0-9]$/;
+  const regex = /^\+?(?:[0-9] ?){9,12}[0-9]$/;
   return regex.test(phone)
 }
 
