@@ -17,6 +17,7 @@ import { ref, onMounted } from 'vue'
 import WIDGET from 'bbh-chatbox-widget-js-sdk'
 import { queryString } from '@/service/helper/queyString'
 import { useAppStore, useCommonStore, useMerchantStore } from '@/stores'
+import { checkPhone, checkEmail } from '@/service/helper/validate'
 import {
   syncContact,
   getProvince,
@@ -109,14 +110,20 @@ async function load() {
 
     // lưu token business vào store store
     commonStore.token_business = appStore.data_client.public_profile?.token_partner || ''
-    
+
+    let { is_data, phone } = getFieldParam()
+
+    if(appStore.data_client?.conversation_contact?.client_phone)
+        appStore.data_client.conversation_contact.client_phone = phone || '' 
+
     //đồng bộ dữ liệu
     await synchData()
 
-    if(getFieldParam()) {
+    if(is_data) {
       merchantStore.current_tab = 'CREATE_ORDER'
       appStore.is_auto_create = true
     }
+
     //tắt loading
     commonStore.is_loading_full_screen = false
 
@@ -130,12 +137,22 @@ async function load() {
 }
 
 // lấy dữ liệu từ param
-function getFieldParam(): boolean {
+function getFieldParam() {
+  // lấy data từ url param
   let email = queryString('email')
   let phone = queryString('phone')
   let address = queryString('address')
 
-  return !! (email || phone || address)
+  // check xem số điện thoại có hợp lệ hay không
+  if(!phone || !checkPhone(phone))  phone = ''
+
+  // check xem email có hợp lệ hay không
+  if(!email || !checkEmail(email))  email = ''
+  
+  return {
+    is_data: !! (email || phone || address),
+    phone
+  }
 }
 
 </script>

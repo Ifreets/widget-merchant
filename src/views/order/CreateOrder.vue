@@ -721,6 +721,7 @@ import { get, isNumber, pick, debounce } from 'lodash'
 import { confirm2 as confirm } from '@/service/helper/alert'
 import { cleave_options, payment_methods } from '@/service/options'
 import { currency, convertEmployeeName, copy } from '@/service/helper/format'
+import { queryString } from '@/service/helper/queyString'
 import {
   createOrder,
   updateOrder,
@@ -764,12 +765,15 @@ import type {
 } from '@/service/interface'
 import { id, se } from 'date-fns/locale'
 
+
 /** store merchant */
 const $merchant = useMerchantStore()
 const $appStore = useAppStore()
 
 /** Toast */
 const $toast = new Toast()
+
+
 
 /** đơn hàng */
 const order = ref<Order>({
@@ -906,11 +910,38 @@ onMounted(() => {
     order.value.contact_info = $merchant.contact
   }
 
+  //khởi tạo giá trị của các field khi tạo đơn tự động
   initDataParams()
 })
 
-function initDataParams() {
+/** hàm khởi tạo giá trị của các field khi tạo tự động */
+async function initDataParams() {
+  // nếu không phải chế độ tạo tự động thì thôi
   if(!$appStore.is_auto_create) return
+
+  // lấy giá trị từ url param
+  let email = queryString('email') || ''
+  let phone = queryString('phone') || ''
+  let address = queryString('address') || ''
+
+  //lưu lại
+  data_auto_create.value = {
+    email,
+    phone,
+    address
+  }
+
+  // gán địa chỉ chọn địa chỉ
+  order.value.address = address
+
+  // tìm kiếm địa chỉ
+  await searchAddress()
+
+  // chọn địa chỉ
+  getDetailLocation(addresses.value[0])
+
+  // tắt tự động tạo từ lần thứ 2 trở đi
+  $appStore.is_auto_create = false
 }
 
 
