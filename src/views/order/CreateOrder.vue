@@ -713,7 +713,7 @@
   </article>
 </template>
 <script setup lang="ts">
-import { useMerchantStore } from '@/stores'
+import { useAppStore, useMerchantStore } from '@/stores'
 import { ref, onMounted } from 'vue'
 import { Toast } from '@/service/helper/toast'
 import { nonAccentVn } from '@/service/helper/format'
@@ -766,6 +766,7 @@ import { id, se } from 'date-fns/locale'
 
 /** store merchant */
 const $merchant = useMerchantStore()
+const $appStore = useAppStore()
 
 /** Toast */
 const $toast = new Toast()
@@ -878,6 +879,13 @@ const district_index = ref<number>(0)
 /** Index của ward */
 const ward_index = ref<number>(0)
 
+/** dữ liệu lấy từ param để tự động tạo đơn */
+const data_auto_create = ref <{
+  phone?:string
+  email?:string
+  address?:string
+}>({})
+
 onMounted(() => {
   loadProduct()
   if ($merchant.order_edit.id) {
@@ -897,7 +905,14 @@ onMounted(() => {
     order.value.contact_id = $merchant.contact?.identifier_id
     order.value.contact_info = $merchant.contact
   }
+
+  initDataParams()
 })
+
+function initDataParams() {
+  if(!$appStore.is_auto_create) return
+}
+
 
 /** chọn phương thức thanh toán */
 function selectPayment(value: PaymentMethods) {

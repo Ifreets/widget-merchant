@@ -15,6 +15,7 @@
 // * libraries
 import { ref, onMounted } from 'vue'
 import WIDGET from 'bbh-chatbox-widget-js-sdk'
+import { queryString } from '@/service/helper/queyString'
 import { useAppStore, useCommonStore, useMerchantStore } from '@/stores'
 import {
   syncContact,
@@ -63,9 +64,6 @@ async function synchData() {
     // * Reset order
     merchantStore.saveOrderEdit({})
 
-    // * ghi lại thông tin khách hàng mới
-    appStore.data_client = await WIDGET.decodeClient()
-
     // * lưu lại tab hiện tại
     merchantStore.saveCurrentTab('ORDERS')
 
@@ -77,9 +75,6 @@ async function synchData() {
 
     // * Lưu lại thông tin contact
     merchantStore.saveMerchantContact(contact)
-
-    //tắt loading
-    commonStore.is_loading_full_screen = false
 
     /** Lấy danh sách tỉnh thành */
     const provinces = await getProvince({})
@@ -108,25 +103,23 @@ async function load() {
   try {
     // bật loading
     commonStore.is_loading_full_screen = true
-    let res: IConfigWidget | null = await WIDGET.getConfig({
-      brand_name: 'widget-merchant',
-      type_config: 'CRM',
-    })
+    
+    // * ghi lại thông tin khách hàng mới
+    appStore.data_client = await WIDGET.decodeClient()
 
-    // nếu có sẽ vào dashboard và đồng bộ dữ liệu, nếu không sẽ vào form
-    if (!res?.token_business || !res?.id_business) {
-      appStore.tab = 'SETTING_NO_TOKEN'
-      //tắt loading
-      commonStore.is_loading_full_screen = false
-      return
-    }
-    //lưu id_business, token_business vào store
-    commonStore.id_business = res.id_business || ''
-    commonStore.token_business = res.token_business
-
+    // lưu token business vào store store
+    commonStore.token_business = appStore.data_client.public_profile?.token_partner || ''
+    
     //đồng bộ dữ liệu
     await synchData()
-    
+
+    if(getFieldParam()) {
+      merchantStore.current_tab = 'CREATE_ORDER'
+      appStore.is_auto_create = true
+    }
+    //tắt loading
+    commonStore.is_loading_full_screen = false
+
   } catch (error) {
     console.log('load home', error)
     //chuyển tab setting
@@ -135,4 +128,14 @@ async function load() {
     commonStore.is_loading_full_screen = false
   }
 }
+
+// lấy dữ liệu từ param
+function getFieldParam(): boolean {
+  let email = queryString('email')
+  let phone = queryString('phone')
+  let address = queryString('address')
+
+  return !! (email || phone || address)
+}
+
 </script>
