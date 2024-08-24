@@ -111,15 +111,17 @@ async function load() {
     // lưu token business vào store store
     commonStore.token_business = appStore.data_client.public_profile?.token_partner || ''
 
-    let { is_data, phone } = getFieldParam()
+    let { is_auto_create, phone } = getFieldParam()
 
+    // lưu số điện thoại của khách nhận được từ AI nếu có vào contact để đồng bộ sang merchant
     if(appStore.data_client?.conversation_contact?.client_phone)
         appStore.data_client.conversation_contact.client_phone = phone || '' 
 
     //đồng bộ dữ liệu
     await synchData()
 
-    if(is_data) {
+    // nếu là tạo đơn tự động bằng AI thì chuyển sang tab tạo đơn và bật cờ lên
+    if(is_auto_create) {
       merchantStore.current_tab = 'CREATE_ORDER'
       appStore.is_auto_create = true
     }
@@ -141,7 +143,7 @@ function getFieldParam() {
   // lấy data từ url param
   let email = queryString('email')
   let phone = queryString('phone')
-  let address = queryString('address')
+  let cta = queryString('cta')
 
   // check xem số điện thoại có hợp lệ hay không
   if(!phone || !checkPhone(phone))  phone = ''
@@ -150,7 +152,8 @@ function getFieldParam() {
   if(!email || !checkEmail(email))  email = ''
   
   return {
-    is_data: !! (email || phone || address),
+    // nếu có cta thì is_auto_create bằng true
+    is_auto_create: !! cta,
     phone
   }
 }

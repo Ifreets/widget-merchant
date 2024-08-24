@@ -931,14 +931,17 @@ async function initDataParams() {
     address
   }
 
-  // gán địa chỉ chọn địa chỉ
-  order.value.address = address
-
-  // tìm kiếm địa chỉ
-  await searchAddress()
-
-  // chọn địa chỉ
-  getDetailLocation(addresses.value[0])
+  // nếu có địa chỉ thì tự động điền
+  if(address){
+    // gán địa chỉ chọn địa chỉ
+    order.value.address = address
+  
+    // tìm kiếm địa chỉ
+    await searchAddress()
+  
+    // chọn địa chỉ
+    getDetailLocation(addresses.value[0])
+  }
 
   // tắt tự động tạo từ lần thứ 2 trở đi
   $appStore.is_auto_create = false
