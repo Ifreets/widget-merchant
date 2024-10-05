@@ -71,7 +71,7 @@ export async function getAllEmployee(
 
     //kiểm tra các nhân viên phụ trách có thông tin trong danh sách của localStorage không
     if (list_employee_localstorage) {
-      id_exist = list_employee.every((id) => id in list_employee_localstorage)
+      id_exist = list_employee.every(id => id in list_employee_localstorage)
     }
     // nếu hôm nay chưa lấy danh sách hoặc các nhân viên phụ trách không có thông tin
     // trong danh sách lưu ở localStorage thì gọi api lấy danh sách mới và lưu vào localStorage

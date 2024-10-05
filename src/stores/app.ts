@@ -17,6 +17,10 @@ export const useAppStore = defineStore('app_store', () => {
     /** id contact merchent */
     id_contact_merchant?: string
   }>()
+
+  /** tự động tạo đơn hàng */
+  const is_auto_create = ref<boolean>(false)
+
   /** tên khách hàng */
   function getClientName() {
     return data_client?.value?.public_profile?.client_name
@@ -50,6 +54,7 @@ export const useAppStore = defineStore('app_store', () => {
     tab,
     data_client,
     customer_info,
+    is_auto_create,
     getClientName,
     getClientID,
     getLinkToMerchant,

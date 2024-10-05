@@ -1,7 +1,8 @@
-import Home from "@/views/Home.vue";
-import Oauth from "@/views/Oauth.vue";
+import Home from '@/views/Home.vue'
+import Order from '@/views/Order.vue'
+import Oauth from '@/views/Oauth.vue'
 export const routes = [
-    { path: "/", redirect: "/home" },
-    { path: "/home", component: Home },
-    { path: "/oauth", component: Oauth },
-];
+  { path: '/', redirect: '/home' },
+  { path: '/home', component: Order },
+  { path: '/oauth', component: Oauth },
+]

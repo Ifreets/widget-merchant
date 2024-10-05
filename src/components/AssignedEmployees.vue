@@ -29,7 +29,12 @@
         {{ commonStore.getNameDepartment(item) }}
       </p>
     </li>
-    <p v-else class="text-center py-2">Danh sách nhân viên trống</p>
+    <p
+      v-else
+      class="text-center py-2"
+    >
+      Danh sách nhân viên trống
+    </p>
   </ul>
 </template>
 <script setup lang="ts">

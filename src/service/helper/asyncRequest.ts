@@ -2,6 +2,8 @@
  * lib để request api
  */
 
+import axios from 'axios'
+import { get } from 'lodash'
 import type { Method } from '@/service/interface/app'
 
 /** kiểu dữ liệu các tham số của request */
@@ -15,39 +17,31 @@ interface InputRequest {
   /** body đầu vào là json, trả kết quả về json */
   json?: boolean
   /** tham số header */
-  headers?: HeadersInit
+  headers?: any
 }
 
 /** hàm gọi API */
 export const request = async ({
   uri,
   method,
-  json,
   body = {},
   headers = {},
 }: InputRequest) => {
   try {
-    // nếu body là json thì chuyển sang dạng chuỗi và tên các tham số header
-    if (json) {
-      body = JSON.stringify(body)
-      headers = {
-        Accept: 'application/json, text/plain, */*',
-        'Content-Type': 'application/json',
-        ...headers,
-      }
-    }
-    //nếu method là GET thì bỏ body
-    if (method === 'GET') body = undefined
-    //call api
-    let result: any = await fetch(uri, { method, headers, body })
-    //chuyển kết quả về json
-    if (json) result = await result.json()
+    /** Lấy ra kết quả request */
+    let result = await axios(uri, { method, headers, data: body })
+
+    /** Trả về kết quả */
+    if (result.data) return result.data
+
+    /** Trả về kết quả */
     return result
-  } catch (e: any) {
-    //check mất mạng
-    if (e.message === 'Failed to fetch') {
-      throw new Error('Mất kết nối máy chủ...')
-    }
-    throw e
+
+  } catch (e) {
+    throw get(e, 'response.data.context_error.message') ||
+    get(e, 'response.data.message') ||
+    get(e, 'response.data') ||
+    get(e, 'message') ||
+    e
   }
 }

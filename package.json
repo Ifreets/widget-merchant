@@ -15,16 +15,25 @@
     "type-check": "vue-tsc --noEmit"
   },
   "dependencies": {
+    "@popperjs/core": "^2.11.8",
+    "@types/toastify-js": "^1.12.3",
     "async": "^3.2.4",
     "autoprefixer": "^10.4.13",
+    "axios": "^1.7.2",
     "bbh-chatbox-widget-js-sdk": "^1.0.5",
+    "date-fns": "^3.6.0",
+    "floating-vue": "^5.2.2",
+    "i": "^0.3.7",
     "lodash": "^4.17.21",
+    "npm": "^10.8.1",
     "pinia": "^2.0.28",
     "postcss": "^8.4.19",
     "sass": "^1.56.2",
     "sweetalert2": "^11.11.0",
     "tailwindcss": "^3.2.4",
+    "toastify-js": "^1.12.0",
     "vue": "^3.2.45",
+    "vue-cleave-component": "^3.0.2",
     "vue-router": "^4.1.6"
   },
   "devDependencies": {
