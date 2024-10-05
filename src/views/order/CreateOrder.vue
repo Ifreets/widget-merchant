@@ -713,7 +713,7 @@
   </article>
 </template>
 <script setup lang="ts">
-import { useMerchantStore } from '@/stores'
+import { useAppStore, useMerchantStore } from '@/stores'
 import { ref, onMounted } from 'vue'
 import { Toast } from '@/service/helper/toast'
 import { nonAccentVn } from '@/service/helper/format'
@@ -721,6 +721,7 @@ import { get, isNumber, pick, debounce } from 'lodash'
 import { confirm2 as confirm } from '@/service/helper/alert'
 import { cleave_options, payment_methods } from '@/service/options'
 import { currency, convertEmployeeName, copy } from '@/service/helper/format'
+import { queryString } from '@/service/helper/queyString'
 import {
   createOrder,
   updateOrder,
@@ -764,11 +765,15 @@ import type {
 } from '@/service/interface'
 import { id, se } from 'date-fns/locale'
 
+
 /** store merchant */
 const $merchant = useMerchantStore()
+const $appStore = useAppStore()
 
 /** Toast */
 const $toast = new Toast()
+
+
 
 /** đơn hàng */
 const order = ref<Order>({
@@ -878,6 +883,13 @@ const district_index = ref<number>(0)
 /** Index của ward */
 const ward_index = ref<number>(0)
 
+/** dữ liệu lấy từ param để tự động tạo đơn */
+const data_auto_create = ref <{
+  phone?:string
+  email?:string
+  address?:string
+}>({})
+
 onMounted(() => {
   loadProduct()
   if ($merchant.order_edit.id) {
@@ -897,7 +909,44 @@ onMounted(() => {
     order.value.contact_id = $merchant.contact?.identifier_id
     order.value.contact_info = $merchant.contact
   }
+
+  //khởi tạo giá trị của các field khi tạo đơn tự động
+  initDataParams()
 })
+
+/** hàm khởi tạo giá trị của các field khi tạo tự động */
+async function initDataParams() {
+  // nếu không phải chế độ tạo tự động thì thôi
+  if(!$appStore.is_auto_create) return
+
+  // lấy giá trị từ url param
+  let email = queryString('email') || ''
+  let phone = queryString('phone') || ''
+  let address = queryString('address') || ''
+
+  //lưu lại
+  data_auto_create.value = {
+    email,
+    phone,
+    address
+  }
+
+  // nếu có địa chỉ thì tự động điền
+  if(address){
+    // gán địa chỉ chọn địa chỉ
+    order.value.address = address
+  
+    // tìm kiếm địa chỉ
+    await searchAddress()
+  
+    // chọn địa chỉ
+    getDetailLocation(addresses.value[0])
+  }
+
+  // tắt tự động tạo từ lần thứ 2 trở đi
+  $appStore.is_auto_create = false
+}
+
 
 /** chọn phương thức thanh toán */
 function selectPayment(value: PaymentMethods) {

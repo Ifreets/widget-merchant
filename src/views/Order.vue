@@ -15,7 +15,9 @@
 // * libraries
 import { ref, onMounted } from 'vue'
 import WIDGET from 'bbh-chatbox-widget-js-sdk'
+import { queryString } from '@/service/helper/queyString'
 import { useAppStore, useCommonStore, useMerchantStore } from '@/stores'
+import { checkPhone, checkEmail } from '@/service/helper/validate'
 import {
   syncContact,
   getProvince,
@@ -63,9 +65,6 @@ async function synchData() {
     // * Reset order
     merchantStore.saveOrderEdit({})
 
-    // * ghi lại thông tin khách hàng mới
-    appStore.data_client = await WIDGET.decodeClient()
-
     // * lưu lại tab hiện tại
     merchantStore.saveCurrentTab('ORDERS')
 
@@ -77,9 +76,6 @@ async function synchData() {
 
     // * Lưu lại thông tin contact
     merchantStore.saveMerchantContact(contact)
-
-    //tắt loading
-    commonStore.is_loading_full_screen = false
 
     /** Lấy danh sách tỉnh thành */
     const provinces = await getProvince({})
@@ -108,25 +104,31 @@ async function load() {
   try {
     // bật loading
     commonStore.is_loading_full_screen = true
-    let res: IConfigWidget | null = await WIDGET.getConfig({
-      brand_name: 'widget-merchant',
-      type_config: 'CRM',
-    })
+    
+    // * ghi lại thông tin khách hàng mới
+    appStore.data_client = await WIDGET.decodeClient()
 
-    // nếu có sẽ vào dashboard và đồng bộ dữ liệu, nếu không sẽ vào form
-    if (!res?.token_business || !res?.id_business) {
-      appStore.tab = 'SETTING_NO_TOKEN'
-      //tắt loading
-      commonStore.is_loading_full_screen = false
-      return
-    }
-    //lưu id_business, token_business vào store
-    commonStore.id_business = res.id_business || ''
-    commonStore.token_business = res.token_business
+    // lưu token business vào store store
+    commonStore.token_business = appStore.data_client.public_profile?.token_partner || ''
+
+    let { is_auto_create, phone } = getFieldParam()
+
+    // lưu số điện thoại của khách nhận được từ AI nếu có vào contact để đồng bộ sang merchant
+    if(appStore.data_client?.conversation_contact?.client_phone)
+        appStore.data_client.conversation_contact.client_phone = phone || '' 
 
     //đồng bộ dữ liệu
     await synchData()
-    
+
+    // nếu là tạo đơn tự động bằng AI thì chuyển sang tab tạo đơn và bật cờ lên
+    if(is_auto_create) {
+      merchantStore.current_tab = 'CREATE_ORDER'
+      appStore.is_auto_create = true
+    }
+
+    //tắt loading
+    commonStore.is_loading_full_screen = false
+
   } catch (error) {
     console.log('load home', error)
     //chuyển tab setting
@@ -135,4 +137,25 @@ async function load() {
     commonStore.is_loading_full_screen = false
   }
 }
+
+// lấy dữ liệu từ param
+function getFieldParam() {
+  // lấy data từ url param
+  let email = queryString('email')
+  let phone = queryString('phone')
+  let cta = queryString('cta')
+
+  // check xem số điện thoại có hợp lệ hay không
+  if(!phone || !checkPhone(phone))  phone = ''
+
+  // check xem email có hợp lệ hay không
+  if(!email || !checkEmail(email))  email = ''
+  
+  return {
+    // nếu có cta thì is_auto_create bằng true
+    is_auto_create: !! cta,
+    phone
+  }
+}
+
 </script>

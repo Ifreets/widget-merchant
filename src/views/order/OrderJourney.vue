@@ -1,5 +1,5 @@
 <template>
-    <div class="w-full flex gap-5 items-center overflow-scroll flex-shrink-0">
+    <div class="w-full flex gap-5 items-center overflow-x-scroll flex-shrink-0 scrollbar-thin">
         <div
             v-for="(step, index) in order.order_journey"
             class="flex items-center gap-1.5 whitespace-nowrap"
