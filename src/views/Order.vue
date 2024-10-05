@@ -23,6 +23,7 @@ import {
   getProvince,
   getSetting,
   getEmployee,
+getMerchantToken,
 } from '@/service/api/merchant'
 
 // * components
@@ -108,8 +109,17 @@ async function load() {
     // * ghi lại thông tin khách hàng mới
     appStore.data_client = await WIDGET.decodeClient()
 
-    // lưu token business vào store store
-    commonStore.token_business = appStore.data_client.public_profile?.token_partner || ''
+    const res = await getMerchantToken({
+        access_token: WIDGET.access_token,
+        secret_key: $env.secret_key,
+    })
+
+    if(res?.data){
+      await WIDGET.oAuth(res.data)
+      commonStore.token_business = res.data
+    }else{
+      throw 'Không thấy thông tin nhân sự trong merchant'
+    }
 
     let { is_auto_create, phone } = getFieldParam()
 

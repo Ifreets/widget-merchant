@@ -2,14 +2,8 @@
   <div class="h-full w-full flex justify-center items-center">
     <div class="flex flex-col gap-5 items-center">
       <p class="text-3xl text-center px-3">
-        Để cài đặt Widget vui lòng nhập token và nhấn kích hoạt
+        Để cài đặt Widget vui lòng nhấn kích hoạt
       </p>
-      <input
-        class="w-80 px-3 py-2 rounded-lg border-2"
-        type="text"
-        placeholder="Nhập token"
-        v-model="commonStore.token_business"
-      />
       <button
         @click="onOauth"
         class="bg-blue-400 active:bg-blue-600 py-2 px-10 text-white text-xl w-fit rounded-lg font-medium"
@@ -37,28 +31,30 @@ const $toast = new Toast()
 async function onOauth() {
   try {
     //check xem có token chưa
-    if (!commonStore.token_business) {
-      let result = await confirm(
-        'error',
-        'Vui lòng nhập token',
-        'Nhấn OK để tắt'
-      )
-      // nếu nhấn OK tắt, đóng giao diện
-      if (!result.isConfirmed) return
-    }
+    // if (!commonStore.token_business) {
+    //   let result = await confirm(
+    //     'error',
+    //     'Vui lòng nhập token',
+    //     'Nhấn OK để tắt'
+    //   )
+    //   // nếu nhấn OK tắt, đóng giao diện
+    //   if (!result.isConfirmed) return
+    // }
 
     // call API check token có hợp lệ không
-    let r: any = await request({
-      uri: 'https://api.merchant.vn/v1/apps/info/profile',
-      method: 'GET',
-      json: true,
-      headers: {
-        'token-business': commonStore.token_business,
-      },
-    }) 
+    // let r: any = await request({
+    //   uri: 'https://api.merchant.vn/v1/apps/info/profile',
+    //   method: 'GET',
+    //   json: true,
+    //   headers: {
+    //     'token-business': commonStore.token_business,
+    //   },
+    // }) 
 
     // kích hoạt widget
-    await WIDGET.oAuth(commonStore.token_business)
+    await WIDGET.oAuth()
+
+    // await WIDGET.decodeClient()
 
     // // lưu id, token vào widget sdk
     // r = await WIDGET.saveConfig({

@@ -1215,6 +1215,8 @@ function calculatorOrder(is_update_order?: boolean) {
 /** Tạo đơn hàng */
 async function createNewOrder(status?: string) {
   try {
+    console.log(13);
+    
     if (!checkOrderValid()) return
     if (!order.value.contact_id) {
       return $toast.error('Vui lòng chọn khách hàng trước khi tạo đơn hàng')
@@ -1399,9 +1401,9 @@ async function activeStep(
   action: string
 ) {
   try {
+    
     // * Nếu dữ liệu đơn hàng không hợp lệ thì dừng lại
     if (!checkOrderValid()) return
-
     /** Kích hoạt 1 bước trong hành trình đơn hàng */
     function activeStatus() {
       order.value.order_journey?.map((step, index_step) => {

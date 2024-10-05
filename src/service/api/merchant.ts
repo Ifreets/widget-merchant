@@ -221,3 +221,20 @@ export const getEmployee = async (data: {}) => {
         throw e
     }
 }
+
+/** lấy token merchant */
+export const getMerchantToken = async (data: {}) => {
+    try {
+        const commonStore = useCommonStore()
+        return await request({
+            uri: 'https://api.merchant.vn/v1/public/chatbox/exchange_token',
+            method: 'POST',
+            body: data,
+            headers: {
+                'token-business': commonStore.token_business,
+            },
+        })
+    } catch (e) {
+        throw e
+    }
+}
