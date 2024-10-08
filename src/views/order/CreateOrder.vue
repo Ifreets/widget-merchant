@@ -1,6 +1,8 @@
 <template>
   <article class="h-full flex flex-col overflow-hidden">
-    <section class="h-full flex flex-col gap-2 overflow-auto scrollbar-thin">
+    <section
+      class="h-full flex flex-col gap-2 overflow-auto scrollbar-thin"
+    >
       <!-- Hành trình đơn hàng -->
       <OrderJourney :order="order" />
       <!-- Thông tin đơn hàng -->
@@ -11,7 +13,11 @@
         </div>
         <div class="grid grid-cols-2 gap-2">
           <input
+            id="customer-name-input"
             class="px-3 py-2.5 border rounded-md outline-none placeholder:text-slate-500"
+            :class="{
+              'border-red-500': !customer_name && alert_validate,
+            }"
             type="text"
             placeholder="Họ và tên"
             @change="updateAnOrder()"
@@ -24,7 +30,11 @@
                 class="relative flex items-center"
               >
                 <input
-                  class="px-3 py-2.5 border rounded-md outline-none placeholder:text-slate-500"
+                  id="phone-input"
+                  class="w-full px-3 py-2.5 border rounded-md outline-none placeholder:text-slate-500"
+                  :class="{
+                    'border-red-500': !customer_phone && alert_validate,
+                  }"
                   type="text"
                   placeholder="Số điện thoại"
                   @change="updatePhoneNumber"
@@ -68,6 +78,9 @@
                   @keydown.tab="tabEvent('address')"
                   :readonly="!isAvailablelUpdate('address')"
                   class="px-3 py-2.5 border rounded-md placeholder:text-slate-500 w-full"
+                  :class="{
+                    'border-red-500': !order.address && alert_validate && check_address,
+                  }"
                 />
                 <img
                   :src="DeleteIcon"
@@ -133,6 +146,9 @@
                     }
                   "
                   class="w-full flex items-center justify-between p-2 border rounded-md"
+                  :class="{
+                    'border-red-500': !get(order, 'locations.province.name') && alert_validate && check_address,
+                  }"
                 />
                 <ArrowIcon
                   class="text-gray-500 absolute right-3"
@@ -200,6 +216,9 @@
                   @keyup.down="controlLocation('district', 'down')"
                   @keydown.tab="tabEvent('district')"
                   class="w-full flex items-center justify-between p-2 border rounded-md"
+                  :class="{
+                    'border-red-500': !get(order, 'locations.district.name_with_type') && alert_validate && check_address,
+                  }"
                 />
                 <ArrowIcon
                   class="text-gray-500 absolute right-3"
@@ -264,6 +283,9 @@
                   @keyup.down="controlLocation('ward', 'down')"
                   @keydown.tab="tabEvent('ward')"
                   class="w-full flex items-center justify-between p-2 border rounded-md"
+                  :class="{
+                    'border-red-500': !get(order, 'locations.ward.name_with_type') && alert_validate && check_address,
+                  }"
                 />
                 <ArrowIcon
                   class="text-gray-500 absolute right-3"
@@ -306,6 +328,9 @@
         </div>
         <Dropbox
           class="border py-2 px-3 rounded-md group focus-within:border-blue-600 focus-within:border-2"
+          :class="{
+            '!border-red-500': !order.products?.length && alert_validate,
+          }"
         >
           <template #trigger>
             <div
@@ -729,7 +754,7 @@
           class="w-full rounded-md flex items-center justify-center py-2 cursor-pointer font-medium"
           :class="{
             [`${status.bg_color} ${status.text_color}`]: isNumber(status_index),
-            'bg-slate-500 text-white cursor-not-allowed': !checkOrderValid(),
+            'bg-slate-500 text-white cursor-not-allowed': !check_order_valid,
           }"
           @click="activeStep(step_index, status_index, status.action)"
         >
@@ -741,7 +766,7 @@
 </template>
 <script setup lang="ts">
 import { useAppStore, useMerchantStore } from '@/stores'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { Toast } from '@/service/helper/toast'
 import { nonAccentVn } from '@/service/helper/format'
 import { get, isNumber, pick, debounce, set } from 'lodash'
@@ -842,6 +867,9 @@ const order = ref<Order>({
   inventory_quantity: 0,
 })
 
+/** cảnh báo */
+const alert_validate = ref<boolean>(false)
+
 /** tên của người nhận */
 const customer_name = ref(getContactName())
 
@@ -922,6 +950,35 @@ const data_auto_create = ref<{
   email?: string
   address?: string
 }>({})
+
+const check_order_valid = computed(() => {
+  if (!order.value.products?.length) {
+    return false
+  }
+  if (customer_name.value === '') {
+    return false
+  }
+  if (customer_phone.value === '') {
+    return false
+  }
+  if( check_address.value){
+    return false
+  }
+
+  return true
+})
+
+const check_address = computed(() => {
+  const is_address_valid = !order.value.address
+  
+  const is_province_valid = !order.value.locations?.province?.name
+
+  const is_district_valid = !order.value.locations?.district?.name_with_type
+  
+  const is_ward_valid = !order.value.locations?.ward?.name_with_type
+
+  return is_address_valid && is_province_valid && is_district_valid && is_ward_valid
+})
 
 onMounted(() => {
   loadProduct()
@@ -1279,8 +1336,6 @@ function calculatorOrder(is_update_order?: boolean) {
 /** Tạo đơn hàng */
 async function createNewOrder(status?: string) {
   try {
-    console.log(13)
-
     if (!checkOrderValid()) return
     if (!order.value.contact_id) {
       return $toast.error('Vui lòng chọn khách hàng trước khi tạo đơn hàng')
@@ -1434,10 +1489,30 @@ function selectEmployee(employee: EmployeeData, index: number) {
 
 /** Kiểm tra đơn hàng có hợp lệ hay không? */
 function checkOrderValid() {
+  alert_validate.value = true
   // * Kiểm tra sản phẩm
-  if (!order.value.products?.length) return false
-  if (customer_name.value === '') return false
-  if (customer_phone.value === '') return false
+  if (!order.value.products?.length) {
+    $toast.error('Vui lòng chọn sản phẩm trước khi tạo đơn hàng')
+    scrollToElement('product-input')
+    return false
+  }
+  if (customer_name.value === '') {
+    $toast.error('Vui lòng nhập tên khách hàng trước khi tạo đơn hàng')
+    scrollToElement('customer-name-input')
+    return false
+  }
+  if (customer_phone.value === '') {
+    $toast.error('Vui lòng nhập số điện thoại trước khi tạo đơn hàng')
+    scrollToElement('phone-input')
+    return false
+  }
+  if(check_address.value){
+    $toast.error('Vui lòng nhập địa chỉ nhận hàng')
+    scrollToElement('address-input')
+    return false
+  }
+
+  alert_validate.value = false
   return true
 }
 
