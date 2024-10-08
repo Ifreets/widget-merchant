@@ -22,6 +22,23 @@ export const syncContact = async () => {
     }
 }
 
+/** cập nhật contact */
+export const updateContact = async (data: {}) => {
+    try {
+        const commonStore = useCommonStore()
+        return await request({
+            uri: 'https://api-contact.merchant.vn/contact/update_contact',
+            method: 'POST',
+            body: data,
+            headers: {
+                'token-business': commonStore.token_business,
+            },
+        })
+    } catch (e) {
+        throw e
+    }
+}
+
 // * API đơn hàng
 /** Lấy danh sách đơn hàng */
 export const getOrder = async (data: {}) => {
@@ -230,6 +247,22 @@ export const getMerchantToken = async (data: {}) => {
             uri: 'https://api.merchant.vn/v1/public/chatbox/exchange_token',
             method: 'POST',
             body: data,
+            headers: {
+                'token-business': commonStore.token_business,
+            },
+        })
+    } catch (e) {
+        throw e
+    }
+}
+
+export const getProfile = async () => {
+    try {
+        const commonStore = useCommonStore()
+        return await request({
+            uri: 'https://api.merchant.vn/v1/apps/info/profile',
+            method: 'POST',
+            body: {},
             headers: {
                 'token-business': commonStore.token_business,
             },

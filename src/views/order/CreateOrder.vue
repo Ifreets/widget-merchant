@@ -14,8 +14,8 @@
             class="px-3 py-2.5 border rounded-md outline-none placeholder:text-slate-500"
             type="text"
             placeholder="Họ và tên"
-            :value="getContactName()"
-            disabled
+            v-model="customer_name"
+            @input="start_change_name"
           />
           <input
             class="px-3 py-2.5 border rounded-md outline-none placeholder:text-slate-500"
@@ -280,7 +280,9 @@
           <img :src="BagIcon" />
           <p class="font-semibold">Sản phẩm</p>
         </div>
-        <Dropbox class="border py-2 px-3 rounded-md group focus-within:border-blue-600 focus-within:border-2">
+        <Dropbox
+          class="border py-2 px-3 rounded-md group focus-within:border-blue-600 focus-within:border-2"
+        >
           <template #trigger>
             <div
               class="flex items-center gap-2"
@@ -449,7 +451,8 @@
                   class="flex items-center gap-1 text-end absolute right-0 -top-2.5"
                   @click="show_dropbox = true"
                 >
-                  <span>{{ payment_methods[payment_method] }}</span>
+                  <!-- <span>{{ payment_methods[payment_method] }}</span> -->
+                  <span>Tiền mặt</span>
                   <ArrowIcon />
                 </button>
               </template>
@@ -638,8 +641,8 @@
                     >
                       {{
                         convertEmployeeName(
-                          employee.first_name,
-                          employee.last_name
+                          employee?.first_name || '',
+                          employee?.last_name || ''
                         )
                       }}
                     </span>
@@ -654,8 +657,8 @@
                       >
                         {{
                           convertEmployeeName(
-                            employee.first_name,
-                            employee.last_name
+                            employee?.first_name || '',
+                            employee?.last_name || ''
                           )
                         }}
                       </span>
@@ -731,6 +734,7 @@ import {
   getWard,
   detectAddress,
   getAddress,
+  updateContact,
 } from '@/service/api/merchant'
 
 // * Components
@@ -765,15 +769,12 @@ import type {
 } from '@/service/interface'
 import { id, se } from 'date-fns/locale'
 
-
 /** store merchant */
 const $merchant = useMerchantStore()
 const $appStore = useAppStore()
 
 /** Toast */
 const $toast = new Toast()
-
-
 
 /** đơn hàng */
 const order = ref<Order>({
@@ -814,6 +815,14 @@ const order = ref<Order>({
   staffs: $merchant.setting?.online_staff || [],
   inventory_quantity: 0,
 })
+
+/** tên của khách hàng */
+const customer_name = ref(getContactName())
+
+/** thay đổi tên khác hàng */
+const start_change_name = debounce(() => {
+  updateName()
+}, 500)
 
 /** Tìm kiếm sản phẩm */
 const start_search = debounce(() => {
@@ -884,10 +893,10 @@ const district_index = ref<number>(0)
 const ward_index = ref<number>(0)
 
 /** dữ liệu lấy từ param để tự động tạo đơn */
-const data_auto_create = ref <{
-  phone?:string
-  email?:string
-  address?:string
+const data_auto_create = ref<{
+  phone?: string
+  email?: string
+  address?: string
 }>({})
 
 onMounted(() => {
@@ -917,7 +926,7 @@ onMounted(() => {
 /** hàm khởi tạo giá trị của các field khi tạo tự động */
 async function initDataParams() {
   // nếu không phải chế độ tạo tự động thì thôi
-  if(!$appStore.is_auto_create) return
+  if (!$appStore.is_auto_create) return
 
   // lấy giá trị từ url param
   let email = queryString('email') || ''
@@ -928,17 +937,17 @@ async function initDataParams() {
   data_auto_create.value = {
     email,
     phone,
-    address
+    address,
   }
 
   // nếu có địa chỉ thì tự động điền
-  if(address){
+  if (address) {
     // gán địa chỉ chọn địa chỉ
     order.value.address = address
-  
+
     // tìm kiếm địa chỉ
     await searchAddress()
-  
+
     // chọn địa chỉ
     getDetailLocation(addresses.value[0])
   }
@@ -947,6 +956,20 @@ async function initDataParams() {
   $appStore.is_auto_create = false
 }
 
+/** Cập nhật tên khách */
+async function updateName() {
+  try {
+    if (!$merchant.contact?.id) return
+
+    await updateContact({
+        id: $merchant.contact.id,
+        first_name: customer_name.value,
+      }
+    )
+  } catch (e) {
+    console.log(e)
+  }
+}
 
 /** chọn phương thức thanh toán */
 function selectPayment(value: PaymentMethods) {
@@ -956,7 +979,9 @@ function selectPayment(value: PaymentMethods) {
 
 /** Lấy ra tên khách hàng */
 function getContactName() {
-  return `${$merchant.contact?.first_name} ${$merchant.contact?.last_name}`
+  return `${$merchant.contact?.first_name || ''} ${
+    $merchant.contact?.last_name || ''
+  }`
 }
 
 /** Lấy ra sdt của contact */
@@ -1215,8 +1240,8 @@ function calculatorOrder(is_update_order?: boolean) {
 /** Tạo đơn hàng */
 async function createNewOrder(status?: string) {
   try {
-    console.log(13);
-    
+    console.log(13)
+
     if (!checkOrderValid()) return
     if (!order.value.contact_id) {
       return $toast.error('Vui lòng chọn khách hàng trước khi tạo đơn hàng')
@@ -1334,7 +1359,7 @@ function isAvailablelUpdate(
 
 /** Lấy ra tên của nhân viên */
 function getStaffName(staff: EmployeeData) {
-  return staff.first_name + ' ' + staff.last_name
+  return staff?.first_name || '' + ' ' + staff?.last_name || ''
 }
 
 /** Bỏ chọn nhân viên */
@@ -1361,7 +1386,7 @@ function selectEmployee(employee: EmployeeData, index: number) {
     staffs[index] = {
       ...staffs[index],
       ...pick(employee, ['branch_id', 'business_id', 'team_id', 'user_id']),
-      employee_id: employee._id,
+      employee_id: employee?._id || '',
     }
     order.value.staffs = staffs
   }
@@ -1401,7 +1426,6 @@ async function activeStep(
   action: string
 ) {
   try {
-    
     // * Nếu dữ liệu đơn hàng không hợp lệ thì dừng lại
     if (!checkOrderValid()) return
     /** Kích hoạt 1 bước trong hành trình đơn hàng */

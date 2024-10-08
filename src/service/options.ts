@@ -13,8 +13,8 @@ export const cleave_options = {
 /** Phương thức thanh toán */
 export const payment_methods = {
     CASH: 'Tiền mặt',
-    MOMO: 'Momo',
-    TRANSFER: 'Chuyển khoản',
+    // MOMO: 'Momo',
+    // TRANSFER: 'Chuyển khoản',
 }
 
 export const draft_order = {

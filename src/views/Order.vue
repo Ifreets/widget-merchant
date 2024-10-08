@@ -24,6 +24,7 @@ import {
   getSetting,
   getEmployee,
 getMerchantToken,
+getProfile,
 } from '@/service/api/merchant'
 
 // * components
@@ -33,11 +34,15 @@ import CreateOrder from '@/views/order/CreateOrder.vue'
 
 // * Types
 import type { IConfigWidget } from '@/service/interface'
+import { Toast } from '@/service/helper/toast'
 
 /** store */
 const appStore = useAppStore()
 const commonStore = useCommonStore()
 const merchantStore = useMerchantStore()
+
+/** toast */
+const $toast = new Toast()
 
 /** tab hiện tại */
 const current_tab = ref<'ORDERS' | 'CREATE_ORDER'>('ORDERS')
@@ -95,6 +100,10 @@ async function synchData() {
 
     // * Lưu lại danh sách nhân viên
     merchantStore.saveEmployees(employees.data)
+
+    // const profile = await getProfile()
+
+    // merchantStore.profile = profile.data
   } catch (error) {
     console.log('synch to merchant', error)
   }
@@ -115,9 +124,10 @@ async function load() {
     })
 
     if(res?.data){
-      await WIDGET.oAuth(res.data)
+      // await WIDGET.oAuth(res.data)
       commonStore.token_business = res.data
     }else{
+      $toast.error('Không thấy thông tin nhân sự trong merchant')
       throw 'Không thấy thông tin nhân sự trong merchant'
     }
 
@@ -142,7 +152,7 @@ async function load() {
   } catch (error) {
     console.log('load home', error)
     //chuyển tab setting
-    appStore.tab = 'SETTING_NO_TOKEN'
+    // appStore.tab = 'SETTING_NO_TOKEN'
     //tắt loading
     commonStore.is_loading_full_screen = false
   }

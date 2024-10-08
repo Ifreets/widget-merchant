@@ -32,6 +32,8 @@ export const useMerchantStore = defineStore('merchant_store', () => {
     const employees_ids = ref<{ [index: string]: EmployeeData }>({})
     /** Tab hiện tại đang chọn */
     const current_tab = ref<'ORDERS' | 'CREATE_ORDER' | ''>('ORDERS')
+    /** profile */
+    const profile = ref<EmployeeData>({})
 
     // * Functions
     /** Lưu lại danh sách đơn hàng */
@@ -66,6 +68,7 @@ export const useMerchantStore = defineStore('merchant_store', () => {
     const saveEmployees = (data: EmployeeData[]) => {
         employees_array.value = data
         data.forEach((item) => {
+            if (item._id)
             employees_ids.value[item._id] = item
         })
     }
@@ -85,6 +88,7 @@ export const useMerchantStore = defineStore('merchant_store', () => {
         employees_ids,
         show_order_id,
         employees_array,
+        profile,
         saveOrders,
         saveSetting,
         saveEmployees,

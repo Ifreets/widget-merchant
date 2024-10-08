@@ -18,7 +18,7 @@
 </template>
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
-import { useMerchantStore } from '@/stores';
+import { useCommonStore, useMerchantStore } from '@/stores';
 import { getOrder } from '@/service/api/merchant';
 
 // * Components
@@ -30,6 +30,7 @@ const props = defineProps<{
 }>()
 
 /** Store */
+const commonStore = useCommonStore()
 const merchantStore = useMerchantStore()
 
 /** Hiện box từ bên ngoài */
@@ -43,11 +44,16 @@ watch(
 
 /** Lấy danh sách đơn hàng */
 async function getOrders() {
-  merchantStore.orders = await getOrder({
+  try {
+    merchantStore.orders = await getOrder({
     contact_id: props.contact_id
   })
   if(merchantStore.orders[0] && merchantStore.orders[0].id) {
     merchantStore.saveShowOrderId(merchantStore.orders[0].id)
+  }
+  commonStore.is_loading_full_screen = false
+  } catch (e) {
+    console.log(e)
   }
 }
 

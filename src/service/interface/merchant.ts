@@ -66,29 +66,29 @@ export interface WorkingTimeSetting {
 /** Dữ liệu nhân viên */
 export interface EmployeeData extends BusinessData {
     /** ID nhân viên mongo */
-    _id: string;
+    _id?: string;
     /** ID nhân viên rút gọn */
-    id: string;
+    id?: string;
     /** Tên họ */
-    first_name: string;
+    first_name?: string;
     /** Tên chính thức */
-    last_name: string;
+    last_name?: string;
     /** Email */
-    email: string;
+    email?: string;
     /** Id quản lý */
     manager_id?: string;
     /** Avatar */
-    avatar: string;
+    avatar?: string;
     /** ID facebook của nhân viên */
-    fb_staff_id: string;
+    fb_staff_id?: string;
     /** Số điện thoại công ty */
-    company_phone_number: string;
+    company_phone_number?: string;
     /** ID tài khoản telegram */
-    telegram_id: string;
+    telegram_id?: string;
     /** Trạng thái hoạt động */
-    working: boolean
+    working?: boolean
     /** Thông tin cá nhân */
-    personal_information: {
+    personal_information?: {
         /** Số điện thoại */
         phone_number: string;
         /** Ngày sinh */
@@ -103,7 +103,7 @@ export interface EmployeeData extends BusinessData {
         current_address: string;
     };
     /** Thông tin tại công ty */
-    work_information: {
+    work_information?: {
         /** Ngày thử việc */
         probationary_day: string;
         /** Ngày chính thức */
@@ -128,12 +128,15 @@ export interface EmployeeData extends BusinessData {
         type_of_shift: string;
     };
     /** Thiết lập chấm công của nhân viên */
-    working_time_setting: WorkingTimeSetting[]
+    working_time_setting?: WorkingTimeSetting[]
 
     /** Trạng thái nhân viên đang được chọn hay không */
     selected?: boolean
 
     branch?: BranchData
+
+    /** id nhân viên */
+    user_id?: string
 };
 
 /** Dữ liệu thiết lập chi nhánh */
