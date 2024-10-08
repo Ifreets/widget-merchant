@@ -23,8 +23,7 @@ import {
   getProvince,
   getSetting,
   getEmployee,
-getMerchantToken,
-getProfile,
+  getMerchantToken
 } from '@/service/api/merchant'
 
 // * components

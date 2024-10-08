@@ -148,8 +148,8 @@
           >
             {{
               convertEmployeeName(
-                merchantStore.employees_ids[last_employee]?.first_name,
-                merchantStore.employees_ids[last_employee]?.last_name
+                merchantStore.employees_ids[last_employee]?.first_name || '',
+                merchantStore.employees_ids[last_employee]?.last_name|| ''
               )
             }}
           </span>
@@ -164,8 +164,8 @@
             >
               {{
                 convertEmployeeName(
-                  merchantStore.employees_ids[last_employee]?.first_name,
-                  merchantStore.employees_ids[last_employee]?.last_name
+                  merchantStore.employees_ids[last_employee]?.first_name|| '',
+                  merchantStore.employees_ids[last_employee]?.last_name|| ''
                 )
               }}
             </span>

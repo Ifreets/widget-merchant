@@ -14,16 +14,40 @@
             class="px-3 py-2.5 border rounded-md outline-none placeholder:text-slate-500"
             type="text"
             placeholder="Họ và tên"
+            @change="updateAnOrder()"
             v-model="customer_name"
-            @input="start_change_name"
           />
-          <input
-            class="px-3 py-2.5 border rounded-md outline-none placeholder:text-slate-500"
-            type="text"
-            placeholder="Số điện thoại"
-            :value="getContactPhone()"
-            disabled
-          />
+          <Dropbox>
+            <template #trigger>
+              <div
+                @click="show_dropbox = true"
+                class="relative flex items-center"
+              >
+                <input
+                  class="px-3 py-2.5 border rounded-md outline-none placeholder:text-slate-500"
+                  type="text"
+                  placeholder="Số điện thoại"
+                  @change="updatePhoneNumber"
+                  v-model="customer_phone"
+                />
+                <ArrowIcon class="text-gray-500 absolute right-3" />
+              </div>
+            </template>
+            <template #box>
+              <div
+                class="bg-white border rounded-lg p-1 my-1"
+                v-if="show_dropbox"
+              >
+                <div
+                  v-for="phone in $merchant.contact?.suggest_phone?.split(',')"
+                  @click="setContactPhone(phone)"
+                  class="cursor-pointer px-3 py-1.5 hover:bg-slate-100 rounded-md"
+                >
+                  {{ phone }}
+                </div>
+              </div>
+            </template>
+          </Dropbox>
         </div>
         <div class="w-full">
           <Dropbox>
@@ -720,7 +744,7 @@ import { useAppStore, useMerchantStore } from '@/stores'
 import { ref, onMounted } from 'vue'
 import { Toast } from '@/service/helper/toast'
 import { nonAccentVn } from '@/service/helper/format'
-import { get, isNumber, pick, debounce } from 'lodash'
+import { get, isNumber, pick, debounce, set } from 'lodash'
 import { confirm2 as confirm } from '@/service/helper/alert'
 import { cleave_options, payment_methods } from '@/service/options'
 import { currency, convertEmployeeName, copy } from '@/service/helper/format'
@@ -767,7 +791,7 @@ import type {
   LocationDetail,
   PaymentMethods,
 } from '@/service/interface'
-import { id, se } from 'date-fns/locale'
+import { checkPhone } from '@/service/helper/validate'
 
 /** store merchant */
 const $merchant = useMerchantStore()
@@ -809,6 +833,8 @@ const order = ref<Order>({
     source: '',
     master: '',
     assistant: '',
+    last_phone: '',
+    customer_name: '',
   },
   locations: {},
   order_journey: $merchant.setting?.online_status || [],
@@ -816,13 +842,11 @@ const order = ref<Order>({
   inventory_quantity: 0,
 })
 
-/** tên của khách hàng */
+/** tên của người nhận */
 const customer_name = ref(getContactName())
 
-/** thay đổi tên khác hàng */
-const start_change_name = debounce(() => {
-  updateName()
-}, 500)
+/** số điện thoại người nhận */
+const customer_phone = ref(getContactPhone())
 
 /** Tìm kiếm sản phẩm */
 const start_search = debounce(() => {
@@ -908,6 +932,8 @@ onMounted(() => {
       search_district.value =
         order.value.locations.district?.name_with_type || ''
       search_ward.value = order.value.locations.ward?.name_with_type || ''
+      customer_name.value = order.value.custom_fields?.customer_name || ''
+      customer_phone.value = order.value.custom_fields?.last_phone || ''
     }
     calculatorOrder()
     return
@@ -957,18 +983,30 @@ async function initDataParams() {
 }
 
 /** Cập nhật tên khách */
-async function updateName() {
+async function updatePhoneNumber() {
   try {
-    if (!$merchant.contact?.id) return
+    if (!customer_phone.value) return
 
-    await updateContact({
-        id: $merchant.contact.id,
-        first_name: customer_name.value,
-      }
-    )
+    if (
+      !customer_phone.value.includes('*') &&
+      !checkPhone(customer_phone.value)
+    ) {
+      customer_phone.value = ''
+      $toast.error('Số điện thoại không hợp lệ')
+      return
+    }
+
+    updateAnOrder()
   } catch (e) {
     console.log(e)
   }
+}
+
+/** Cập nhật sdt */
+function setContactPhone(value: string) {
+  customer_phone.value = value
+  show_dropbox.value = false
+  updateAnOrder()
 }
 
 /** chọn phương thức thanh toán */
@@ -986,7 +1024,8 @@ function getContactName() {
 
 /** Lấy ra sdt của contact */
 function getContactPhone() {
-  return $merchant.contact?.suggest_phone
+  if (!$merchant.contact?.suggest_phone) return ''
+  return $merchant.contact?.suggest_phone?.split(',').reverse()[0] || ''
 }
 
 /** Chọn tỉnh thành */
@@ -1397,6 +1436,8 @@ function selectEmployee(employee: EmployeeData, index: number) {
 function checkOrderValid() {
   // * Kiểm tra sản phẩm
   if (!order.value.products?.length) return false
+  if (customer_name.value === '') return false
+  if (customer_phone.value === '') return false
   return true
 }
 
@@ -1437,6 +1478,19 @@ async function activeStep(
           } else status.is_active = false
         })
       })
+    }
+
+    if (
+      !customer_phone.value.includes('*') &&
+      !checkPhone(customer_phone.value)
+    ) {
+      throw 'Số điện thoại không hợp lệ'
+    }
+
+    order.value.custom_fields = {
+      ...order.value.custom_fields,
+      customer_name: customer_name.value,
+      last_phone: customer_phone.value,
     }
 
     // * Không xử lý gì cả

@@ -153,15 +153,19 @@ export interface Order {
     /** Thuộc tính tùy biến */
     custom_fields?: {
         /** Kênh bán hàng */
-        sales_channel: string;
+        sales_channel?: string;
         /** Nguồn gốc đơn hàng */
-        source: string;
+        source?: string;
         /** Id thợ chính làm sản phẩm */
-        master: string;
+        master?: string;
         /** Id thợ phụ làm sản phẩm */
-        assistant: string;
+        assistant?: string;
         /** Tổng giá các loại sản phẩm */
         products_price?: number;
+        /** số điện thoại người */
+        last_phone?:string,
+        /** tên người nhận */
+        customer_name?:string
     }
 
     /** Hành trình đơn hàng */
