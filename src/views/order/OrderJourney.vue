@@ -1,8 +1,8 @@
 <template>
-    <div class="w-full flex gap-5 items-center overflow-x-scroll flex-shrink-0 scrollbar-thin">
+    <div class="w-full flex gap-2 items-center overflow-x-scroll flex-shrink-0 scrollbar-thin">
         <div
             v-for="(step, index) in order.order_journey"
-            class="flex items-center gap-1.5 whitespace-nowrap"
+            class="flex items-center gap-1.5 whitespace-nowrap min-w-max"
             :class="{
                 'opacity-30': activeStep(index),
             }"

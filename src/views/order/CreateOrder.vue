@@ -1045,9 +1045,25 @@ async function initDataParams() {
     address,
   }
 
+  /** tên tỉnh lấy từ chat */
+  let city_name = $appStore.data_client?.public_profile?.location?.city
+
   //nếu AI không quét ra thành phố thì lấy thành phố của chatbox
-  if(!city && $appStore.data_client?.public_profile?.location?.city){
-    address += ', ' + $appStore.data_client?.public_profile?.location?.city
+  if (!city && city_name) {
+    $merchant.provinces.forEach(item => {
+      /** tên tỉnh không dấu */
+      const nonAccentVnProvince = nonAccentVn(item.name || '')
+      /** tên tỉnh không dấu và không khoảng trắng */
+      const province = nonAccentVnProvince?.replace(/\s+/g, '')
+
+      /** kiểm tra xem tỉnh nào trùng với tên tỉnh từ chat trả về */
+      if (province.includes(city_name?.toLocaleLowerCase() || '')) {
+        /** gán tên có dấu lại vào tên tỉnh */
+        city_name = item.name
+      }
+    })
+    /** cộng vào địa chỉ */
+    address += ', ' + city_name
   }
 
   // nếu có địa chỉ thì tự động điền
@@ -1059,7 +1075,8 @@ async function initDataParams() {
     await searchAddress()
 
     // chọn địa chỉ
-    getDetailLocation(addresses.value[0])
+    // getDetailLocation(addresses.value[0])
+    focusInput('address-input')
   }
 
   // tắt tự động tạo từ lần thứ 2 trở đi
@@ -1108,8 +1125,6 @@ function getContactName() {
 
 /** Lấy ra sdt của contact */
 function getContactPhone() {
-  console.log($appStore.data_client.conversation_contact?.client_phone);
-  
   if ($appStore.data_client.conversation_contact?.client_phone)
     return $appStore.data_client.conversation_contact?.client_phone
 
