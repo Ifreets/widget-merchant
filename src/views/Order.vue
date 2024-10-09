@@ -133,8 +133,8 @@ async function load() {
     let { is_auto_create, phone } = getFieldParam()
 
     // lưu số điện thoại của khách nhận được từ AI nếu có vào contact để đồng bộ sang merchant
-    if(appStore.data_client?.conversation_contact?.client_phone)
-        appStore.data_client.conversation_contact.client_phone = phone || '' 
+    if(appStore.data_client?.conversation_contact?.client_phone && phone)
+        appStore.data_client.conversation_contact.client_phone = phone 
 
     //đồng bộ dữ liệu
     await synchData()

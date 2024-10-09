@@ -1,13 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import type { CustomerInfo } from 'bbh-chatbox-widget-js-sdk'
+import type { ICustomerInfo } from '@/service/interface/widget'
 export const useAppStore = defineStore('app_store', () => {
   /** tab hiện tại của app */
   const tab = ref<'USER' | 'ORDER' | 'SETTING' | 'SETTING_NO_TOKEN' | ''>(
     'USER'
   )
   /** dữ liệu khách hàng */
-  const data_client = ref<CustomerInfo>({})
+  const data_client = ref<ICustomerInfo>({})
   /** thông tin khách hàng */
   const customer_info = ref<{
     /** link ảnh đại diện */

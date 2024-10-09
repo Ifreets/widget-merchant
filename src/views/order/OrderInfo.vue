@@ -49,7 +49,7 @@
         </div>
         <div class="flex items-center gap-1">
           <img :src="PhoneIcon" />
-          <p>{{ props.order.contact_info?.suggest_phone }}</p>
+          <p>{{ props.order.custom_fields?.last_phone || '' }}</p>
         </div>
       </div>
       <!-- Địa chỉ giao hàng -->
@@ -207,7 +207,7 @@ import { useMerchantStore } from '@/stores'
 import { currency } from '@/service/helper/format'
 import { formatDistanceToNowStrict } from 'date-fns'
 import { convertEmployeeName } from '@/service/helper/format'
-
+import WIDGET from 'bbh-chatbox-widget-js-sdk'
 /** Components */
 import OrderJourney from '@/views/order/OrderJourney.vue'
 
@@ -275,9 +275,10 @@ function toogleOrder() {
 
 /** Lấy tên khách hàng */
 function getFullName(order: any) {
-  let first_name = order.contact_info.first_name || ''
-  let last_name = order.contact_info.last_name || ''
-  return `${last_name} ${first_name}`
+  // let first_name = order.contact_info.first_name || ''
+  // let last_name = order.contact_info.last_name || ''
+  // return `${last_name} ${first_name}`
+  return order.custom_fields.customer_name || ''
 }
 
 /** Lấy địa chỉ */
@@ -302,7 +303,8 @@ function getActionLog() {
 /** Mở trang chi tiết đơn hàng */
 function openOrderDetail() {
   let order_id = props.order?.order_id
-  window.open(`https://merchant.vn/a/order?id=${order_id}`, '_blank')
+  window.open(`https://merchant.vn/login?chat_access_token=${WIDGET.access_token}&redirect=https://merchant.vn/a/order?id=${order_id}`, '_blank')
+  
 }
 
 /** Chỉnh sửa đơn hàng */

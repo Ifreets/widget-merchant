@@ -1,8 +1,6 @@
 <template>
   <article class="h-full flex flex-col overflow-hidden">
-    <section
-      class="h-full flex flex-col gap-2 overflow-auto scrollbar-thin"
-    >
+    <section class="h-full flex flex-col gap-2 overflow-auto scrollbar-thin">
       <!-- Hành trình đơn hàng -->
       <OrderJourney :order="order" />
       <!-- Thông tin đơn hàng -->
@@ -33,7 +31,8 @@
                   id="phone-input"
                   class="w-full px-3 py-2.5 border rounded-md outline-none placeholder:text-slate-500"
                   :class="{
-                    'border-red-500': !customer_phone && alert_validate,
+                    'border-red-500':
+                      (!customer_phone || is_phone_valid) && alert_validate,
                   }"
                   type="text"
                   placeholder="Số điện thoại"
@@ -79,7 +78,8 @@
                   :readonly="!isAvailablelUpdate('address')"
                   class="px-3 py-2.5 border rounded-md placeholder:text-slate-500 w-full"
                   :class="{
-                    'border-red-500': !order.address && alert_validate && check_address,
+                    'border-red-500':
+                      !order.address && alert_validate && check_address,
                   }"
                 />
                 <img
@@ -147,7 +147,10 @@
                   "
                   class="w-full flex items-center justify-between p-2 border rounded-md"
                   :class="{
-                    'border-red-500': !get(order, 'locations.province.name') && alert_validate && check_address,
+                    'border-red-500':
+                      !get(order, 'locations.province.name') &&
+                      alert_validate &&
+                      check_address,
                   }"
                 />
                 <ArrowIcon
@@ -217,7 +220,10 @@
                   @keydown.tab="tabEvent('district')"
                   class="w-full flex items-center justify-between p-2 border rounded-md"
                   :class="{
-                    'border-red-500': !get(order, 'locations.district.name_with_type') && alert_validate && check_address,
+                    'border-red-500':
+                      !get(order, 'locations.district.name_with_type') &&
+                      alert_validate &&
+                      check_address,
                   }"
                 />
                 <ArrowIcon
@@ -284,7 +290,10 @@
                   @keydown.tab="tabEvent('ward')"
                   class="w-full flex items-center justify-between p-2 border rounded-md"
                   :class="{
-                    'border-red-500': !get(order, 'locations.ward.name_with_type') && alert_validate && check_address,
+                    'border-red-500':
+                      !get(order, 'locations.ward.name_with_type') &&
+                      alert_validate &&
+                      check_address,
                   }"
                 />
                 <ArrowIcon
@@ -951,6 +960,7 @@ const data_auto_create = ref<{
   address?: string
 }>({})
 
+/** kiểm tra đơn hàng đã điền đủ thông tin chưa */
 const check_order_valid = computed(() => {
   if (!order.value.products?.length) {
     return false
@@ -961,23 +971,34 @@ const check_order_valid = computed(() => {
   if (customer_phone.value === '') {
     return false
   }
-  if( check_address.value){
+  if (check_address.value) {
     return false
   }
 
   return true
 })
 
+/** kiểm tra địa chỉ đã điền chưa */
 const check_address = computed(() => {
   const is_address_valid = !order.value.address
-  
+
   const is_province_valid = !order.value.locations?.province?.name
 
   const is_district_valid = !order.value.locations?.district?.name_with_type
-  
+
   const is_ward_valid = !order.value.locations?.ward?.name_with_type
 
-  return is_address_valid && is_province_valid && is_district_valid && is_ward_valid
+  return (
+    is_address_valid && is_province_valid && is_district_valid && is_ward_valid
+  )
+})
+
+const is_phone_valid = computed(() => {
+  return (
+    (!customer_phone.value.includes('*') &&
+      !checkPhone(customer_phone.value)) ||
+    customer_phone.value.length < 10
+  )
 })
 
 onMounted(() => {
@@ -1015,12 +1036,18 @@ async function initDataParams() {
   let email = queryString('email') || ''
   let phone = queryString('phone') || ''
   let address = queryString('address') || ''
+  const city = queryString('city') || ''
 
   //lưu lại
   data_auto_create.value = {
     email,
     phone,
     address,
+  }
+
+  //nếu AI không quét ra thành phố thì lấy thành phố của chatbox
+  if(!city && $appStore.data_client?.public_profile?.location?.city){
+    address += ', ' + $appStore.data_client?.public_profile?.location?.city
   }
 
   // nếu có địa chỉ thì tự động điền
@@ -1081,6 +1108,11 @@ function getContactName() {
 
 /** Lấy ra sdt của contact */
 function getContactPhone() {
+  console.log($appStore.data_client.conversation_contact?.client_phone);
+  
+  if ($appStore.data_client.conversation_contact?.client_phone)
+    return $appStore.data_client.conversation_contact?.client_phone
+
   if (!$merchant.contact?.suggest_phone) return ''
   return $merchant.contact?.suggest_phone?.split(',').reverse()[0] || ''
 }
@@ -1506,7 +1538,14 @@ function checkOrderValid() {
     scrollToElement('phone-input')
     return false
   }
-  if(check_address.value){
+
+  if (is_phone_valid.value) {
+    $toast.error('Số điện thoại không hợp lệ')
+    scrollToElement('phone-input')
+    return false
+  }
+
+  if (check_address.value) {
     $toast.error('Vui lòng nhập địa chỉ nhận hàng')
     scrollToElement('address-input')
     return false
@@ -1555,12 +1594,13 @@ async function activeStep(
       })
     }
 
-    if (
-      !customer_phone.value.includes('*') &&
-      !checkPhone(customer_phone.value)
-    ) {
-      throw 'Số điện thoại không hợp lệ'
-    }
+    // if (
+    //   (!customer_phone.value.includes('*') &&
+    //     !checkPhone(customer_phone.value)) ||
+    //   customer_phone.value.length < 10
+    // ) {
+    //   throw 'Số điện thoại không hợp lệ'
+    // }
 
     order.value.custom_fields = {
       ...order.value.custom_fields,
