@@ -25,6 +25,7 @@
           @click.stop="editOrder"
         /> -->
         <img
+          v-tooltip="'Xem chi tiết đơn hàng'"
           :src="LinkIcon"
           class="w-4.5 h-4.5 cursor-pointer"
           @click.stop="openOrderDetail"
