@@ -1037,6 +1037,8 @@ async function initDataParams() {
   let phone = queryString('phone') || ''
   let address = queryString('address') || ''
   const city = queryString('city') || ''
+  const ward_name = queryString('ward') || ''
+  const street_name = queryString('street_name') || ''
 
   //lưu lại
   data_auto_create.value = {
@@ -1075,8 +1077,11 @@ async function initDataParams() {
     await searchAddress()
 
     // chọn địa chỉ
-    // getDetailLocation(addresses.value[0])
-    focusInput('address-input')
+    if(ward_name && street_name){
+      getDetailLocation(addresses.value[0])
+    }else{
+      focusInput('address-input')
+    }
   }
 
   // tắt tự động tạo từ lần thứ 2 trở đi
