@@ -344,7 +344,7 @@
           <template #trigger>
             <div
               class="flex items-center gap-2"
-              @click="show_dropbox = true"
+              @click="openSearchProduct"
             >
               <img
                 :src="SearchIcon"
@@ -402,6 +402,19 @@
                   </p>
                 </div>
               </div>
+              <div
+                class="flex flex-col items-center gap-2.5 my-5"
+                v-if="products.length === 0 && !is_calling_api && !search_product"
+              >
+                <p class="text-slate-500">Chưa có sản phẩm</p>
+                <button
+                  class="font-medium bg-slate-100 text-slate-700 py-2 px-6 rounded-lg gap-1 flex"
+                  @click="linkToProductApp"
+                >
+                  <img src="@/assets/icons/plus.svg" />
+                  <span> Thêm sản phẩm </span>
+                </button>
+              </div>
             </div>
           </template>
         </Dropbox>
@@ -425,7 +438,12 @@
                   colspan="5"
                   class="text-center py-3 text-slate-500"
                 >
-                  Chưa có sản phẩm
+                  <div class="flex flex-col items-center gap-2.5">
+                    <div class="rounded-full bg-slate-100 p-3">
+                      <img src="@/assets/icons/product-gray.svg" />
+                    </div>
+                    <p>Chưa có sản phẩm</p>
+                  </div>
                 </td>
               </tr>
               <tr
@@ -774,15 +792,13 @@
   </article>
 </template>
 <script setup lang="ts">
-import { useAppStore, useMerchantStore } from '@/stores'
-import { ref, onMounted, computed } from 'vue'
 import { Toast } from '@/service/helper/toast'
 import { nonAccentVn } from '@/service/helper/format'
-import { get, isNumber, pick, debounce, set } from 'lodash'
+import { useAppStore, useMerchantStore } from '@/stores'
+import { queryString } from '@/service/helper/queyString'
 import { confirm2 as confirm } from '@/service/helper/alert'
 import { cleave_options, payment_methods } from '@/service/options'
 import { currency, convertEmployeeName, copy } from '@/service/helper/format'
-import { queryString } from '@/service/helper/queyString'
 import {
   createOrder,
   updateOrder,
@@ -794,6 +810,10 @@ import {
   getAddress,
   updateContact,
 } from '@/service/api/merchant'
+
+import WIDGET from 'bbh-chatbox-widget-js-sdk'
+import { ref, onMounted, computed, watch } from 'vue'
+import { get, isNumber, pick, debounce } from 'lodash'
 
 // * Components
 import cleave from 'vue-cleave-component'
@@ -960,6 +980,9 @@ const data_auto_create = ref<{
   address?: string
 }>({})
 
+/** đang gọi api */
+const is_calling_api = ref<boolean>(false)
+
 /** kiểm tra đơn hàng đã điền đủ thông tin chưa */
 const check_order_valid = computed(() => {
   if (!order.value.products?.length) {
@@ -1002,7 +1025,6 @@ const is_phone_valid = computed(() => {
 })
 
 onMounted(() => {
-  loadProduct()
   if ($merchant.order_edit.id) {
     order.value = $merchant.order_edit
     if (order.value.locations) {
@@ -1027,6 +1049,11 @@ onMounted(() => {
   initDataParams()
 })
 
+watch(() => search_product.value, () => {
+  if(is_calling_api.value) return
+  is_calling_api.value = true
+})
+
 /** hàm khởi tạo giá trị của các field khi tạo tự động */
 async function initDataParams() {
   // nếu không phải chế độ tạo tự động thì thôi
@@ -1036,8 +1063,13 @@ async function initDataParams() {
   let email = queryString('email') || ''
   let phone = queryString('phone') || ''
   let address = queryString('address') || ''
+  /** thành phố */
   const city = queryString('city') || ''
+  /** phường */
   const ward_name = queryString('ward') || ''
+  /** quận */
+  const district_name = queryString('district') || ''
+  /** phố */
   const street_name = queryString('street_name') || ''
 
   //lưu lại
@@ -1077,9 +1109,9 @@ async function initDataParams() {
     await searchAddress()
 
     // chọn địa chỉ
-    if(ward_name && street_name){
+    if ((ward_name || district_name) && street_name) {
       getDetailLocation(addresses.value[0])
-    }else{
+    } else {
       focusInput('address-input')
     }
   }
@@ -1106,6 +1138,12 @@ async function updatePhoneNumber() {
   } catch (e) {
     console.log(e)
   }
+}
+
+/** mở tìm kiếm sản phẩm */
+function openSearchProduct() {
+  show_dropbox.value = true
+  loadProduct()
 }
 
 /** Cập nhật sdt */
@@ -1178,9 +1216,15 @@ function selectWard(item: WardData) {
 
 /** Lấy thông tin sản phẩm */
 async function loadProduct() {
-  products.value = await getProduct({
-    search: search_product.value,
-  })
+  try {
+    products.value = await getProduct({
+      search: search_product.value,
+    })
+    is_calling_api.value = false
+  } catch (e) {
+    is_calling_api.value = false
+    $toast.error(e as string)
+  }
 }
 
 /** Chọn sản phẩm thêm vào đơn hàng */
@@ -2014,5 +2058,15 @@ function tabEvent(type: 'province' | 'district' | 'ward' | 'address') {
       focusInput('product-input')
       break
   }
+}
+
+/** Mở trang sản phẩm */
+function linkToProductApp() {
+  show_dropbox.value = false
+  search_product.value = ''
+  window.open(
+    `https://merchant.vn/login?chat_access_token=${WIDGET.access_token}&redirect=https://merchant.vn/a/product`,
+    '_blank'
+  )
 }
 </script>
