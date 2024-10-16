@@ -764,6 +764,7 @@
             v-model="order.internal_note"
             :readonly="!isAvailablelUpdate('')"
           />
+          <p class="overflow-auto max-h-20 break-all col-span-2">{{ urlParams }}</p>
         </div>
       </div>
     </section>
@@ -789,7 +790,6 @@
         </div>
       </div>
     </div>
-    <p class="overflow-auto min-h-16 break-all">{{ urlParams }}</p>
   </article>
 </template>
 <script setup lang="ts">
