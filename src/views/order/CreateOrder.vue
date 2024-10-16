@@ -789,6 +789,7 @@
         </div>
       </div>
     </div>
+    <p class="overflow-auto min-h-16 break-all">{{ urlParams }}</p>
   </article>
 </template>
 <script setup lang="ts">
@@ -846,6 +847,8 @@ import type {
   PaymentMethods,
 } from '@/service/interface'
 import { checkPhone } from '@/service/helper/validate'
+
+const urlParams = new URLSearchParams(window.location.search)
 
 /** store merchant */
 const $merchant = useMerchantStore()

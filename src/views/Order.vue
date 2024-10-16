@@ -126,7 +126,7 @@ async function load() {
       // await WIDGET.oAuth(res.data)
       commonStore.token_business = res.data
     }else{
-      $toast.error('Không thấy thông tin nhân sự trong merchant')
+      // $toast.error('Không thấy thông tin nhân sự trong merchant')
       throw 'Không thấy thông tin nhân sự trong merchant'
     }
 
