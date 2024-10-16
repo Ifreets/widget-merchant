@@ -1015,7 +1015,7 @@ const check_address = computed(() => {
   const is_ward_valid = !order.value.locations?.ward?.name_with_type
 
   return (
-    is_address_valid && is_province_valid && is_district_valid && is_ward_valid
+    is_address_valid || is_province_valid || is_district_valid || is_ward_valid
   )
 })
 
@@ -1074,6 +1074,8 @@ async function initDataParams() {
   const district_name = queryString('district') || ''
   /** phố */
   const street_name = queryString('street_name') || ''
+  /** số nhà */
+  const house_number = queryString('house_number') || ''
 
   //lưu lại
   data_auto_create.value = {
@@ -1114,6 +1116,7 @@ async function initDataParams() {
     // chọn địa chỉ
     if ((ward_name || district_name) && street_name) {
       getDetailLocation(addresses.value[0])
+      order.value.address = house_number + ' ' + street_name
     } else {
       focusInput('address-input')
     }
@@ -1892,11 +1895,14 @@ function removeLocation(type: 'province' | 'district' | 'ward' | 'all') {
     order.value.locations.province = {}
     order.value.locations.district = {}
     order.value.locations.ward = {}
+    search_district.value = ''
+    search_ward.value = ''
     focusInput('province-input')
   }
   if (order.value.locations?.district && type === 'district') {
     order.value.locations.district = {}
     order.value.locations.ward = {}
+    search_ward.value = ''
     focusInput('district-input')
   }
   if (order.value.locations?.ward && type === 'ward') {
