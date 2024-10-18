@@ -32,6 +32,12 @@ export interface OrderProduct {
     service_fee?: number;
     /** cân nặng tính tiền */
     weight?: number;
+    /** Chiều dài sản phẩm */
+    length?:number
+    /** Chiều rộng sản phẩm */ 
+    width?:number
+    /** Chiều cao sản phẩm */
+    height?:number
     /** Số lượng tồn kho */
     inventory_quantity?: number;
 }

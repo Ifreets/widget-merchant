@@ -1269,6 +1269,9 @@ function selectProduct(item: Product, still_show_box?: boolean) {
       product_type: item.type || 'product',
       revenue_allocation: item.custom_fields?.revenue_allocation || false,
       weight: item.weight || 0,
+      length: item.length || 0,
+      width: item.width || 0,
+      height: item.height || 0,
       inventory_quantity: item.inventory_quantity || 0,
     })
   }
