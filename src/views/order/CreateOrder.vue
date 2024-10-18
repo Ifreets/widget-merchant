@@ -764,7 +764,7 @@
             v-model="order.internal_note"
             :readonly="!isAvailablelUpdate('')"
           />
-          <p class="max-h-20 overflow-auto">{{ urlParams }}</p>
+          <!-- <p class="max-h-20 overflow-auto">{{ urlParams }}</p> -->
         </div>
       </div>
     </section>
@@ -848,7 +848,7 @@ import type {
 } from '@/service/interface'
 import { checkPhone } from '@/service/helper/validate'
 
-const urlParams = new URLSearchParams(window.location.search)
+// const urlParams = new URLSearchParams(window.location.search)
 
 /** store merchant */
 const $merchant = useMerchantStore()
