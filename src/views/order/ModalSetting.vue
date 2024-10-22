@@ -146,6 +146,7 @@ async function updateSetting() {
       },
     })
     commonStore.store = store.value
+    $toast.success('Lưu thiết lập thành công')
   } catch (e) {
     $toast.error(e as string)
   }
