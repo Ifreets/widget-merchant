@@ -1,14 +1,24 @@
 <template>
   <article class="py-1 px-3 text-sm flex flex-col gap-2 overflow-hidden h-dvh">
-    <Header
-      v-model="current_tab"
-      class="flex-shrink-0"
-    />
+    <div class="flex gap-1 w-full flex-shrink-0 items-center">
+      <Header
+        v-model="current_tab"
+        class="w-full"
+      />
+      <img
+        v-tooltip="'Cài đặt'"
+        v-if="WIDGET.is_admin"
+        src="@/assets/icons/setting.svg"
+        class="w-5 h-5 cursor-pointer"
+        @click="is_show_modal_setting = true"
+      />
+    </div>
     <Orders
       v-if="merchantStore.current_tab === 'ORDERS'"
       :contact_id="contact_id"
     />
     <CreateOrder v-if="merchantStore.current_tab === 'CREATE_ORDER'" />
+    <ModalSetting v-model="is_show_modal_setting"/>
   </article>
 </template>
 <script setup lang="ts">
@@ -23,17 +33,19 @@ import {
   getProvince,
   getSetting,
   getEmployee,
-  getMerchantToken
+  getMerchantToken,
 } from '@/service/api/merchant'
 
 // * components
 import Header from '@/views/order/Header.vue'
 import Orders from '@/views/order/Orders.vue'
 import CreateOrder from '@/views/order/CreateOrder.vue'
+import ModalSetting from '@/views/order/ModalSetting.vue'
 
 // * Types
 import type { IConfigWidget } from '@/service/interface'
 import { Toast } from '@/service/helper/toast'
+
 
 /** store */
 const appStore = useAppStore()
@@ -48,6 +60,9 @@ const current_tab = ref<'ORDERS' | 'CREATE_ORDER'>('ORDERS')
 
 /** id contact */
 const contact_id = ref<string>('')
+
+/** ẩn hiện modal cài đặt */
+const is_show_modal_setting = ref<boolean>(false)
 
 // lắng nghe sự kiện từ chatbox
 WIDGET.onEvent(async () => {
@@ -113,19 +128,19 @@ async function load() {
   try {
     // bật loading
     commonStore.is_loading_full_screen = true
-    
+
     // * ghi lại thông tin khách hàng mới
     appStore.data_client = await WIDGET.decodeClient()
 
     const res = await getMerchantToken({
-        access_token: WIDGET.access_token,
-        secret_key: $env.secret_key,
+      access_token: WIDGET.access_token,
+      secret_key: $env.secret_key,
     })
 
-    if(res?.data){
+    if (res?.data) {
       // await WIDGET.oAuth(res.data)
       commonStore.token_business = res.data
-    }else{
+    } else {
       $toast.error('Không thấy thông tin nhân sự trong merchant')
       throw 'Không thấy thông tin nhân sự trong merchant'
     }
@@ -133,21 +148,20 @@ async function load() {
     let { is_auto_create, phone } = getFieldParam()
 
     // lưu số điện thoại của khách nhận được từ AI nếu có vào contact để đồng bộ sang merchant
-    if(appStore.data_client?.conversation_contact?.client_phone && phone)
-        appStore.data_client.conversation_contact.client_phone = phone 
+    if (appStore.data_client?.conversation_contact?.client_phone && phone)
+      appStore.data_client.conversation_contact.client_phone = phone
 
     //đồng bộ dữ liệu
     await synchData()
 
     // nếu là tạo đơn tự động bằng AI thì chuyển sang tab tạo đơn và bật cờ lên
-    if(is_auto_create) {
+    if (is_auto_create) {
       merchantStore.current_tab = 'CREATE_ORDER'
       appStore.is_auto_create = true
     }
 
     //tắt loading
     commonStore.is_loading_full_screen = false
-
   } catch (error) {
     console.log('load home', error)
     //chuyển tab setting
@@ -165,16 +179,15 @@ function getFieldParam() {
   let cta = queryString('cta')
 
   // check xem số điện thoại có hợp lệ hay không
-  if(!phone || !checkPhone(phone))  phone = ''
+  if (!phone || !checkPhone(phone)) phone = ''
 
   // check xem email có hợp lệ hay không
-  if(!email || !checkEmail(email))  email = ''
-  
+  if (!email || !checkEmail(email)) email = ''
+
   return {
     // nếu có cta thì is_auto_create bằng true
-    is_auto_create: !! cta,
-    phone
+    is_auto_create: !!cta,
+    phone,
   }
 }
-
 </script>
