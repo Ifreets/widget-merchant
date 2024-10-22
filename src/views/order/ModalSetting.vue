@@ -4,7 +4,7 @@
     :close="() => (is_show_modal_setting = false)"
   >
     <template #content>
-      <article class="bg-white mt-20 rounded-lg">
+      <article class="bg-white rounded-lg">
         <header class="flex justify-between py-2 px-6">
           <h2 class="text-xl font-bold">Cài đặt</h2>
           <img
