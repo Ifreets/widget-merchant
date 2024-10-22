@@ -271,3 +271,20 @@ export const getProfile = async () => {
         throw e
     }
 }
+
+/** api lấy danh sách cửa hàng */
+export const getStore = async (data: {}) => {
+    try {
+        const commonStore = useCommonStore()
+        return await request({
+            uri: 'https://api.merchant.vn/v1/public/chatbox/stores',
+            method: 'POST',
+            body: data,
+            headers: {
+                'token-business': commonStore.token_business,
+            },
+        })
+    } catch (e) {
+        throw e
+    }
+}

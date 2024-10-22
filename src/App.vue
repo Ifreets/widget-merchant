@@ -15,12 +15,26 @@
 <script setup lang="ts">
 import { useCommonStore } from '@/stores'
 
-//* components
-import Loading from '@/components/Loading.vue'
+// * libraries
+import { onMounted } from 'vue';
+import WIDGET from 'bbh-chatbox-widget-js-sdk';
+
+// * components
 import Color from '@/components/Color.vue'
 import LoadingBar from '@/components/LoadingBar.vue';
 
 const commonStore = useCommonStore()
+
+onMounted(async () => {
+  const res = await WIDGET.getConfig({
+    brand_name: 'widget-merchant',
+    type_config: 'CRM',
+  })
+  if(res?.store){
+    commonStore.store = res.store
+  }
+})
+
 </script>
 
 <style lang="scss"></style>

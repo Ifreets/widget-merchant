@@ -1,3 +1,4 @@
+import type { Store } from '@/service/interface'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 export const useCommonStore = defineStore('common_store', () => {
@@ -9,7 +10,8 @@ export const useCommonStore = defineStore('common_store', () => {
   const id_business = ref<string>('')
   /** token doanh nghiệp */
   const token_business = ref<string>('')
-
+  /** id của cửa hàng được cài đặt */
+  const store = ref<Store>({})
   /** avatar của nhân viên */
   function getAvatarEmployee(item: string) {
     return listAllEmployee.value[item]?.avatar
@@ -36,6 +38,7 @@ export const useCommonStore = defineStore('common_store', () => {
     listAllEmployee,
     id_business,
     token_business,
+    store,
     getAvatarEmployee,
     getNameEmployee,
     getNameBranch,

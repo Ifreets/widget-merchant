@@ -18,7 +18,7 @@
       :contact_id="contact_id"
     />
     <CreateOrder v-if="merchantStore.current_tab === 'CREATE_ORDER'" />
-    <ModalSetting v-model="is_show_modal_setting"/>
+    <ModalSetting v-if="is_show_modal_setting" v-model="is_show_modal_setting"/>
   </article>
 </template>
 <script setup lang="ts">
