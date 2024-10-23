@@ -30,4 +30,5 @@ export const PRODUCT_DEFAULT = {
   images: [],
   quantity:1,
   discount:0,
+  total_price:0,
 }

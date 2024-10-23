@@ -425,6 +425,7 @@
           <div
             class="bg-black p-2 rounded-md h-fit cursor-pointer"
             @click="addProduct"
+            v-tooltip="'Thêm nhanh SP'"
           >
             <img
               src="@/assets/icons/solid_plus.svg"
@@ -436,14 +437,13 @@
           <table class="border-separate border-spacing-y-1 w-full">
             <thead>
               <tr class="bg-slate-500 text-white text-xs sticky top-0 z-10">
-                <th class="text-start rounded-s font-medium py-1 pl-2">
+                <th class="text-start rounded-s font-medium p-1">
                   Tên sản phẩm
                 </th>
-                <th class="text-end font-medium py-1">Đơn giá</th>
-                <th class="text-center font-medium py-1">SL</th>
-                <th class="text-end font-medium py-1">Giảm giá</th>
-                <th class="text-end font-medium py-1 pr-2 rounded-e">
-                  Tổng tiền
+                <th class="text-end font-medium p-1">SL</th>
+                <th class="text-end font-medium p-1">Giảm giá</th>
+                <th class="text-end font-medium p-1 rounded-e">
+                  Thành tiền
                 </th>
               </tr>
             </thead>
@@ -464,67 +464,73 @@
               <tr
                 v-else
                 v-for="(product, index) in order.products"
-                class="cursor-pointer hover:bg-slate-200 group w-max"
+                class="cursor-pointer hover:bg-slate-200 group w-max font-medium"
               >
-                <td class="py-1 pl-2 rounded-s">
-                  <p
-                    class="w-24 truncate"
-                    v-if="product?.product_id"
-                  >
-                    {{ product?.product_name || '' }}
-                  </p>
+                <td class="p-1 rounded-s">
+                  <div v-if="product?.product_id">
+                    <p
+                      class="w-32 truncate"
+                    >
+                      {{ product?.product_name || '' }}
+                    </p>
+                    <p :class="{
+                      'text-red-500': Number(product.inventory_quantity || 0) <= 0
+                    }" class="text-xs font-normal">Tồn: {{product.inventory_quantity}}</p>
+                  </div>
                   <input
                     v-else
                     type="text"
                     v-model="product.product_name"
-                    class="w-24 border-b outline-none border-black bg-transparent"
+                    :placeholder="'Tên sản phẩm'"
+                    class="w-32 border-b outline-none border-black bg-transparent placeholder:text-slate-500"
                   />
                 </td>
-                <td class="text-end py-1">
-                  <p
-                    class="w-18 truncate"
-                    v-if="product?.product_id"
-                  >
-                    {{ currency(product?.price) || 0 }}
-                  </p>
+                <td class="text-end p-1">
                   <cleave
-                    v-else
-                    class="w-18 text-end border-b border-black outline-none bg-transparent"
-                    :options="cleave_options"
-                    v-model="product.price"
-                    @change="calculatorOrder(true)"
-                    type="tel"
-                  />
-                </td>
-                <td class="text-end py-1">
-                  <cleave
-                    class="text-end border-b border-black outline-none bg-transparent w-10"
+                    class="text-end border-b border-black outline-none bg-transparent w-12"
                     :options="cleave_options"
                     v-model="product.quantity"
                     @change="calculatorOrder(true)"
                     type="tel"
                   />
                 </td>
-                <td class="text-end py-1">
+                <td class="text-end p-1">
                   <cleave
-                    class="w-14 text-end border-b border-black outline-none bg-transparent"
+                    class="w-16 text-end border-b border-black outline-none bg-transparent"
+                    :class="{
+                      'text-slate-500': !product.product_name,
+                    }"
                     :options="cleave_options"
                     v-model="product.discount"
                     @change="calculatorOrder(true)"
                     type="tel"
+                    :readonly="!isAvailablelUpdate('product') || !product.product_name"
                   />
                 </td>
-                <td class="min-w-20 text-end py-1 pr-2 rounded-e">
+                <td class="text-end p-1 rounded-e">
                   <div
-                    class="flex items-center justify-end group w-full"
-                    @click="removeProduct(index)"
+                    class="flex items-center justify-between gap-2 w-20"
+                    
                   >
-                    <p class="group-hover:hidden">
+                    <p class="w-full" v-if="product.product_id">
                       {{ currency(product.total_price) || 0 }}
                     </p>
+                    <cleave
+                      v-else
+                      class="w-full text-end border-b border-black outline-none bg-transparent"
+                      :class="{
+                        'text-slate-500': !product.product_name,
+                      }"
+                      :options="cleave_options"
+                      v-model="product.total_price"
+                      @change="calculatorOrder(true)"
+                      type="tel"
+                      :readonly="!isAvailablelUpdate('product') || !product.product_name"
+                    />
                     <img
+                      @click="removeProduct(index)"
                       v-if="isAvailablelUpdate('product')"
-                      class="hidden group-hover:block mr-4"
+                      class="hidden group-hover:block"
                       :src="CancelIcon"
                       v-tooltip="'Xóa'"
                     />
@@ -533,18 +539,17 @@
               </tr>
               <tr class="bg-slate-200 font-semibold sticky bottom-0">
                 <td
-                  class="text-end rounded-s py-1 pr-3"
-                  colspan="2"
+                  class="text-end rounded-s p-1"
                 >
                   Tổng
                 </td>
-                <td class="text-end py-1">
+                <td class="text-end p-1">
                   {{ order.quantity || 0 }}
                 </td>
-                <td class="text-end py-1">
+                <td class="text-end p-1">
                   {{ currency(order.discount) || 0 }}
                 </td>
-                <td class="text-end py-1 rounded-e pr-2">
+                <td class="text-end rounded-e p-1">
                   {{ currency(order.total_price) || 0 }}
                 </td>
               </tr>
@@ -1158,18 +1163,26 @@ async function initDataParams() {
   // nếu có địa chỉ thì tự động điền
   if (address) {
     // gán địa chỉ chọn địa chỉ
-    order.value.address = address
+    // order.value.address = address
+    const array = []
+    if(street_name && !ward_name) array.push(street_name)
+    if(ward_name) array.push(ward_name)
+    if(district_name) array.push(district_name)
+    if(city) array.push(city)
+    else array.push(city_name)
+    if(array.length) order.value.address = array.join(' - ')
 
     // tìm kiếm địa chỉ
     await searchAddress()
 
+    
     // chọn địa chỉ
     if ((ward_name || district_name) && street_name) {
       getDetailLocation(addresses.value[0])
-      order.value.address = house_number + ' ' + street_name
     } else {
       focusInput('address-input')
     }
+    order.value.address = address
   }
 
   // tắt tự động tạo từ lần thứ 2 trở đi
@@ -1378,6 +1391,10 @@ function calculatorOrder(is_update_order?: boolean) {
 
   /** Tính toán số lượng và giá từng loại sản phẩm */
   order.value.products = products.map(item => {
+    if(!item.product_id && item.total_price && item.quantity) 
+      item.price = Math.round((Number(item.total_price || 0))/Number(item.quantity)) + Number(item.discount)
+
+
     /** Tính phần trăng thuế */
     let percent_vat = Number(item.vat) / 100
 
@@ -1456,11 +1473,13 @@ function calculatorOrder(is_update_order?: boolean) {
       // * Tính tổng tiền sản phẩm
       let item_price = Number(item.quantity) * Number(item.price)
 
-      // * Tính tổng giá trị sau khi giảm giá và thuế
-      item.total_price =
-        item_price -
-        Number(item.discount) * Number(item.quantity) +
-        Number(percent_vat) * item_price
+      if(item.product_id){
+        // * Tính tổng giá trị sau khi giảm giá và thuế
+        item.total_price =
+          item_price -
+          Number(item.discount) * Number(item.quantity) +
+          Number(percent_vat) * item_price
+      }
     }
 
     return item
