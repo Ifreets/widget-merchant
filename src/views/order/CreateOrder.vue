@@ -514,7 +514,7 @@
                     type="tel"
                   />
                 </td>
-                <td class="min-w-24 text-end py-1 pr-2 rounded-e">
+                <td class="min-w-20 text-end py-1 pr-2 rounded-e">
                   <div
                     class="flex items-center justify-end group w-full"
                     @click="removeProduct(index)"
