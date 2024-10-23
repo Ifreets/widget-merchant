@@ -123,6 +123,22 @@ export const getPackage = async (data: {}) => {
     }
 }
 
+export const createProduct = async (data: {}) => {
+    try {
+        const commonStore = useCommonStore()
+        return await request({
+            uri: 'https://api-product.merchant.vn/product/create_product',
+            method: 'POST',
+            body: data,
+            headers: {
+                'token-business': commonStore.token_business,
+            },
+        })
+    } catch (e) {
+        throw e
+    }
+}
+
 // * API locations
 /** Lấy danh sách tỉnh thành */
 export const getProvince = async (data: {}) => {

@@ -29,7 +29,7 @@ export interface OrderProduct {
     /** Trạng thái phân bổ sản phẩm */
     revenue_allocation?: boolean;
     /** Phí dịch vụ */
-    service_fee?: number;
+    service_fee?: number | null;
     /** cân nặng tính tiền */
     weight?: number;
     /** Chiều dài sản phẩm */
@@ -40,6 +40,31 @@ export interface OrderProduct {
     height?:number
     /** Số lượng tồn kho */
     inventory_quantity?: number;
+    /** Thuộc tính tùy biến */
+    custom_fields?: {
+        /** Xuất xứ */
+        origin?: string;
+        /** Nguồn gốc */
+        source?: string;
+        /** Loại */
+        type?: string;
+        /** Mùa */
+        season?: string;
+        /** Trạng thái phân bổ doanh thu */
+        revenue_allocation?: boolean;
+        /** Hình thức phân bổ doanh thu */
+        allocation_form?: string;
+        /** Giá trị giảm dần */
+        value_gradually_decreases?: string | null
+        /** Đơn vị phân bổ */
+        allocation_unit?: string
+        /** Trạng thái phân bổ hoa hồng theo % */
+        commission_allocation?: boolean;
+        /** Các phòng ban được phân bổ hoa hồng theo %  */
+        departments_allocated_commissions?: any[]
+        /** Tính % hoa hồng cho marketing */
+        calculate_commission_for_marketing?: boolean;
+    }
 }
 
 /** Dữ liệu đơn hàng */

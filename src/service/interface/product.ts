@@ -44,9 +44,15 @@ export interface Product {
         /** Hình thức phân bổ doanh thu */
         allocation_form?: string;
         /** Giá trị giảm dần */
-        value_gradually_decreases?: string
+        value_gradually_decreases?: string | null
         /** Đơn vị phân bổ */
         allocation_unit?: string
+        /** Trạng thái phân bổ hoa hồng theo % */
+        commission_allocation?: boolean;
+        /** Các phòng ban được phân bổ hoa hồng theo %  */
+        departments_allocated_commissions?: any[]
+        /** Tính % hoa hồng cho marketing */
+        calculate_commission_for_marketing?: boolean;
     }
 
     /** Giá nhập */
@@ -98,7 +104,17 @@ export interface Product {
     vat?: number;
 
     /** Phí dịch vụ */
-    service_fee?: number;
+    service_fee?: number | null;
+
+    /**
+   * Giá bán sỉ
+   * */
+    wholesale_price?: number
+
+    /**
+   * Cho phép bán hàng khi hết số lượng
+   * */
+    sold_when_quantity_runs_out?: boolean
 
     /** Barcode */
     barcode?: string;

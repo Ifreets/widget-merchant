@@ -330,94 +330,108 @@
           </Dropbox>
         </div>
       </div>
+      <!-- tìm kiếm sản phẩm -->
       <div class="flex flex-col gap-2">
         <div class="flex items-center gap-2">
           <img :src="BagIcon" />
           <p class="font-semibold">Sản phẩm</p>
         </div>
-        <Dropbox
-          class="border py-2 px-3 rounded-md group focus-within:border-blue-600 focus-within:border-2"
-          :class="{
-            '!border-red-500': !order.products?.length && alert_validate,
-          }"
-        >
-          <template #trigger>
-            <div
-              class="flex items-center gap-2"
-              @click="openSearchProduct"
-            >
-              <img
-                :src="SearchIcon"
-                class="flex-shink-0 w-4"
-              />
-              <input
-                id="product-input"
-                type="text"
-                v-model="search_product"
-                @input="start_search"
-                @keyup.enter="selectProductByIndex"
-                @keyup.up="controlProduct('up')"
-                @keyup.down="controlProduct('down')"
-                placeholder="Nhập mã, tên sản phẩm..."
-                :readonly="!isAvailablelUpdate('product')"
-                class="flex-grow outline-none placeholder:text-slate-500 focus:group:border-blue-700"
-              />
-              <ArrowIcon class="flex-shink-0 text-gray-500" />
-            </div>
-          </template>
-          <template #box>
-            <div
-              class="w-full rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-40 overflow-auto mt-3"
-              v-if="show_dropbox && isAvailablelUpdate('product')"
-            >
+        <div class="flex gap-2 items-center">
+          <Dropbox
+            class="border py-2 px-3 rounded-md group focus-within:border-blue-600 focus-within:border-2"
+            :class="{
+              '!border-red-500': !order.products?.length && alert_validate,
+            }"
+          >
+            <template #trigger>
               <div
-                v-for="(product, index) in products"
-                :id="`product-${index}`"
-                @click="selectProduct(product, false)"
-                class="py-2 px-2 rounded-md cursor-pointer hover:bg-slate-100 flex items-center gap-2"
-                :class="{
-                  'bg-slate-100': index === product_index,
-                }"
+                class="flex items-center gap-2"
+                @click="openSearchProduct"
               >
                 <img
-                  v-if="get(product, 'images[0]')"
-                  :src="get(product, 'images[0]')"
-                  class="w-8 h-8 rounded"
+                  :src="SearchIcon"
+                  class="flex-shink-0 w-4"
                 />
-                <img
-                  :src="ProductIcon"
-                  class="w-8 h-8 rounded"
-                  v-else
+                <input
+                  id="product-input"
+                  type="text"
+                  v-model="search_product"
+                  @input="start_search"
+                  @keyup.enter="selectProductByIndex"
+                  @keyup.up="controlProduct('up')"
+                  @keyup.down="controlProduct('down')"
+                  placeholder="Nhập mã, tên sản phẩm..."
+                  :readonly="!isAvailablelUpdate('product')"
+                  class="flex-grow outline-none placeholder:text-slate-500 focus:group:border-blue-700"
                 />
-                <div>
-                  <p class="font-medium text-sm">
-                    {{ product.name }}
-                    -
-                    <span class="text-xs text-gray-600">
-                      (#{{ product.product_id }})
-                    </span>
-                  </p>
-                  <p class="font-medium text-xs">
-                    {{ currency(product.price) || 0 }}
-                  </p>
+                <ArrowIcon class="flex-shink-0 text-gray-500" />
+              </div>
+            </template>
+            <template #box>
+              <div
+                class="w-full rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-40 overflow-auto mt-3"
+                v-if="show_dropbox && isAvailablelUpdate('product')"
+              >
+                <div
+                  v-for="(product, index) in products"
+                  :id="`product-${index}`"
+                  @click="selectProduct(product, false)"
+                  class="py-2 px-2 rounded-md cursor-pointer hover:bg-slate-100 flex items-center gap-2"
+                  :class="{
+                    'bg-slate-100': index === product_index,
+                  }"
+                >
+                  <img
+                    v-if="get(product, 'images[0]')"
+                    :src="get(product, 'images[0]')"
+                    class="w-8 h-8 rounded"
+                  />
+                  <img
+                    :src="ProductIcon"
+                    class="w-8 h-8 rounded"
+                    v-else
+                  />
+                  <div>
+                    <p class="font-medium text-sm">
+                      {{ product.name }}
+                      -
+                      <span class="text-xs text-gray-600">
+                        (#{{ product.product_id }})
+                      </span>
+                    </p>
+                    <p class="font-medium text-xs">
+                      {{ currency(product.price) || 0 }}
+                    </p>
+                  </div>
+                </div>
+                <div
+                  class="flex flex-col items-center gap-2.5 my-5"
+                  v-if="
+                    products.length === 0 && !is_calling_api && !search_product
+                  "
+                >
+                  <p class="text-slate-500">Chưa có sản phẩm</p>
+                  <button
+                    class="font-medium bg-slate-100 text-slate-700 py-2 px-6 rounded-lg gap-1 flex"
+                    @click="linkToProductApp"
+                  >
+                    <img src="@/assets/icons/plus.svg" />
+                    <span> Thêm sản phẩm </span>
+                  </button>
                 </div>
               </div>
-              <div
-                class="flex flex-col items-center gap-2.5 my-5"
-                v-if="products.length === 0 && !is_calling_api && !search_product"
-              >
-                <p class="text-slate-500">Chưa có sản phẩm</p>
-                <button
-                  class="font-medium bg-slate-100 text-slate-700 py-2 px-6 rounded-lg gap-1 flex"
-                  @click="linkToProductApp"
-                >
-                  <img src="@/assets/icons/plus.svg" />
-                  <span> Thêm sản phẩm </span>
-                </button>
-              </div>
-            </div>
-          </template>
-        </Dropbox>
+            </template>
+          </Dropbox>
+          <div
+            class="bg-black p-2 rounded-md h-fit cursor-pointer"
+            @click="addProduct"
+          >
+            <img
+              src="@/assets/icons/solid_plus.svg"
+              class="min-w-5 h-5"
+            />
+          </div>
+        </div>
         <div class="w-full overflow-auto">
           <table class="border-separate border-spacing-y-1 w-full">
             <thead>
@@ -425,6 +439,7 @@
                 <th class="text-start rounded-s font-medium py-1 pl-2">
                   Tên sản phẩm
                 </th>
+                <th class="text-end font-medium py-1">Đơn giá</th>
                 <th class="text-center font-medium py-1">SL</th>
                 <th class="text-end font-medium py-1">Giảm giá</th>
                 <th class="text-end font-medium py-1 pr-2 rounded-e">
@@ -449,16 +464,41 @@
               <tr
                 v-else
                 v-for="(product, index) in order.products"
-                class="cursor-pointer hover:bg-slate-200 group"
+                class="cursor-pointer hover:bg-slate-200 group w-max"
               >
                 <td class="py-1 pl-2 rounded-s">
-                  <p class="w-28 truncate">
-                    {{ product.product_name }}
+                  <p
+                    class="w-24 truncate"
+                    v-if="product?.product_id"
+                  >
+                    {{ product?.product_name || '' }}
                   </p>
+                  <input
+                    v-else
+                    type="text"
+                    v-model="product.product_name"
+                    class="w-24 border-b outline-none border-black bg-transparent"
+                  />
+                </td>
+                <td class="text-end py-1">
+                  <p
+                    class="w-18 truncate"
+                    v-if="product?.product_id"
+                  >
+                    {{ currency(product?.price) || 0 }}
+                  </p>
+                  <cleave
+                    v-else
+                    class="w-18 text-end border-b border-black outline-none bg-transparent"
+                    :options="cleave_options"
+                    v-model="product.price"
+                    @change="calculatorOrder(true)"
+                    type="tel"
+                  />
                 </td>
                 <td class="text-end py-1">
                   <cleave
-                    class="text-end border-b border-black outline-none bg-transparent w-20"
+                    class="text-end border-b border-black outline-none bg-transparent w-10"
                     :options="cleave_options"
                     v-model="product.quantity"
                     @change="calculatorOrder(true)"
@@ -474,7 +514,7 @@
                     type="tel"
                   />
                 </td>
-                <td class="text-end py-1 pr-2 rounded-e">
+                <td class="min-w-24 text-end py-1 pr-2 rounded-e">
                   <div
                     class="flex items-center justify-end group w-full"
                     @click="removeProduct(index)"
@@ -492,7 +532,12 @@
                 </td>
               </tr>
               <tr class="bg-slate-200 font-semibold sticky bottom-0">
-                <td class="text-end rounded-s py-1 pr-3">Tổng</td>
+                <td
+                  class="text-end rounded-s py-1 pr-3"
+                  colspan="2"
+                >
+                  Tổng
+                </td>
                 <td class="text-end py-1">
                   {{ order.quantity || 0 }}
                 </td>
@@ -810,6 +855,7 @@ import {
   detectAddress,
   getAddress,
   updateContact,
+  createProduct,
 } from '@/service/api/merchant'
 
 import WIDGET from 'bbh-chatbox-widget-js-sdk'
@@ -847,6 +893,7 @@ import type {
   PaymentMethods,
 } from '@/service/interface'
 import { checkPhone } from '@/service/helper/validate'
+import { PRODUCT_DEFAULT } from '@/service/constant'
 
 // const urlParams = new URLSearchParams(window.location.search)
 
@@ -1052,10 +1099,13 @@ onMounted(() => {
   initDataParams()
 })
 
-watch(() => search_product.value, () => {
-  if(is_calling_api.value) return
-  is_calling_api.value = true
-})
+watch(
+  () => search_product.value,
+  () => {
+    if (is_calling_api.value) return
+    is_calling_api.value = true
+  }
+)
 
 /** hàm khởi tạo giá trị của các field khi tạo tự động */
 async function initDataParams() {
@@ -1231,6 +1281,14 @@ async function loadProduct() {
     is_calling_api.value = false
     $toast.error(e as string)
   }
+}
+
+function addProduct() {
+  if (!order.value.products) return
+  order.value.products = [
+    ...order.value.products,
+    JSON.parse(JSON.stringify(PRODUCT_DEFAULT)),
+  ]
 }
 
 /** Chọn sản phẩm thêm vào đơn hàng */
@@ -1462,6 +1520,8 @@ async function createNewOrder(status?: string) {
       return $toast.error('Vui lòng chọn phường xã trước khi tạo đơn hàng')
     }
 
+    await createNewProduct()
+
     let new_order = await createOrder({
       ...formatOrderData(order.value),
       status: status ? status : 'DRART_ORDER',
@@ -1472,6 +1532,30 @@ async function createNewOrder(status?: string) {
     $toast.success('Tạo đơn hàng thành công')
   } catch (e) {
     console.log(e)
+    $toast.error(e as string)
+  }
+}
+
+/** tạo các sản phẩm mới */
+async function createNewProduct() {
+  try {
+    if(!order.value.products) return
+    for (let index = 0; index < order.value.products.length; index++) {
+      const element = order.value.products[index];
+      const res = await createProduct({
+        ...element,
+        name: element.product_name,
+        price: Number(element.price),
+      })
+      order.value.products[index] = {
+        ...element,
+        product_id: res?.product_id,
+        inventory_quantity: res?.inventory_quantity || 0,
+        revenue_allocation: res?.custom_fields?.revenue_allocation || false,
+        service_fee: res.service_fee || 0,
+      }
+    }
+  }catch (e) {
     $toast.error(e as string)
   }
 }
@@ -1695,8 +1779,10 @@ async function activeStep(
       ) {
         return $toast.error('Vui lòng chọn khách hàng trước khi tạo đơn hàng')
       }
-      activeStatus()
       createNewOrder()
+      console.log(123)
+
+      activeStatus()
     }
 
     // * Xác nhận không thay đổi sản phẩm
