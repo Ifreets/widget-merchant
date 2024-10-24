@@ -488,6 +488,9 @@
                 <td class="text-end p-1">
                   <cleave
                     class="text-end border-b border-black outline-none bg-transparent w-12"
+                    :class="{
+                      'text-slate-500': Number(product.quantity) === 0,
+                    }"
                     :options="cleave_options"
                     v-model="product.quantity"
                     @change="calculatorOrder(true)"
@@ -498,7 +501,7 @@
                   <cleave
                     class="w-16 text-end border-b border-black outline-none bg-transparent"
                     :class="{
-                      'text-slate-500': !product.product_name,
+                      'text-slate-500': !product.product_name || Number(product.discount) === 0,
                     }"
                     :options="cleave_options"
                     v-model="product.discount"
@@ -519,7 +522,7 @@
                       v-else
                       class="w-full text-end border-b border-black outline-none bg-transparent"
                       :class="{
-                        'text-slate-500': !product.product_name,
+                        'text-slate-500': !product.product_name || Number(product.total_price) === 0,
                       }"
                       :options="cleave_options"
                       v-model="product.total_price"
@@ -1468,7 +1471,11 @@ function calculatorOrder(is_update_order?: boolean) {
       discount += Number(item.discount) * Number(item.quantity)
 
       // * Tính tổng giá sản phẩm
-      price += Number(item.price) * Number(item.quantity)
+      if(item.product_id){
+        price += Number(item.price) * Number(item.quantity)
+      }else{
+        price += Number(item.total_price || 0) + Number(item.quantity||0) * Number(item.discount||0)
+      }
 
       // * Tính tổng tiền sản phẩm
       let item_price = Number(item.quantity) * Number(item.price)
