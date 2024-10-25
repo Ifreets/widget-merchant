@@ -565,6 +565,23 @@
           <img :src="CreditCardIcon" />
           <p class="font-semibold">Thanh toán</p>
         </div>
+        <div class="flex justify-between items-center">
+          <p>- Miễn phí giao hàng</p>
+          <Toggle 
+            v-model="order.is_freeship"
+            :title="''"
+          />
+        </div>
+        <div class="flex justify-between items-center">
+          <p>- Phí vận chuyển</p>
+          <cleave
+            class="w-32 outline-none border-b border-black text-end font-medium text-base"
+            :options="cleave_options"
+            v-model="order.shipping_fee"
+            @change="calculatorOrder(true)"
+            :readonly="!isAvailablelUpdate('money')"
+          />
+        </div>
         <div class="grid grid-cols-2 items-center">
           <p>- Tổng tiền</p>
           <p class="font-bold text-base text-end text-green-600">
@@ -902,6 +919,7 @@ import type {
 } from '@/service/interface'
 import { checkPhone } from '@/service/helper/validate'
 import { PRODUCT_DEFAULT } from '@/service/constant'
+import Toggle from '@/components/Toggle.vue'
 
 // const urlParams = new URLSearchParams(window.location.search)
 
@@ -1159,14 +1177,11 @@ async function initDataParams() {
         city_name = item.name
       }
     })
-    /** cộng vào địa chỉ */
-    address += ', ' + city_name
   }
 
   // nếu có địa chỉ thì tự động điền
   if (address) {
     // gán địa chỉ chọn địa chỉ
-    // order.value.address = address
     const array = []
     if(street_name && !ward_name) array.push(street_name)
     if(ward_name) array.push(ward_name)
@@ -1177,7 +1192,6 @@ async function initDataParams() {
 
     // tìm kiếm địa chỉ
     await searchAddress()
-
     
     // chọn địa chỉ
     if ((ward_name || district_name) && street_name) {
@@ -1496,7 +1510,7 @@ function calculatorOrder(is_update_order?: boolean) {
   order.value.price = price
   order.value.vat = vat
   order.value.discount = discount
-  order.value.total_price = price + vat - discount
+  order.value.total_price = price + vat - discount 
   order.value.inventory_quantity = inventory_quantity
   if (order.value.custom_fields) {
     order.value.custom_fields['products_price'] = product_price
@@ -1513,7 +1527,7 @@ function calculatorOrder(is_update_order?: boolean) {
 
   // * Tính tổng tiền khách cần trả
   order.value.total_money =
-    Number(order.value.total_price) + Number(order.value.total_other_costs)
+    Number(order.value.total_price) + Number(order.value.total_other_costs) + Number(order.value.shipping_fee || 0)
 
   // * Tính số tiền còn phải trả
   order.value.money_unpaid =
@@ -1741,6 +1755,7 @@ function checkOrderValid() {
 /** Format dữ liệu */
 function formatOrderData(order: Order) {
   order.money_paid = Number(order.money_paid)
+  order.shipping_fee = Number(order.shipping_fee)
   return order
 }
 

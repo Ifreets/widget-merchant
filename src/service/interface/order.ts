@@ -100,6 +100,9 @@ export interface Order {
     /** Số tiền khách hàng đã đưa */
     money_paid?: number;
 
+    /** phí vận chuyển */
+    shipping_fee?: number;
+
     /** Số tiền trả lại khách hàng */
     money_back?: number;
 
