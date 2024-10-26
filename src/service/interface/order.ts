@@ -200,6 +200,8 @@ export interface Order {
         last_phone?:string,
         /** tên người nhận */
         customer_name?:string
+        /** id trang */
+        page_id?:string
     }
 
     /** Hành trình đơn hàng */

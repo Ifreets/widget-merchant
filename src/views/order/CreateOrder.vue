@@ -960,7 +960,8 @@ const order = ref<Order>({
   created_date: new Date(),
   custom_fields: {
     sales_channel: 'online',
-    source: '',
+    source: 'Facebook',
+    page_id: $appStore.data_client?.public_profile?.page_id || '',
     master: '',
     assistant: '',
     last_phone: '',
