@@ -78,7 +78,7 @@
 <script setup lang="ts">
 import { useCommonStore } from '@/stores'
 import { Toast } from '@/service/helper/toast'
-import { getStore } from '@/service/api/merchant'
+import { getMerchantToken, getStore } from '@/service/api/merchant'
 
 // * libraries
 import { onMounted, ref } from 'vue'
@@ -146,6 +146,23 @@ async function updateSetting() {
       },
     })
     commonStore.store = store.value
+
+    const res = await getMerchantToken({
+      access_token: WIDGET.access_token,
+      secret_key: $env.secret_key,
+      ...commonStore?.store?.chatbox_page_id ? {
+        redirect_to_store: commonStore?.store?.chatbox_page_id,
+      } : {}
+    })
+
+    if (res?.data) {
+      // await WIDGET.oAuth(res.data)
+      commonStore.token_business = res.data
+    } else {
+      $toast.error('Không thấy thông tin nhân sự trong merchant')
+      throw 'Không thấy thông tin nhân sự trong merchant'
+    }
+
     $toast.success('Lưu thiết lập thành công')
   } catch (e) {
     $toast.error(e as string)
