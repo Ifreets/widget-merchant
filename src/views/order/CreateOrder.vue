@@ -441,7 +441,7 @@
                   Tên sản phẩm
                 </th>
                 <th class="text-end font-medium p-1">SL</th>
-                <th class="text-end font-medium p-1">Giảm giá</th>
+                <th class="text-end font-medium p-1">Đơn giá</th>
                 <th class="text-end font-medium p-1 rounded-e">
                   Thành tiền
                 </th>
@@ -501,10 +501,10 @@
                   <cleave
                     class="w-16 text-end border-b border-black outline-none bg-transparent"
                     :class="{
-                      'text-slate-500': !product.product_name || Number(product.discount) === 0,
+                      'text-slate-500': !product.product_name || Number(product.price) === 0,
                     }"
                     :options="cleave_options"
-                    v-model="product.discount"
+                    v-model="product.price"
                     @change="calculatorOrder(true)"
                     type="tel"
                     :readonly="!isAvailablelUpdate('product') || !product.product_name"
@@ -550,7 +550,7 @@
                   {{ order.quantity || 0 }}
                 </td>
                 <td class="text-end p-1">
-                  {{ currency(order.discount) || 0 }}
+                  {{ currency(order.custom_fields?.products_price) || 0 }}
                 </td>
                 <td class="text-end rounded-e p-1">
                   {{ currency(order.total_price) || 0 }}
@@ -572,6 +572,12 @@
             :title="''"
           />
         </div>
+        <div class="grid grid-cols-2 items-center">
+          <p>- Tổng giá trị đơn hàng</p>
+          <p class="font-bold text-base text-end text-green-600">
+            {{ currency(order.total_money) || 0 }}
+          </p>
+        </div>
         <div class="flex justify-between items-center">
           <p>- Phí vận chuyển</p>
           <cleave
@@ -582,13 +588,23 @@
             :readonly="!isAvailablelUpdate('money')"
           />
         </div>
-        <div class="grid grid-cols-2 items-center">
-          <p>- Tổng tiền</p>
-          <p class="font-bold text-base text-end text-green-600">
-            {{ currency(order.total_money) || 0 }}
-          </p>
+        <div class="flex justify-between items-center">
+          <p>- Giá giảm</p>
+          <cleave
+            class="w-32 outline-none border-b border-black text-end font-medium text-base"
+            :options="cleave_options"
+            v-model="order.discount"
+            @change="()=>{
+              order.total_price = Number(order.price || 0) - Number(order.discount || 0)
+              order.total_money = Number(order.total_price || 0) + Number(order.shipping_fee || 0)
+              order.money_unpaid = Number(order.total_money || 0) - Number(order.money_paid || 0)
+              updateAnOrder()
+            }"
+            :readonly="!isAvailablelUpdate('money')"
+          />
         </div>
-        <div class="grid grid-cols-2 items-center">
+        
+        <!-- <div class="grid grid-cols-2 items-center">
           <p>- Hình thức thanh toán</p>
           <div class="flex justify-end relative">
             <Dropbox place="bottom">
@@ -597,7 +613,7 @@
                   class="flex items-center gap-1 text-end absolute right-0 -top-2.5"
                   @click="show_dropbox = true"
                 >
-                  <!-- <span>{{ payment_methods[payment_method] }}</span> -->
+                  <span>{{ payment_methods[payment_method] }}</span>
                   <span>Tiền mặt</span>
                   <ArrowIcon />
                 </button>
@@ -618,8 +634,9 @@
               </template>
             </Dropbox>
           </div>
-        </div>
-        <div
+        </div> -->
+        
+        <!-- <div
           class="grid grid-cols-2 items-center"
           v-if="payment_method === 'CASH'"
         >
@@ -633,7 +650,7 @@
               :readonly="!isAvailablelUpdate('money')"
             />
           </div>
-        </div>
+        </div> -->
         <div
           class="w-full mt-1"
           v-if="payment_method === 'MOMO' || payment_method === 'TRANSFER'"
@@ -1409,10 +1426,6 @@ function calculatorOrder(is_update_order?: boolean) {
 
   /** Tính toán số lượng và giá từng loại sản phẩm */
   order.value.products = products.map(item => {
-    if(!item.product_id && item.total_price && item.quantity) 
-      item.price = Math.round((Number(item.total_price || 0))/Number(item.quantity)) + Number(item.discount)
-
-
     /** Tính phần trăng thuế */
     let percent_vat = Number(item.vat) / 100
 
@@ -1486,22 +1499,18 @@ function calculatorOrder(is_update_order?: boolean) {
       discount += Number(item.discount) * Number(item.quantity)
 
       // * Tính tổng giá sản phẩm
-      if(item.product_id){
-        price += Number(item.price) * Number(item.quantity)
-      }else{
-        price += Number(item.total_price || 0) + Number(item.quantity||0) * Number(item.discount||0)
-      }
+      price += Number(item.price) * Number(item.quantity)
 
       // * Tính tổng tiền sản phẩm
       let item_price = Number(item.quantity) * Number(item.price)
 
-      if(item.product_id){
-        // * Tính tổng giá trị sau khi giảm giá và thuế
-        item.total_price =
-          item_price -
-          Number(item.discount) * Number(item.quantity) +
-          Number(percent_vat) * item_price
-      }
+      
+      // * Tính tổng giá trị sau khi giảm giá và thuế
+      item.total_price =
+        item_price -
+        Number(item.discount) * Number(item.quantity) +
+        Number(percent_vat) * item_price
+      
     }
 
     return item
