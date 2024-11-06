@@ -442,9 +442,7 @@
                 </th>
                 <th class="text-end font-medium p-1">SL</th>
                 <th class="text-end font-medium p-1">Đơn giá</th>
-                <th class="text-end font-medium p-1 rounded-e">
-                  Thành tiền
-                </th>
+                <th class="text-end font-medium p-1 rounded-e">Thành tiền</th>
               </tr>
             </thead>
             <tbody>
@@ -468,14 +466,18 @@
               >
                 <td class="p-1 rounded-s">
                   <div v-if="product?.product_id">
-                    <p
-                      class="w-32 truncate"
-                    >
+                    <p class="w-32 truncate">
                       {{ product?.product_name || '' }}
                     </p>
-                    <p :class="{
-                      'text-red-500': Number(product.inventory_quantity || 0) <= 0
-                    }" class="text-xs font-normal">Tồn: {{product.inventory_quantity}}</p>
+                    <p
+                      :class="{
+                        'text-red-500':
+                          Number(product.inventory_quantity || 0) <= 0,
+                      }"
+                      class="text-xs font-normal"
+                    >
+                      Tồn: {{ product.inventory_quantity }}
+                    </p>
                   </div>
                   <input
                     v-else
@@ -501,35 +503,23 @@
                   <cleave
                     class="w-16 text-end border-b border-black outline-none bg-transparent"
                     :class="{
-                      'text-slate-500': !product.product_name || Number(product.price) === 0,
+                      'text-slate-500':
+                        !product.product_name || Number(product.price) === 0,
                     }"
                     :options="cleave_options"
                     v-model="product.price"
                     @change="calculatorOrder(true)"
                     type="tel"
-                    :readonly="!isAvailablelUpdate('product') || !product.product_name"
+                    :readonly="
+                      !isAvailablelUpdate('product') || !product.product_name
+                    "
                   />
                 </td>
                 <td class="text-end p-1 rounded-e">
-                  <div
-                    class="flex items-center justify-between gap-2 w-20"
-                    
-                  >
-                    <p class="w-full" v-if="product.product_id">
+                  <div class="flex items-center justify-between gap-2 w-20">
+                    <p class="w-full">
                       {{ currency(product.total_price) || 0 }}
                     </p>
-                    <cleave
-                      v-else
-                      class="w-full text-end border-b border-black outline-none bg-transparent"
-                      :class="{
-                        'text-slate-500': !product.product_name || Number(product.total_price) === 0,
-                      }"
-                      :options="cleave_options"
-                      v-model="product.total_price"
-                      @change="calculatorOrder(true)"
-                      type="tel"
-                      :readonly="!isAvailablelUpdate('product') || !product.product_name"
-                    />
                     <img
                       @click="removeProduct(index)"
                       v-if="isAvailablelUpdate('product')"
@@ -541,11 +531,7 @@
                 </td>
               </tr>
               <tr class="bg-slate-200 font-semibold sticky bottom-0">
-                <td
-                  class="text-end rounded-s p-1"
-                >
-                  Tổng
-                </td>
+                <td class="text-end rounded-s p-1">Tổng</td>
                 <td class="text-end p-1">
                   {{ order.quantity || 0 }}
                 </td>
@@ -567,7 +553,7 @@
         </div>
         <div class="flex justify-between items-center">
           <p>- Miễn phí giao hàng</p>
-          <Toggle 
+          <Toggle
             v-model="order.is_freeship"
             :title="''"
           />
@@ -594,16 +580,22 @@
             class="w-32 outline-none border-b border-black text-end font-medium text-base"
             :options="cleave_options"
             v-model="order.discount"
-            @change="()=>{
-              order.total_price = Number(order.price || 0) - Number(order.discount || 0)
-              order.total_money = Number(order.total_price || 0) + Number(order.shipping_fee || 0)
-              order.money_unpaid = Number(order.total_money || 0) - Number(order.money_paid || 0)
-              updateAnOrder()
-            }"
+            @change="
+              () => {
+                order.total_price =
+                  Number(order.price || 0) - Number(order.discount || 0)
+                order.total_money =
+                  Number(order.total_price || 0) +
+                  Number(order.shipping_fee || 0)
+                order.money_unpaid =
+                  Number(order.total_money || 0) - Number(order.money_paid || 0)
+                updateAnOrder()
+              }
+            "
             :readonly="!isAvailablelUpdate('money')"
           />
         </div>
-        
+
         <!-- <div class="grid grid-cols-2 items-center">
           <p>- Hình thức thanh toán</p>
           <div class="flex justify-end relative">
@@ -635,7 +627,7 @@
             </Dropbox>
           </div>
         </div> -->
-        
+
         <!-- <div
           class="grid grid-cols-2 items-center"
           v-if="payment_method === 'CASH'"
@@ -1201,16 +1193,16 @@ async function initDataParams() {
   if (address) {
     // gán địa chỉ chọn địa chỉ
     const array = []
-    if(street_name && !ward_name) array.push(street_name)
-    if(ward_name) array.push(ward_name)
-    if(district_name) array.push(district_name)
-    if(city) array.push(city)
+    if (street_name && !ward_name) array.push(street_name)
+    if (ward_name) array.push(ward_name)
+    if (district_name) array.push(district_name)
+    if (city) array.push(city)
     else array.push(city_name)
-    if(array.length) order.value.address = array.join(' - ')
+    if (array.length) order.value.address = array.join(' - ')
 
     // tìm kiếm địa chỉ
     await searchAddress()
-    
+
     // chọn địa chỉ
     if ((ward_name || district_name) && street_name) {
       getDetailLocation(addresses.value[0])
@@ -1504,13 +1496,11 @@ function calculatorOrder(is_update_order?: boolean) {
       // * Tính tổng tiền sản phẩm
       let item_price = Number(item.quantity) * Number(item.price)
 
-      
       // * Tính tổng giá trị sau khi giảm giá và thuế
       item.total_price =
         item_price -
         Number(item.discount) * Number(item.quantity) +
         Number(percent_vat) * item_price
-      
     }
 
     return item
@@ -1520,7 +1510,7 @@ function calculatorOrder(is_update_order?: boolean) {
   order.value.price = price
   order.value.vat = vat
   order.value.discount = discount
-  order.value.total_price = price + vat - discount 
+  order.value.total_price = price + vat - discount
   order.value.inventory_quantity = inventory_quantity
   if (order.value.custom_fields) {
     order.value.custom_fields['products_price'] = product_price
@@ -1537,7 +1527,9 @@ function calculatorOrder(is_update_order?: boolean) {
 
   // * Tính tổng tiền khách cần trả
   order.value.total_money =
-    Number(order.value.total_price) + Number(order.value.total_other_costs) + Number(order.value.shipping_fee || 0)
+    Number(order.value.total_price) +
+    Number(order.value.total_other_costs) +
+    Number(order.value.shipping_fee || 0)
 
   // * Tính số tiền còn phải trả
   order.value.money_unpaid =
@@ -1589,9 +1581,9 @@ async function createNewOrder(status?: string) {
 /** tạo các sản phẩm mới */
 async function createNewProduct() {
   try {
-    if(!order.value.products) return
+    if (!order.value.products) return
     for (let index = 0; index < order.value.products.length; index++) {
-      const element = order.value.products[index];
+      const element = order.value.products[index]
       const res = await createProduct({
         ...element,
         name: element.product_name,
@@ -1605,7 +1597,7 @@ async function createNewProduct() {
         service_fee: res.service_fee || 0,
       }
     }
-  }catch (e) {
+  } catch (e) {
     $toast.error(e as string)
   }
 }
@@ -1764,8 +1756,14 @@ function checkOrderValid() {
 
 /** Format dữ liệu */
 function formatOrderData(order: Order) {
-  order.money_paid = Number(order.money_paid)
-  order.shipping_fee = Number(order.shipping_fee)
+  order.money_paid = Number(order.money_paid || 0)
+  order.shipping_fee = Number(order.shipping_fee || 0)
+  order.discount = Number(order.discount || 0)
+  order.products = order.products?.map(product => {
+    product.price = Number(product.price || 0)
+    product.quantity = Number(product.quantity || 0)
+    return product
+  })
   return order
 }
 
