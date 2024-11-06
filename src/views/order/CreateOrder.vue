@@ -1584,6 +1584,7 @@ async function createNewProduct() {
     if (!order.value.products) return
     for (let index = 0; index < order.value.products.length; index++) {
       const element = order.value.products[index]
+      if(element.product_id) continue
       const res = await createProduct({
         ...element,
         name: element.product_name,
