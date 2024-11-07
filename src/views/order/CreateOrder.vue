@@ -1077,12 +1077,12 @@ const check_order_valid = computed(() => {
   if (customer_name.value === '') {
     return false
   }
-  if (customer_phone.value === '') {
-    return false
-  }
-  if (check_address.value) {
-    return false
-  }
+  // if (customer_phone.value === '') {
+  //   return false
+  // }
+  // if (check_address.value) {
+  //   return false
+  // }
 
   return true
 })
