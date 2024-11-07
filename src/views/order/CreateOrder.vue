@@ -1546,21 +1546,21 @@ async function createNewOrder(status?: string) {
       return $toast.error('Vui lòng chọn khách hàng trước khi tạo đơn hàng')
     }
     // * Check địa chỉ
-    if (!order.value.address) {
-      return $toast.error('Vui lòng nhập chỉ trước khi tạo đơn hàng')
-    }
+    // if (!order.value.address) {
+    //   return $toast.error('Vui lòng nhập chỉ trước khi tạo đơn hàng')
+    // }
     // * Check tỉnh thành
-    if (!order.value?.locations?.province?.code) {
-      return $toast.error('Vui lòng chọn tỉnh thành trước khi tạo đơn hàng')
-    }
+    // if (!order.value?.locations?.province?.code) {
+    //   return $toast.error('Vui lòng chọn tỉnh thành trước khi tạo đơn hàng')
+    // }
     // * Check quận huyện
-    if (!order.value?.locations?.district?.code) {
-      return $toast.error('Vui lòng chọn quận huyện trước khi tạo đơn hàng')
-    }
+    // if (!order.value?.locations?.district?.code) {
+    //   return $toast.error('Vui lòng chọn quận huyện trước khi tạo đơn hàng')
+    // }
     // * Check phường xã
-    if (!order.value?.locations?.ward?.code) {
-      return $toast.error('Vui lòng chọn phường xã trước khi tạo đơn hàng')
-    }
+    // if (!order.value?.locations?.ward?.code) {
+    //   return $toast.error('Vui lòng chọn phường xã trước khi tạo đơn hàng')
+    // }
 
     await createNewProduct()
 
@@ -1733,23 +1733,23 @@ function checkOrderValid() {
     scrollToElement('customer-name-input')
     return false
   }
-  if (customer_phone.value === '') {
-    $toast.error('Vui lòng nhập số điện thoại trước khi tạo đơn hàng')
-    scrollToElement('phone-input')
-    return false
-  }
+  // if (customer_phone.value === '') {
+  //   $toast.error('Vui lòng nhập số điện thoại trước khi tạo đơn hàng')
+  //   scrollToElement('phone-input')
+  //   return false
+  // }
 
-  if (is_phone_valid.value) {
-    $toast.error('Số điện thoại không hợp lệ')
-    scrollToElement('phone-input')
-    return false
-  }
+  // if (is_phone_valid.value) {
+  //   $toast.error('Số điện thoại không hợp lệ')
+  //   scrollToElement('phone-input')
+  //   return false
+  // }
 
-  if (check_address.value) {
-    $toast.error('Vui lòng nhập địa chỉ nhận hàng')
-    scrollToElement('address-input')
-    return false
-  }
+  // if (check_address.value) {
+  //   $toast.error('Vui lòng nhập địa chỉ nhận hàng')
+  //   scrollToElement('address-input')
+  //   return false
+  // }
 
   alert_validate.value = false
   return true
