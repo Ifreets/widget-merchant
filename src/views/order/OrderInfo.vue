@@ -305,7 +305,6 @@ function getActionLog() {
 function openOrderDetail() {
   let order_id = props.order?.order_id
   window.open(`https://merchant.vn/login?chat_access_token=${WIDGET.access_token}&redirect=https://merchant.vn/a/order?id=${order_id}`, '_blank')
-  
 }
 
 /** Chỉnh sửa đơn hàng */

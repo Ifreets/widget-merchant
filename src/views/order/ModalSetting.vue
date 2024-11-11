@@ -41,7 +41,7 @@
                   <li
                     v-for="item in stores"
                     class="px-3 py-1 hover:bg-slate-100 rounded cursor-pointer"
-                    @click="store = item, is_show_dropbox = false"
+                    @click=";(store = item), (is_show_dropbox = false)"
                   >
                     <p class="truncate">{{ item?.name || '' }}</p>
                   </li>
@@ -55,7 +55,15 @@
             Lưu ý: Các đơn hàng trước đó sẽ không tự động đồng bộ về cửa hàng
             được chọn.
           </p>
+          <p
+            class="flex gap-1 items-center cursor-pointer font-medium underline hover:text-blue-700"
+            @click="openLink()"
+          >
+            Truy cập Merchant 
+            <LinkIcon class="w-4 h-4" />
+          </p>
         </main>
+
         <footer class="flex justify-between font-medium py-2 px-6">
           <button
             class="cursor-pointer py-2 px-4 rounded-md border"
@@ -90,6 +98,7 @@ import Dropbox from '@/components/Dropbox.vue'
 
 // * icons
 import ArrowIcon from '@/components/icons/ArrowIcon.vue'
+import LinkIcon from '@/components/icons/LinkIcon.vue'
 
 // * interfaces
 import type { Store } from '@/service/interface'
@@ -150,9 +159,11 @@ async function updateSetting() {
     const res = await getMerchantToken({
       access_token: WIDGET.access_token,
       secret_key: $env.secret_key,
-      ...commonStore?.store?.chatbox_page_id ? {
-        redirect_to_store: commonStore?.store?.chatbox_page_id,
-      } : {}
+      ...(commonStore?.store?.chatbox_page_id
+        ? {
+            redirect_to_store: commonStore?.store?.chatbox_page_id,
+          }
+        : {}),
     })
 
     if (res?.data) {
@@ -167,5 +178,13 @@ async function updateSetting() {
   } catch (e) {
     $toast.error(e as string)
   }
+}
+
+/** mở truy cập sang merchant */
+function openLink() {
+  window.open(
+    `https://merchant.vn/login?chat_access_token=${WIDGET.access_token}&redirect=https://merchant.vn/a/order`,
+    '_blank'
+  )
 }
 </script>
