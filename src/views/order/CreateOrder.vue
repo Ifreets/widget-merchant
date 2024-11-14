@@ -1568,6 +1568,7 @@ async function createNewOrder(status?: string) {
     let new_order = await createOrder({
       ...formatOrderData(order.value),
       status: status ? status : 'DRART_ORDER',
+      chatbox_widget_token: WIDGET?.access_token,
     })
     order.value = new_order
     /** Lưu lại đơn mới vào store */
