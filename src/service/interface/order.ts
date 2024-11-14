@@ -202,6 +202,8 @@ export interface Order {
         customer_name?:string
         /** id trang */
         page_id?:string
+        /** id facebook */
+        fb_client_id?:string
     }
 
     /** Hành trình đơn hàng */

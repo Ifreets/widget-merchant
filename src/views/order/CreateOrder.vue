@@ -975,6 +975,7 @@ const order = ref<Order>({
     assistant: '',
     last_phone: '',
     customer_name: '',
+    fb_client_id: $appStore.data_client?.public_profile?.fb_client_id || '',
   },
   locations: {},
   order_journey: $merchant.setting?.online_status || [],
