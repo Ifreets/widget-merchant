@@ -107,7 +107,7 @@
                   {{ address.address_name }}
                 </div>
                 <div
-                  v-if="!isEmpty(lastest_address)"
+                  v-if="!isEmpty(lastest_address) && !order.id"
                   class="px-3 py-1.5 hover:bg-slate-100 rounded-md w-full flex gap-2"
                   @click="
                     () => {
@@ -1012,7 +1012,7 @@ const order = ref<Order>({
     customer_name: '',
     fb_client_id: $appStore.data_client?.public_profile?.fb_client_id || '',
   },
-  locations: $merchant.orders?.[0]?.locations,
+  locations: JSON.parse(JSON.stringify($merchant.orders?.[0]?.locations || {})),
   order_journey: $merchant.setting?.online_status || [],
   staffs: $merchant.setting?.online_staff || [],
   inventory_quantity: 0,
@@ -1027,13 +1027,15 @@ const lastest_address = ref<{ address?: string; locations?: OrderLocation }>({
 /** hiển thị địa chỉ gần nhất */
 const lastest_address_show = computed(() => {
   let arr = []
+  const LOCATION = lastest_address.value.locations
   if (lastest_address.value.address) arr.push(lastest_address.value.address)
-  if (lastest_address.value.locations?.ward?.name)
-    arr.push(lastest_address.value.locations?.ward?.name)
-  if (lastest_address.value.locations?.district?.name)
-    arr.push(lastest_address.value.locations?.district?.name_with_type)
-  if (lastest_address.value.locations?.province?.name)
-    arr.push(lastest_address.value.locations?.province?.name_with_type)
+
+  if (LOCATION?.ward?.name) arr.push(LOCATION?.ward?.name)
+
+  if (LOCATION?.district?.name) arr.push(LOCATION?.district?.name_with_type)
+
+  if (LOCATION?.province?.name) arr.push(LOCATION?.province?.name_with_type)
+
   return arr.join(', ')
 })
 
@@ -1261,7 +1263,7 @@ async function initDataParams() {
     }
 
     /** có place và it nhất 1 trong 3 field tỉnh, quận, phường */
-    if(!array.length && place && (ward_name || district_name || city)){
+    if (!array.length && place && (ward_name || district_name || city)) {
       array.push(place)
       if (ward_name) array.push(ward_name)
       if (district_name) array.push(district_name)
@@ -1269,9 +1271,11 @@ async function initDataParams() {
     }
 
     /** chỉ có đường hoặc place */
-    if(!array.length && street_name && place){
+    if (!array.length && (street_name || place)) {
       array.push(address)
     }
+
+    console.log(array)
 
     if (array.length) order.value.address = array.join(', ')
 
