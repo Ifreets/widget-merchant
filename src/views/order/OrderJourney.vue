@@ -22,7 +22,7 @@
           {{ status.title }}
         </button>
       </div>
-      <VMenu v-else>
+      <VMenu v-else :delay="0">
         <p
           class="px-2 py-0.5 border rounded-md border-slate-500 text-slate-700 cursor-default"
         >
@@ -31,14 +31,17 @@
           {{ index === 3 ? 'Kết thúc' : '' }}
         </p>
         <template
-          #popper
+          #popper="{ hide }"
           v-if="stepIndexActive() + 1 === index"
         >
           <ul class="border w-40 text-sm p-1">
             <li
               v-for="(status, index_status) in step"
               class="cursor-pointer hover:bg-slate-100 rounded-md px-2 py-1"
-              @click="updateStatus(status)"
+              @click="()=>{
+								updateStatus(status)
+								hide()
+							}"
             >
               <button>
                 {{ status.title }}
@@ -65,6 +68,7 @@ import ChevronsBlackIcon from '@/assets/icons/chevrons-right-black.svg'
 import type { Order, ActionStep } from '@/service/interface'
 import { Toast } from '@/service/helper/toast'
 import { updateOrder } from '@/service/api/merchant'
+import { delay } from 'lodash'
 
 //* Props
 const props = defineProps<{
