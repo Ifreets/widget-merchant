@@ -1261,7 +1261,7 @@ async function initDataParams() {
     }
 
     /** có place và it nhất 1 trong 3 field tỉnh, quận, phường */
-    if(place && (ward_name || district_name || city)){
+    if(!array.length && place && (ward_name || district_name || city)){
       array.push(place)
       if (ward_name) array.push(ward_name)
       if (district_name) array.push(district_name)
@@ -1269,7 +1269,7 @@ async function initDataParams() {
     }
 
     /** chỉ có đường hoặc place */
-    if(street_name && place){
+    if(!array.length && street_name && place){
       array.push(address)
     }
 
