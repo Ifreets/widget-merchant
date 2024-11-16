@@ -40,4 +40,5 @@ function orderTab() {
   merchantStore.current_tab = 'ORDERS'
   merchantStore.saveOrderEdit({})
 }
+
 </script>

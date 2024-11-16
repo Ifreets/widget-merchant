@@ -2,7 +2,7 @@
   <article class="h-full flex flex-col overflow-hidden">
     <section class="h-full flex flex-col gap-2 overflow-auto scrollbar-thin">
       <!-- Hành trình đơn hàng -->
-      <OrderJourney :order="order" />
+      <!-- <OrderJourney :order="order" /> -->
       <!-- Thông tin đơn hàng -->
       <div class="flex flex-col gap-2">
         <div class="flex items-center gap-2">
@@ -93,11 +93,7 @@
             </template>
             <template #box>
               <div
-                v-if="
-                  show_dropbox &&
-                  isAvailablelUpdate('address') &&
-                  addresses.length
-                "
+                v-if="show_dropbox && isAvailablelUpdate('address')"
                 class="w-full p-1 bg-white rounded-md border shadow-md flex flex-col gap-1 mt-1"
               >
                 <div
@@ -109,6 +105,20 @@
                   }"
                 >
                   {{ address.address_name }}
+                </div>
+                <div
+                  v-if="!isEmpty(lastest_address)"
+                  class="px-3 py-1.5 hover:bg-slate-100 rounded-md w-full flex gap-2"
+                  @click="
+                    () => {
+                      order.address = lastest_address.address
+                      order.locations = lastest_address.locations
+                      show_dropbox = false
+                    }
+                  "
+                >
+                  <CheckCircle class="stroke-green-600 w-6 h-6" />
+                  {{ lastest_address_show }}
                 </div>
               </div>
             </template>
@@ -151,6 +161,10 @@
                       !get(order, 'locations.province.name') &&
                       alert_validate &&
                       check_address,
+                    'placeholder:text-black': get(
+                      order,
+                      'locations.province.name'
+                    ),
                   }"
                 />
                 <ArrowIcon
@@ -224,6 +238,10 @@
                       !get(order, 'locations.district.name_with_type') &&
                       alert_validate &&
                       check_address,
+                    'placeholder:text-black': get(
+                      order,
+                      'locations.district.name_with_type'
+                    ),
                   }"
                 />
                 <ArrowIcon
@@ -288,12 +306,16 @@
                   @keyup.up="controlLocation('ward', 'up')"
                   @keyup.down="controlLocation('ward', 'down')"
                   @keydown.tab="tabEvent('ward')"
-                  class="w-full flex items-center justify-between p-2 border rounded-md"
+                  class="w-full flex items-center justify-between p-2 border rounded-md k"
                   :class="{
                     'border-red-500':
                       !get(order, 'locations.ward.name_with_type') &&
                       alert_validate &&
                       check_address,
+                    'placeholder:text-black': get(
+                      order,
+                      'locations.ward.name_with_type'
+                    ),
                   }"
                 />
                 <ArrowIcon
@@ -848,7 +870,7 @@
       </div>
     </section>
     <div
-      v-if="order.order_journey && isAvailablelUpdate('')"
+      v-if="!order.id && order.order_journey && isAvailablelUpdate('')"
       class="py-2 border-t"
     >
       <div
@@ -868,6 +890,17 @@
           {{ status.title }}
         </div>
       </div>
+    </div>
+    <div
+      v-else
+      class="p-2 border-t"
+    >
+      <button
+        class="w-full py-2 text-base font-semibold text-white bg-black rounded-md"
+        @click="updateAnOrder()"
+      >
+        LƯU
+      </button>
     </div>
   </article>
 </template>
@@ -894,7 +927,7 @@ import {
 
 import WIDGET from 'bbh-chatbox-widget-js-sdk'
 import { ref, onMounted, computed, watch } from 'vue'
-import { get, isNumber, pick, debounce } from 'lodash'
+import { get, isNumber, pick, debounce, isEmpty } from 'lodash'
 
 // * Components
 import cleave from 'vue-cleave-component'
@@ -925,10 +958,12 @@ import type {
   EmployeeData,
   LocationDetail,
   PaymentMethods,
+  OrderLocation,
 } from '@/service/interface'
 import { checkPhone } from '@/service/helper/validate'
 import { PRODUCT_DEFAULT } from '@/service/constant'
 import Toggle from '@/components/Toggle.vue'
+import CheckCircle from '@/components/icons/CheckCircle.vue'
 
 // const urlParams = new URLSearchParams(window.location.search)
 
@@ -962,7 +997,7 @@ const order = ref<Order>({
   other_costs: [],
   total_other_costs: 0,
   images: [],
-  address: '',
+  address: $merchant.orders?.[0]?.address,
   is_freeship: false,
   internal_note: '',
   internal_images: [],
@@ -977,10 +1012,29 @@ const order = ref<Order>({
     customer_name: '',
     fb_client_id: $appStore.data_client?.public_profile?.fb_client_id || '',
   },
-  locations: {},
+  locations: $merchant.orders?.[0]?.locations,
   order_journey: $merchant.setting?.online_status || [],
   staffs: $merchant.setting?.online_staff || [],
   inventory_quantity: 0,
+})
+
+/** địa chỉ gần nhất */
+const lastest_address = ref<{ address?: string; locations?: OrderLocation }>({
+  address: $merchant.orders?.[0]?.address,
+  locations: $merchant.orders?.[0]?.locations,
+})
+
+/** hiển thị địa chỉ gần nhất */
+const lastest_address_show = computed(() => {
+  let arr = []
+  if (lastest_address.value.address) arr.push(lastest_address.value.address)
+  if (lastest_address.value.locations?.ward?.name)
+    arr.push(lastest_address.value.locations?.ward?.name)
+  if (lastest_address.value.locations?.district?.name)
+    arr.push(lastest_address.value.locations?.district?.name_with_type)
+  if (lastest_address.value.locations?.province?.name)
+    arr.push(lastest_address.value.locations?.province?.name_with_type)
+  return arr.join(', ')
 })
 
 /** cảnh báo */
@@ -1150,9 +1204,9 @@ async function initDataParams() {
   if (!$appStore.is_auto_create) return
 
   // lấy giá trị từ url param
-  let email = queryString('email') || ''
-  let phone = queryString('phone') || ''
-  let address = queryString('address') || ''
+  const email = queryString('email') || ''
+  const phone = queryString('phone') || ''
+  const address = queryString('address') || ''
   /** thành phố */
   const city = queryString('city') || ''
   /** phường */
@@ -1163,6 +1217,8 @@ async function initDataParams() {
   const street_name = queryString('street_name') || ''
   /** số nhà */
   const house_number = queryString('house_number') || ''
+
+  const place = queryString('place') || ''
 
   //lưu lại
   data_auto_create.value = {
@@ -1194,12 +1250,30 @@ async function initDataParams() {
   if (address) {
     // gán địa chỉ chọn địa chỉ
     const array = []
-    if (street_name && !ward_name) array.push(street_name)
-    if (ward_name) array.push(ward_name)
-    if (district_name) array.push(district_name)
-    if (city) array.push(city)
-    else array.push(city_name)
-    if (array.length) order.value.address = array.join(' - ')
+
+    /** có số nhà và đường và ít nhất 1 trong 3 field tỉnh, quận, phường */
+    if (house_number && street_name && (ward_name || district_name || city)) {
+      array.push(house_number)
+      array.push(street_name)
+      if (ward_name) array.push(ward_name)
+      if (district_name) array.push(district_name)
+      if (city) array.push(city)
+    }
+
+    /** có place và it nhất 1 trong 3 field tỉnh, quận, phường */
+    if(place && (ward_name || district_name || city)){
+      array.push(place)
+      if (ward_name) array.push(ward_name)
+      if (district_name) array.push(district_name)
+      if (city) array.push(city)
+    }
+
+    /** chỉ có đường hoặc place */
+    if(street_name && place){
+      array.push(address)
+    }
+
+    if (array.length) order.value.address = array.join(', ')
 
     // tìm kiếm địa chỉ
     await searchAddress()
@@ -1210,7 +1284,7 @@ async function initDataParams() {
     } else {
       focusInput('address-input')
     }
-    order.value.address = address
+    // order.value.address = address
   }
 
   // tắt tự động tạo từ lần thứ 2 trở đi
@@ -1586,7 +1660,7 @@ async function createNewProduct() {
     if (!order.value.products) return
     for (let index = 0; index < order.value.products.length; index++) {
       const element = order.value.products[index]
-      if(element.product_id) continue
+      if (element.product_id) continue
       const res = await createProduct({
         ...element,
         name: element.product_name,
@@ -1625,6 +1699,8 @@ async function updateAnOrder(status?: string) {
 function isAvailablelUpdate(
   type: 'product' | 'customer' | 'money' | 'address' | ''
 ) {
+  if (order.value.is_archived) return false
+
   // * Nếu là đơn hàng đang tạo thì không cần check
   if (!order.value.order_id) return true
 
@@ -1632,6 +1708,27 @@ function isAvailablelUpdate(
   switch (order.value.status) {
     case 'DRART_ORDER':
       if (type === 'product') return true
+      if (type === 'customer') return true
+      if (type === 'money') return true
+      if (type === 'address') return true
+      if (type === '') return true
+      break
+    case 'WAITING_ITEM':
+      if (type === 'product') return true
+      if (type === 'customer') return true
+      if (type === 'money') return true
+      if (type === 'address') return true
+      if (type === '') return true
+      break
+    case 'PACKING_ORDER':
+      if (type === 'product') return false
+      if (type === 'customer') return true
+      if (type === 'money') return true
+      if (type === 'address') return true
+      if (type === '') return true
+      break
+    case 'CONFIRM_ORDER':
+      if (type === 'product') return false
       if (type === 'customer') return true
       if (type === 'money') return true
       if (type === 'address') return true
@@ -1672,6 +1769,30 @@ function isAvailablelUpdate(
       if (type === 'address') return true
       if (type === '') return true
       break
+    case 'DELIVERY_ORDER':
+      if (type === 'product') return false
+      if (type === 'customer') return false
+      if (type === 'money') return false
+      if (type === 'address') return false
+      if (type === '') return true
+      break
+    case 'SHIPPING_ORDER':
+      if (type === 'product') return false
+      if (type === 'customer') return false
+      if (type === 'money') return false
+      if (type === 'address') return false
+      if (type === '') return true
+      break
+    case 'PAID_ORDER':
+      if (type === 'product') return false
+      if (type === 'customer') return false
+      if (type === 'money') return false
+      if (type === 'address') return false
+      if (type === '') return true
+      break
+    case 'RETURN_ORDER':
+      return false
+
     case 'INVENTORY_IMPORT':
       return false
     case 'CANCEL_ORDER':

@@ -39,7 +39,7 @@
       "
       v-if="merchantStore.show_order_id == props.order?.id"
     >
-      <OrderJourney :order="props.order" />
+      <OrderJourney :order="props.order" :update="update"/>
       <!-- Tên khách hàng -->
       <div class="grid grid-cols-2 font-medium">
         <div class="flex items-center gap-1">
@@ -235,6 +235,7 @@ import type { Order, ActionStep } from '@/service/interface'
 // * props
 const props = defineProps<{
   order: Order
+  update: Function
 }>()
 
 /** store */

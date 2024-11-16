@@ -9,9 +9,10 @@
     v-if="merchantStore.orders?.length"
     class="overflow-y-auto h-full scrollbar-thin flex flex-col gap-2"
   >
-    <section v-for="order in merchantStore.orders">
+    <section v-for="order,index in merchantStore.orders">
       <OrderInfo
         :order="order"
+        :update="(order: Order) => merchantStore.orders[index] = order"
       />
     </section>
   </article>
@@ -23,6 +24,7 @@ import { getOrder } from '@/service/api/merchant';
 
 // * Components
 import OrderInfo from '@/views/order/OrderInfo.vue'
+import type { Order } from '@/service/interface';
 
 // * props
 const props = defineProps<{
