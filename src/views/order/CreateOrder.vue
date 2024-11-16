@@ -997,7 +997,7 @@ const order = ref<Order>({
   other_costs: [],
   total_other_costs: 0,
   images: [],
-  address: $merchant.orders?.[0]?.address,
+  address: !$appStore.is_auto_create ? $merchant.orders?.[0]?.address : '',
   is_freeship: false,
   internal_note: '',
   internal_images: [],
@@ -1012,7 +1012,7 @@ const order = ref<Order>({
     customer_name: '',
     fb_client_id: $appStore.data_client?.public_profile?.fb_client_id || '',
   },
-  locations: JSON.parse(JSON.stringify($merchant.orders?.[0]?.locations || {})),
+  locations: !$appStore.is_auto_create ? JSON.parse(JSON.stringify($merchant.orders?.[0]?.locations || {})) : {},
   order_journey: $merchant.setting?.online_status || [],
   staffs: $merchant.setting?.online_staff || [],
   inventory_quantity: 0,
@@ -1026,6 +1026,7 @@ const lastest_address = ref<{ address?: string; locations?: OrderLocation }>({
 
 /** hiển thị địa chỉ gần nhất */
 const lastest_address_show = computed(() => {
+  if($appStore.is_auto_create) return ''
   let arr = []
   const LOCATION = lastest_address.value.locations
   if (lastest_address.value.address) arr.push(lastest_address.value.address)
