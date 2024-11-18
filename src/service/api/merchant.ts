@@ -204,6 +204,22 @@ export const detectAddress = async (data: {}) => {
         throw e
     }
 }
+
+export const detectAddressV2 = async (data: {}) => {
+    try {
+        const commonStore = useCommonStore()
+        return await request({
+            uri: 'https://api-product.merchant.vn/locations/detect_address_v2',
+            method: 'POST',
+            body: data,
+            headers: {
+                'token-business': commonStore.token_business,
+            },
+        })
+    } catch (e) {
+        throw e
+    }
+}
 /** Lấy ra thông tin chi tiết địa chỉ */
 export const getAddress = async (data: {}) => {
     try {

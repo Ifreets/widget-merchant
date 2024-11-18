@@ -45,6 +45,7 @@ import ModalSetting from '@/views/order/ModalSetting.vue'
 // * Types
 import type { IConfigWidget } from '@/service/interface'
 import { Toast } from '@/service/helper/toast'
+import { decodeClientV2 } from '@/service/api/chatbot'
 
 
 /** store */
@@ -130,7 +131,18 @@ async function load() {
     commonStore.is_loading_full_screen = true
 
     // * ghi lại thông tin khách hàng mới
-    appStore.data_client = await WIDGET.decodeClient()
+    // appStore.data_client = await WIDGET.decodeClient()
+    const data = await decodeClientV2({
+      access_token: queryString('partner_token'),
+      client_id: queryString('client_id'),
+      message_id: queryString('message_id'),
+      secret_key: $env.secret_key
+    })
+
+    if(data.data){
+      appStore.data_client = data.data
+    }
+
 
     const res = await getMerchantToken({
       access_token: WIDGET.access_token,
@@ -176,10 +188,13 @@ async function load() {
 
 // lấy dữ liệu từ param
 function getFieldParam() {
+  /** data AI trả về */
+  const AI_DATA = appStore.data_client?.public_profile?.ai?.[0]
+
   // lấy data từ url param
-  let email = queryString('email')
-  let phone = queryString('phone')
-  let cta = queryString('cta')
+  let email = AI_DATA?.email?.[0]
+  let phone = AI_DATA?.phone_number?.[0]
+  let cta = AI_DATA?.cta
 
   // check xem số điện thoại có hợp lệ hay không
   if (!phone || !checkPhone(phone)) phone = ''

@@ -3,4 +3,6 @@ export interface Env {
   secret_key: string
   /** link hướng dẫn thiết lập */
   link_guild: string
+  /** link chatbot */
+  chatbot: string
 }

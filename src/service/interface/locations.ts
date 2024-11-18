@@ -58,8 +58,13 @@ export interface DetectData {
 
 /** Danh sách đia chỉ detect */
 export interface Addresses {
-    address_id: string;
-    address_name: string
+    address_id?: string;
+    address_name?: string
+    engine?:string
+    province?: ProvinceData
+    district?: DistrictData
+    ward?: WardData
+    address?: string
 }
 
 /** Dữ liệu chi tiết của địa chỉ */
