@@ -202,7 +202,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { vi } from 'date-fns/locale'
 import { useMerchantStore } from '@/stores'
 import { currency } from '@/service/helper/format'
@@ -242,29 +242,42 @@ const props = defineProps<{
 const merchantStore = useMerchantStore()
 
 /** trạng thái hiện tại của đơn hàng */
-const current_action = ref<ActionStep>()
+// const current_action = ref<ActionStep>()
 
 /** nhân viên cuối cùng cập nhật */
 const last_employee = ref<string>('')
 
 onMounted(() => {
-  getStatus()
+  // getStatus()
   getActionLog()
 })
 
-/** Lấy ra hành trình đơn hiện tại của khách hàng */
-function getStatus() {
-  /** Lấy ra hành trình đơn hàng */
-  let order_journey = props.order.order_journey || []
-  // * Duyệt qua từng bước hành trình
-  order_journey.map(step => {
-    step.map(action => {
+/** trạng thái hiện tại của đơn hàng */
+const current_action = computed<ActionStep|undefined>(() => {
+  let result 
+  props.order.order_journey?.filter(step => {
+    step.filter(action => {
       if (action.is_active) {
-        current_action.value = action
+        result = action
       }
     })
   })
-}
+  return result
+})
+
+/** Lấy ra hành trình đơn hiện tại của khách hàng */
+// function getStatus() {
+//   /** Lấy ra hành trình đơn hàng */
+//   let order_journey = props.order.order_journey || []
+//   // * Duyệt qua từng bước hành trình
+//   order_journey.map(step => {
+//     step.map(action => {
+//       if (action.is_active) {
+//         current_action.value = action
+//       }
+//     })
+//   })
+// }
 
 /** Ẩn hiện order */
 function toogleOrder() {

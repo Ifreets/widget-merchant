@@ -133,6 +133,17 @@ function scollToLastStep() {
 
 async function updateStatus(status: ActionStep) {
   try {
+
+    //* kích hoạt trạng thái ở trong hành trình
+    const order_journey = props.order.order_journey?.map((step, index_step) => {
+      return step?.map((action, index_action) => {
+        return {
+          ...action,
+          is_active: status?.action === action.action,
+        }
+      })
+    })
+
     const res = await updateOrder({
       id: props.order.id,
       last_order_journey: {
@@ -140,6 +151,7 @@ async function updateStatus(status: ActionStep) {
         is_active: true,
       },
       status: status.action,
+      order_journey,
     })
     props.update(res)
   } catch (e) {

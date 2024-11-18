@@ -179,6 +179,7 @@ async function load() {
     commonStore.is_loading_full_screen = false
   } catch (error) {
     console.log('load home', error)
+    $toast.error(error as string)
     //chuyển tab setting
     // appStore.tab = 'SETTING_NO_TOKEN'
     //tắt loading
