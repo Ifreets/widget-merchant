@@ -179,7 +179,7 @@ async function load() {
     commonStore.is_loading_full_screen = false
   } catch (error) {
     console.log('load home', error)
-    // $toast.error(error as string)
+    $toast.error(error as string)
     // $toast.error(queryString('partner_token') ?? 'Không có partner token trên url')
     // $toast.error(queryString('client_id') ?? 'Không có client id trên url')
     // $toast.error(queryString('message_id') ?? 'Không cá message id trên url')
