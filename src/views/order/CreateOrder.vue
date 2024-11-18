@@ -1218,19 +1218,19 @@ async function initDataParams() {
   // lấy giá trị từ url param
   const email = AI_DATA?.email?.[0]
   const phone = AI_DATA?.phone_number?.[0]
-  const address = AI_DATA?.ctas?.address?.address || ''
+  const address = AI_DATA?.ctas?.place_order?.address || ''
   /** thành phố */
-  const city = AI_DATA?.ctas?.address?.city || ''
+  const city = AI_DATA?.ctas?.place_order?.city || ''
   /** phường */
-  const ward_name = AI_DATA?.ctas?.address?.ward || ''
+  const ward_name = AI_DATA?.ctas?.place_order?.ward || ''
   /** quận */
-  const district_name = AI_DATA?.ctas?.address?.district || ''
+  const district_name = AI_DATA?.ctas?.place_order?.district || ''
   /** phố */
-  const street_name = AI_DATA?.ctas?.address?.street_name || ''
+  const street_name = AI_DATA?.ctas?.place_order?.street_name || ''
   /** số nhà */
-  const house_number = AI_DATA?.ctas?.address?.house_number || ''
+  const house_number = AI_DATA?.ctas?.place_order?.house_number || ''
 
-  const place = AI_DATA?.ctas?.address?.place || ''
+  const place = AI_DATA?.ctas?.place_order?.place || ''
 
   //lưu lại
   data_auto_create.value = {
