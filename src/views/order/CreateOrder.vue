@@ -1259,7 +1259,7 @@ async function initDataParams() {
   }
 
   // nếu có địa chỉ thì tự động điền
-  if (address) {
+  // if (address) {
     // gán địa chỉ chọn địa chỉ
     const array = []
 
@@ -1271,6 +1271,8 @@ async function initDataParams() {
       if (district_name) array.push(district_name)
       if (city) array.push(city)
     }
+
+    console.log(array)
 
     /** có place và it nhất 1 trong 3 field tỉnh, quận, phường */
     if (!array.length && place && (ward_name || district_name || city)) {
@@ -1288,6 +1290,8 @@ async function initDataParams() {
     console.log(array)
 
     if (array.length) order.value.address = array.join(', ')
+
+    if(!order.value.address) return
 
     // tìm kiếm địa chỉ
     await searchAddress()
@@ -1318,7 +1322,7 @@ async function initDataParams() {
       focusInput('address-input')
     }
     // order.value.address = address
-  }
+  // }
 
   // tắt tự động tạo từ lần thứ 2 trở đi
   $appStore.is_auto_create = false
