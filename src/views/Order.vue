@@ -146,6 +146,7 @@ async function load() {
 
     const res = await getMerchantToken({
       access_token: WIDGET.access_token,
+      // access_token: queryString('partner_token'),
       secret_key: $env.secret_key,
       ...commonStore?.store?.chatbox_page_id ? {
         redirect_to_store: commonStore?.store?.chatbox_page_id,

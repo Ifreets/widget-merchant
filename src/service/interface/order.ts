@@ -170,6 +170,8 @@ export interface Order {
   /** Địa chỉ nhận hàng */
   address?: string
 
+  full_address?: string
+
   /** Thông tin vị trí */
   locations?: OrderLocation
 
@@ -250,4 +252,33 @@ export interface Order {
   inventory_quantity?: number
 
   is_archived?: boolean
+}
+
+export interface ISelectedAddress {
+  /** địa chỉ */
+  address?: string
+  /** id chi nhánh */
+  branch_id?: string
+  /** id doanh nghiệp */
+  business_id?: string
+  /** id liên hệ */
+  contact_id?: string
+  /** thời gian tạo */
+  createdAt?: string
+  /** id phòng ban */
+  department_id?: string
+  /** id nhân viên */
+  employee_id?: string
+  /** địa chỉ đầy đủ */
+  full_address?: string
+  /** id */
+  id?: string
+  /** địa chỉ */
+  locations?: OrderLocation
+  /** id đội nhóm */
+  team_id?: string
+  /** thời gian update */
+  updatedAt?: string
+  /** id user */
+  user_id?: string
 }

@@ -237,6 +237,23 @@ export const getAddress = async (data: {}) => {
     }
 }
 
+/** lấy danh sách địa chỉ đã chọn */
+export const getSelectedAddress = async (data: {}) => {
+    try {
+        const commonStore = useCommonStore()
+        return await request({
+            uri: 'https://api-product.merchant.vn/order/get_contact_address',
+            method: 'POST',
+            body: data,
+            headers: {
+                'token-business': commonStore.token_business,
+            },
+        })
+    } catch (e) {
+        throw e
+    }
+}
+
 // * API settings
 export const getSetting = async (data: {}) => {
     try {

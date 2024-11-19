@@ -96,17 +96,32 @@
                 v-if="show_dropbox && isAvailablelUpdate('address')"
                 class="w-full p-1 bg-white rounded-md border shadow-md flex flex-col gap-1 mt-1"
               >
-                <template v-for="(address, index) in addresses">
-                <div
-                  @click="getDetailLocation(address)"
-                  class="px-3 py-1.5 hover:bg-slate-100 rounded-md w-full"
-                  :class="{
-                    'bg-slate-100': index === location_index,
-                  }"
-                >
-                  {{ address?.address_name }}
-                </div>
-              </template>
+                <template v-if="order.address" v-for="(address, index) in addresses">
+                  <div
+                    @click="getDetailLocation(address)"
+                    class="px-3 py-1.5 hover:bg-slate-100 rounded-md w-full"
+                    :class="{
+                      'bg-slate-100': index === location_index,
+                    }"
+                  >
+                    {{ address?.address_name }}
+                  </div>
+                </template>
+                <template v-else v-for="(address, index) in selected_address">
+                  <div
+                    @click="()=>{
+                      order.address = address.address
+                      order.locations = JSON.parse(JSON.stringify(address.locations)) 
+                      show_dropbox = false
+                    }"
+                    class="px-3 py-1.5 hover:bg-slate-100 rounded-md w-full"
+                    :class="{
+                      'bg-slate-100': index === location_index,
+                    }"
+                  >
+                    {{ address?.full_address }}
+                  </div>
+                </template>
                 <div
                   v-if="!isEmpty(lastest_address) && !order.id"
                   class="px-3 py-1.5 hover:bg-slate-100 rounded-md w-full flex gap-2"
@@ -925,6 +940,7 @@ import {
   updateContact,
   createProduct,
   detectAddressV2,
+  getSelectedAddress,
 } from '@/service/api/merchant'
 
 import WIDGET from 'bbh-chatbox-widget-js-sdk'
@@ -961,6 +977,7 @@ import type {
   LocationDetail,
   PaymentMethods,
   OrderLocation,
+  ISelectedAddress,
 } from '@/service/interface'
 import { checkPhone } from '@/service/helper/validate'
 import { PRODUCT_DEFAULT } from '@/service/constant'
@@ -975,6 +992,8 @@ const $appStore = useAppStore()
 
 /** Toast */
 const $toast = new Toast()
+
+const selected_address = ref<ISelectedAddress[]>([])
 
 /** đơn hàng */
 const order = ref<Order>({
@@ -1014,7 +1033,9 @@ const order = ref<Order>({
     customer_name: '',
     fb_client_id: $appStore.data_client?.public_profile?.fb_client_id || '',
   },
-  locations: !$appStore.is_auto_create ? JSON.parse(JSON.stringify($merchant.orders?.[0]?.locations || {})) : {},
+  locations: !$appStore.is_auto_create
+    ? JSON.parse(JSON.stringify($merchant.orders?.[0]?.locations || {}))
+    : {},
   order_journey: $merchant.setting?.online_status || [],
   staffs: $merchant.setting?.online_staff || [],
   inventory_quantity: 0,
@@ -1028,7 +1049,7 @@ const lastest_address = ref<{ address?: string; locations?: OrderLocation }>({
 
 /** hiển thị địa chỉ gần nhất */
 const lastest_address_show = computed(() => {
-  if($appStore.is_auto_create) return ''
+  if ($appStore.is_auto_create) return ''
   let arr = []
   const LOCATION = lastest_address.value.locations
   if (lastest_address.value.address) arr.push(lastest_address.value.address)
@@ -1059,7 +1080,7 @@ const start_search = debounce(() => {
 
 /** Tìm kiếm địa chỉ */
 const search_address = debounce(() => {
-  searchAddress(true)
+  searchAddress()
 }, 500)
 
 /** Danh sách phường xã */
@@ -1147,11 +1168,6 @@ const check_order_valid = computed(() => {
   return true
 })
 
-// const show_addresses = computed<Addresses[]>(() => {
-//   const TEMP = addresses.value.filter(item => item?.engine !== 'FILTER')
-//   return TEMP
-// })
-
 /** kiểm tra địa chỉ đã điền chưa */
 const check_address = computed(() => {
   const is_address_valid = !order.value.address
@@ -1198,6 +1214,7 @@ onMounted(() => {
 
   //khởi tạo giá trị của các field khi tạo đơn tự động
   initDataParams()
+  getSelectedAddresses()
 })
 
 watch(
@@ -1207,6 +1224,17 @@ watch(
     is_calling_api.value = true
   }
 )
+
+/** hàm lấy danh sách địa chỉ đã chọn */
+async function getSelectedAddresses() {
+  try {
+    selected_address.value = await getSelectedAddress({
+    contact_id: $merchant.contact?.identifier_id
+  })
+  } catch (error) {
+    $toast.error(error as string)
+  }
+}
 
 /** hàm khởi tạo giá trị của các field khi tạo tự động */
 async function initDataParams() {
@@ -1260,68 +1288,70 @@ async function initDataParams() {
 
   // nếu có địa chỉ thì tự động điền
   // if (address) {
-    // gán địa chỉ chọn địa chỉ
-    const array = []
+  // gán địa chỉ chọn địa chỉ
+  const array = []
 
-    /** có số nhà và đường và ít nhất 1 trong 3 field tỉnh, quận, phường */
-    if (house_number && street_name && (ward_name || district_name || city)) {
-      array.push(house_number)
-      array.push(street_name)
-      if (ward_name) array.push(ward_name)
-      if (district_name) array.push(district_name)
-      if (city) array.push(city)
+  const house_street = `${house_number} ${street_name}`.trim()
+
+  /** có số nhà và đường và ít nhất 1 trong 3 field tỉnh, quận, phường */
+  if (house_street && (ward_name || district_name || city)) {
+    array.push(house_street)
+    if (ward_name) array.push(ward_name)
+    if (district_name) array.push(district_name)
+    if (city) array.push(city)
+  }
+
+  console.log(array)
+
+  /** có place và it nhất 1 trong 3 field tỉnh, quận, phường */
+  if (!array.length && place && (ward_name || district_name || city)) {
+    array.push(place)
+    if (ward_name) array.push(ward_name)
+    if (district_name) array.push(district_name)
+    if (city) array.push(city)
+  }
+
+  /** chỉ có đường hoặc place */
+  if (!array.length && (house_street || place || address)) {
+    array.push(address)
+  }
+
+  console.log(array)
+
+  if (array.length) {
+    order.value.address = array.join(', ')
+  }
+
+  if (!order.value.address) return
+
+  // tìm kiếm địa chỉ
+  await searchAddress()
+
+  if (addresses.value?.[0]?.engine === 'FILTER' && order.value.locations) {
+    if (addresses.value?.[0]?.address) {
+      order.value.address = addresses.value?.[0]?.address
     }
-
-    console.log(array)
-
-    /** có place và it nhất 1 trong 3 field tỉnh, quận, phường */
-    if (!array.length && place && (ward_name || district_name || city)) {
-      array.push(place)
-      if (ward_name) array.push(ward_name)
-      if (district_name) array.push(district_name)
-      if (city) array.push(city)
+    if (addresses.value?.[0]?.province) {
+      order.value.locations.province = addresses.value?.[0]?.province
     }
-
-    /** chỉ có đường hoặc place */
-    if (!array.length && (street_name || place || address)) {
-      array.push(address)
+    if (addresses.value?.[0]?.district) {
+      order.value.locations.district = addresses.value?.[0]?.district
     }
-
-    console.log(array)
-
-    if (array.length) order.value.address = array.join(', ')
-
-    if(!order.value.address) return
-
-    // tìm kiếm địa chỉ
-    await searchAddress()
-
-    if(addresses.value?.[0]?.engine === 'FILTER' && order.value.locations){
-      if(addresses.value?.[0]?.address){
-        order.value.address = addresses.value?.[0]?.address
-      }
-      if(addresses.value?.[0]?.province){
-        order.value.locations.province = addresses.value?.[0]?.province
-      }
-      if(addresses.value?.[0]?.district){
-        order.value.locations.district = addresses.value?.[0]?.district
-      }
-      if(addresses.value?.[0]?.ward){
-        order.value.locations.ward = addresses.value?.[0]?.ward
-      }
-      return 
+    if (addresses.value?.[0]?.ward) {
+      order.value.locations.ward = addresses.value?.[0]?.ward
     }
+    return
+  }
 
-    console.log(ward_name,district_name,street_name);
-    
+  console.log(ward_name, district_name, street_name)
 
-    // chọn địa chỉ
-    if ((ward_name || district_name) && street_name) {
-      getDetailLocation(addresses.value[0])
-    } else {
-      focusInput('address-input')
-    }
-    // order.value.address = address
+  // chọn địa chỉ
+  if ((ward_name || district_name) && house_street) {
+    getDetailLocation(addresses.value[0])
+  } else {
+    focusInput('address-input')
+  }
+  // order.value.address = address
   // }
 
   // tắt tự động tạo từ lần thứ 2 trở đi
@@ -2078,22 +2108,35 @@ async function activeStep(
 }
 
 /** Tìm kiếm địa chỉ */
-async function searchAddress(is_remove_engine_filter: boolean = false) {
+async function searchAddress() {
   // addresses.value = await detectAddress({
   //   address: order.value.address,
   // })
-  const res:Addresses[] = await detectAddressV2({
+  order.value.full_address = JSON.parse(JSON.stringify(order.value.address))
+  addresses.value = await detectAddressV2({
     address: order.value.address,
   })
-  if(is_remove_engine_filter) {
-    addresses.value = res?.filter(item => item?.engine !== 'FILTER')
-    return
-  }
-  addresses.value = res
 }
 
 /** Chọn địa chỉ */
 async function getDetailLocation(address: Addresses) {
+  if (address?.engine === 'FILTER' && order.value.locations) {
+    if (address?.address) {
+      order.value.address = address?.address
+    }
+    if (address?.province) {
+      order.value.locations.province = address?.province
+    }
+    if (address?.district) {
+      order.value.locations.district = address?.district
+    }
+    if (address?.ward) {
+      order.value.locations.ward = address?.ward
+    }
+    focusInput('product-input')
+    return
+  }
+
   /** Gán địa chỉ */
   order.value.address = address.address_name?.split(' - ')?.[0]
 
