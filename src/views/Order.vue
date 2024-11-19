@@ -130,12 +130,16 @@ async function load() {
     // bật loading
     commonStore.is_loading_full_screen = true
 
+    const partner_token = queryString('partner_token')
+    const client_id = queryString('client_id')
+    const message_id = queryString('message_id')
+
     // * ghi lại thông tin khách hàng mới
     // appStore.data_client = await WIDGET.decodeClient()
     const data = await decodeClientV2({
-      access_token: queryString('partner_token'),
-      client_id: queryString('client_id'),
-      message_id: queryString('message_id'),
+      access_token: partner_token === 'undefined' ? null : partner_token,
+      client_id: client_id === 'undefined' ? null : client_id,
+      message_id: message_id === 'undefined' ? null : message_id,
       secret_key: $env.secret_key
     })
 
