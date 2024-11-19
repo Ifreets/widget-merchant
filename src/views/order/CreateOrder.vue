@@ -1041,15 +1041,12 @@ const order = ref<Order>({
   inventory_quantity: 0,
 })
 
-/** địa chỉ gần nhất */
-const lastest_address = ref<{ address?: string; locations?: OrderLocation }>({})
-
 /** hiển thị địa chỉ gần nhất */
 const lastest_address_show = computed(() => {
-  if ($appStore.is_auto_create) return ''
+  if ($appStore.is_auto_create || !$merchant.orders?.length) return ''
   let arr = []
-  const LOCATION = lastest_address.value.locations
-  if (lastest_address.value.address) arr.push(lastest_address.value.address)
+  const LOCATION = $merchant.orders?.[0]?.locations
+  if ($merchant.orders?.[0]?.address) arr.push($merchant.orders?.[0]?.address)
 
   if (LOCATION?.ward?.name) arr.push(LOCATION?.ward?.name)
 
@@ -1189,12 +1186,6 @@ const is_phone_valid = computed(() => {
 })
 
 onMounted(() => {
-
-  lastest_address.value = {
-    address: $merchant.orders?.[0]?.address,
-    locations: $merchant.orders?.[0]?.locations,
-  }
-
   if ($merchant.order_edit.id) {
     order.value = $merchant.order_edit
     if (order.value.locations) {
