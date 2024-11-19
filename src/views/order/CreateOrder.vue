@@ -123,12 +123,12 @@
                   </div>
                 </template>
                 <div
-                  v-if="!isEmpty(lastest_address) && !order.id"
+                  v-if="!$merchant.orders?.length && !order.id"
                   class="px-3 py-1.5 hover:bg-slate-100 rounded-md w-full flex gap-2"
                   @click="
                     () => {
-                      order.address = lastest_address.address
-                      order.locations = lastest_address.locations
+                      order.address = $merchant.orders?.[0]?.address
+                      order.locations = $merchant.orders?.[0].locations
                       show_dropbox = false
                     }
                   "
