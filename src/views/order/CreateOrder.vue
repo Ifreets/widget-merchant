@@ -1042,10 +1042,7 @@ const order = ref<Order>({
 })
 
 /** địa chỉ gần nhất */
-const lastest_address = ref<{ address?: string; locations?: OrderLocation }>({
-  address: $merchant.orders?.[0]?.address,
-  locations: $merchant.orders?.[0]?.locations,
-})
+const lastest_address = ref<{ address?: string; locations?: OrderLocation }>({})
 
 /** hiển thị địa chỉ gần nhất */
 const lastest_address_show = computed(() => {
@@ -1192,6 +1189,12 @@ const is_phone_valid = computed(() => {
 })
 
 onMounted(() => {
+
+  lastest_address.value = {
+    address: $merchant.orders?.[0]?.address,
+    locations: $merchant.orders?.[0]?.locations,
+  }
+
   if ($merchant.order_edit.id) {
     order.value = $merchant.order_edit
     if (order.value.locations) {
@@ -1325,7 +1328,7 @@ async function initDataParams() {
   if (!order.value.address) return
 
   // tìm kiếm địa chỉ
-  await searchAddress()
+  await searchAddress(true)
 
   if (addresses.value?.[0]?.engine === 'FILTER' && order.value.locations) {
     if (addresses.value?.[0]?.address) {
@@ -2108,11 +2111,15 @@ async function activeStep(
 }
 
 /** Tìm kiếm địa chỉ */
-async function searchAddress() {
+async function searchAddress(is_auto_create: boolean = false) {
   // addresses.value = await detectAddress({
   //   address: order.value.address,
   // })
-  order.value.full_address = JSON.parse(JSON.stringify(order.value.address))
+  if(is_auto_create) {
+    order.value.full_address = JSON.parse(JSON.stringify($appStore.data_client?.public_profile?.ai?.[0]?.note))
+  }else{
+    order.value.full_address = JSON.parse(JSON.stringify(order.value.address))
+  }
   addresses.value = await detectAddressV2({
     address: order.value.address,
   })
