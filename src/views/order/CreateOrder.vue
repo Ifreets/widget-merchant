@@ -1,6 +1,6 @@
 <template>
-  <article class="h-full flex flex-col overflow-hidden">
-    <section class="h-full flex flex-col gap-2 overflow-auto scrollbar-thin">
+  <article class="h-full flex flex-col">
+    <section class="h-full flex flex-col gap-2">
       <!-- Hành trình đơn hàng -->
       <!-- <OrderJourney :order="order" /> -->
       <!-- Thông tin đơn hàng -->
@@ -162,7 +162,8 @@
                   id="province-input"
                   v-model="search_provice"
                   :placeholder="
-                    get(order_edit, 'locations.province.name') || `Tỉnh, thành phố`
+                    get(order_edit, 'locations.province.name') ||
+                    `Tỉnh, thành phố`
                   "
                   @input="searchLocation('province')"
                   @keyup.enter="selectLocation('province')"
@@ -250,7 +251,8 @@
                   @focusout="
                     () => {
                       search_district =
-                        get(order_edit, 'locations.district.name_with_type') || ''
+                        get(order_edit, 'locations.district.name_with_type') ||
+                        ''
                     }
                   "
                   @input="searchLocation('district')"
@@ -313,7 +315,8 @@
                   id="ward-input"
                   v-model="search_ward"
                   :placeholder="
-                    get(order_edit, 'locations.ward.name_with_type') || `Phường, xã`
+                    get(order_edit, 'locations.ward.name_with_type') ||
+                    `Phường, xã`
                   "
                   @focusin="
                     () => {
@@ -619,6 +622,9 @@
             :options="cleave_options"
             v-model="order_edit.shipping_fee"
             @change="calculatorOrder(true)"
+            @input="()=>{
+              if(order_edit.shipping_fee && order_edit.is_freeship) order_edit.is_freeship = false
+            }"
             :readonly="!isAvailablelUpdate('money')"
           />
         </div>
@@ -898,8 +904,10 @@
       </div>
     </section>
     <div
-      v-if="!order_edit.id && order_edit.order_journey && isAvailablelUpdate('')"
-      class="py-2 border-t"
+      v-if="
+        !order_edit.id && order_edit.order_journey && isAvailablelUpdate('')
+      "
+      class="py-2 border-t sticky bottom-0 bg-white"
     >
       <div
         v-for="(step, step_index) in order_edit.order_journey"
@@ -921,7 +929,7 @@
     </div>
     <div
       v-else
-      class="p-2 border-t"
+      class="p-2 border-t sticky bottom-0"
     >
       <button
         class="w-full py-2 text-base font-semibold text-white bg-black rounded-md"
@@ -1153,7 +1161,7 @@ const is_phone_valid = computed(() => {
 
 onMounted(() => {
   console.log($merchant.setting?.online_status)
-  
+
   if (order_edit.value?.id) {
     order_edit.value = $merchant.order_edit
     if (order_edit.value.locations) {
@@ -1165,16 +1173,17 @@ onMounted(() => {
       customer_phone.value = order_edit.value.custom_fields?.last_phone || ''
     }
     calculatorOrder()
-    
+
   }
   else{
     console.log($merchant.setting?.online_status);
-    
+
     order_edit.value.order_journey = copy($merchant.setting?.online_status || [])
     order_edit.value.staffs = $merchant.setting?.online_staff
     order_edit.value.contact_id = $merchant.contact?.identifier_id
     order_edit.value.contact_info = $merchant.contact
-    console.log(order_edit.value.order_journey);
+    order_edit.value.address = copy($merchant.orders?.[0]?.address || '')
+    order_edit.value.locations = copy($merchant.orders?.[0]?.locations || {})
   }
 
   //khởi tạo giá trị của các field khi tạo đơn tự động
@@ -1191,11 +1200,21 @@ watch(
   }
 )
 
+watch(
+  () => order_edit.value.is_freeship,
+  (newValue, oldValue) => {
+    calculatorOrder()
+    if(!newValue) return
+    order_edit.value.shipping_fee = 0
+  },
+  { deep: true }
+)
+
 /** hàm lấy danh sách địa chỉ đã chọn */
 async function getSelectedAddresses() {
   try {
     console.log($merchant.contact?.identifier_id);
-    
+
     if(!$merchant.contact?.identifier_id) return
 
     selected_address.value = await getSelectedAddress({
@@ -1222,7 +1241,7 @@ async function initDataParams() {
 
   if(phone) customer_phone.value = phone
   else customer_phone.value = $appStore.data_client?.conversation_contact?.client_phone || ''
-  
+
 
   const address = AI_DATA?.ctas?.place_order?.address || ''
   /** thành phố */
@@ -1297,7 +1316,7 @@ async function initDataParams() {
 
   // tìm kiếm địa chỉ
   await searchAddress(true)
-  
+
   if (addresses.value?.[0]?.engine === 'FILTER' && order_edit.value.locations) {
     if (addresses.value?.[0]?.address) {
       order_edit.value.address = addresses.value?.[0]?.address
@@ -1311,7 +1330,7 @@ async function initDataParams() {
     if (addresses.value?.[0]?.ward) {
       order_edit.value.locations.ward = addresses.value?.[0]?.ward
     }
-    
+
     // tắt tự động tạo từ lần thứ 2 trở đi
     $appStore.is_auto_create = false
 
@@ -1657,7 +1676,7 @@ function calculatorOrder(is_update_order?: boolean) {
 async function createNewOrder(status?: string) {
   try {
     console.log(order_edit.value);
-    
+
     if (!checkOrderValid()) return
     if (!order_edit.value.contact_id) {
       return $toast.error('Vui lòng chọn khách hàng trước khi tạo đơn hàng')
@@ -1945,7 +1964,7 @@ function checkStepActive() {
   if (!result && result !== 0) return 0
 
   console.log(result);
-  
+
   return result
 }
 
@@ -2416,5 +2435,4 @@ function linkToProductApp() {
 }
 
 defineExpose({ initDataParams })
-
 </script>

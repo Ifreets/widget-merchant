@@ -1,6 +1,6 @@
 <template>
-  <article class="py-1 px-3 text-sm flex flex-col gap-2 overflow-hidden h-dvh">
-    <div class="flex gap-1 w-full flex-shrink-0 items-center">
+  <article class="px-3 text-sm flex flex-col gap-2 overflow-auto scrollbar-thin h-dvh">
+    <div class="flex gap-1 w-full flex-shrink-0 items-center sticky top-0 z-10 pt-1 bg-white">
       <Header
         v-model="current_tab"
         class="w-full"
@@ -208,7 +208,7 @@ async function loadV2() {
   try {
     const MESSAGE_ID = queryString('message_id')
 
-    if (MESSAGE_ID) {
+    if (MESSAGE_ID && MESSAGE_ID !== 'undefined') {
       merchantStore.current_tab = 'CREATE_ORDER'
       appStore.is_auto_create = true
     }
