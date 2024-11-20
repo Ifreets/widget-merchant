@@ -7,6 +7,7 @@ import type {
     ProvinceData,
     EmployeeData,
 } from '@/service/interface'
+import { INIT_ORDER } from '@/service/constant'
 
 /** Store của merchant */
 export const useMerchantStore = defineStore('merchant_store', () => {
@@ -15,7 +16,7 @@ export const useMerchantStore = defineStore('merchant_store', () => {
     /** Danh sách order */
     const orders = ref<Order[]>([])
     /** Dữ liệu đơn hàng đang cần chỉnh sửa */
-    const order_edit = ref<Order>({})
+    const order_edit = ref<Order>(JSON.parse(JSON.stringify(INIT_ORDER)))
     /** Tổng số đơn hàng */
     const total_order = ref<number>(0)
     /** Thiết lập đơn hàng */

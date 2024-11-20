@@ -17,8 +17,11 @@
       v-if="merchantStore.current_tab === 'ORDERS'"
       :contact_id="contact_id"
     />
-    <CreateOrder v-if="merchantStore.current_tab === 'CREATE_ORDER'" />
-    <ModalSetting v-if="is_show_modal_setting" v-model="is_show_modal_setting"/>
+    <CreateOrder ref="create_order" v-if="merchantStore.current_tab === 'CREATE_ORDER'" />
+    <ModalSetting
+      v-if="is_show_modal_setting"
+      v-model="is_show_modal_setting"
+    />
   </article>
 </template>
 <script setup lang="ts">
@@ -34,6 +37,7 @@ import {
   getSetting,
   getEmployee,
   getMerchantToken,
+  getConfigChatbox,
 } from '@/service/api/merchant'
 
 // * components
@@ -46,7 +50,6 @@ import ModalSetting from '@/views/order/ModalSetting.vue'
 import type { IConfigWidget } from '@/service/interface'
 import { Toast } from '@/service/helper/toast'
 import { decodeClientV2 } from '@/service/api/chatbot'
-
 
 /** store */
 const appStore = useAppStore()
@@ -65,13 +68,17 @@ const contact_id = ref<string>('')
 /** ẩn hiện modal cài đặt */
 const is_show_modal_setting = ref<boolean>(false)
 
+const create_order = ref<InstanceType<typeof CreateOrder>>()
+
 // lắng nghe sự kiện từ chatbox
 WIDGET.onEvent(async () => {
-  load()
+  // load()
+  loadV2()
 })
 
 onMounted(async () => {
-  load()
+  // load()
+  loadV2()
 })
 
 /** hàm call API đồng bộ dữ liệu sang merchant */
@@ -136,25 +143,27 @@ async function load() {
 
     // * ghi lại thông tin khách hàng mới
     // appStore.data_client = await WIDGET.decodeClient()
+    // appStore.data_client = await WIDGET.getClientInfo()
     const data = await decodeClientV2({
       access_token: partner_token === 'undefined' ? null : partner_token,
       client_id: client_id === 'undefined' ? null : client_id,
       message_id: message_id === 'undefined' ? null : message_id,
-      secret_key: $env.secret_key
+      secret_key: $env.secret_key,
     })
 
-    if(data.data){
+    if (data.data) {
       appStore.data_client = data.data
     }
-
 
     const res = await getMerchantToken({
       access_token: WIDGET.access_token,
       // access_token: queryString('partner_token'),
       secret_key: $env.secret_key,
-      ...commonStore?.store?.chatbox_page_id ? {
-        redirect_to_store: commonStore?.store?.chatbox_page_id,
-      } : {}
+      ...(commonStore?.store?.chatbox_page_id
+        ? {
+            redirect_to_store: commonStore?.store?.chatbox_page_id,
+          }
+        : {}),
     })
 
     if (res?.data) {
@@ -192,6 +201,100 @@ async function load() {
     // appStore.tab = 'SETTING_NO_TOKEN'
     //tắt loading
     commonStore.is_loading_full_screen = false
+  }
+}
+
+async function loadV2() {
+  try {
+    const MESSAGE_ID = queryString('message_id')
+
+    if (MESSAGE_ID) {
+      merchantStore.current_tab = 'CREATE_ORDER'
+      appStore.is_auto_create = true
+    }
+
+    getDataChatbox()
+    await getDataMerchant()
+
+    syncAndGetContact()
+
+    /** Lấy danh sách nhân viên */
+    const employees = await getEmployee({})
+
+    // * Lưu lại danh sách nhân viên
+    merchantStore.saveEmployees(employees.data)
+
+  } catch {}
+}
+
+async function getDataMerchant() {
+  try {
+    const data = await getConfigChatbox({
+      access_token: WIDGET.access_token,
+      secret_key: $env.secret_key,
+    })
+    if (!data.data) return
+    merchantStore.orders = data.data?.orders
+    if(merchantStore.orders[0] && merchantStore.orders[0].id) {
+      merchantStore.saveShowOrderId(merchantStore.orders[0].id)
+    }
+
+    commonStore.token_business = data.data?.access_token
+    const setting = data.data?.setting
+    merchantStore.saveSetting(setting)
+    merchantStore.order_edit.order_journey = setting?.online_status || []
+    merchantStore.order_edit.staffs = setting?.online_staff || []
+    
+  } catch (error) {
+    throw error
+  }
+}
+
+async function getDataChatbox() {
+  try {
+
+    const partner_token = queryString('partner_token')
+    const client_id = queryString('client_id')
+    const message_id = queryString('message_id')
+
+    const data = await decodeClientV2({
+      access_token: partner_token === 'undefined' ? null : partner_token,
+      client_id: client_id === 'undefined' ? null : client_id,
+      message_id: message_id === 'undefined' ? null : message_id,
+      secret_key: $env.secret_key,
+    })
+
+    console.log(data.data)
+    if(!data.data) return
+    merchantStore.order_edit.custom_fields = {
+      ...merchantStore.order_edit.custom_fields,
+      page_id: data.data.public_profile?.page_id || '',
+      fb_client_id: data.data.public_profile?.fb_client_id || '',
+    }
+
+    appStore.data_client = data.data
+
+    create_order.value?.initDataParams()
+  } catch (error) {
+    throw error
+  }
+}
+
+async function syncAndGetContact() {
+  try {
+    /** Thông tin contact từ merchant */
+    const contact = await syncContact()
+
+    // * Lưu lại id contact
+    contact_id.value = contact.identifier_id
+
+    // * Lưu lại thông tin contact
+    merchantStore.saveMerchantContact(contact)
+
+    merchantStore.order_edit.contact_id = contact?.identifier_id
+    merchantStore.order_edit.contact_info = contact
+  } catch (error) {
+    throw error
   }
 }
 

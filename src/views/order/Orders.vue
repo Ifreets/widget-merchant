@@ -40,7 +40,7 @@ watch(
   () => props.contact_id,
   () => {
     console.log("props.contact_id", props.contact_id)
-    getOrders()
+    // getOrders()
   }
 )
 

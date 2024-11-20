@@ -31,7 +31,7 @@ importers:
         version: 3.6.0
       floating-vue:
         specifier: ^5.2.2
-        version: 5.2.2(vue@3.4.31)
+        version: 5.2.2(vue@3.4.31(typescript@4.7.4))
       i:
         specifier: ^0.3.7
         version: 0.3.7
@@ -43,7 +43,7 @@ importers:
         version: 10.8.1
       pinia:
         specifier: ^2.0.28
-        version: 2.1.7(typescript@4.7.4)(vue@3.4.31)
+        version: 2.1.7(typescript@4.7.4)(vue@3.4.31(typescript@4.7.4))
       postcss:
         specifier: ^8.4.19
         version: 8.4.39
@@ -64,10 +64,10 @@ importers:
         version: 3.4.31(typescript@4.7.4)
       vue-cleave-component:
         specifier: ^3.0.2
-        version: 3.0.2(vue@3.4.31)
+        version: 3.0.2(vue@3.4.31(typescript@4.7.4))
       vue-router:
         specifier: ^4.1.6
-        version: 4.4.0(vue@3.4.31)
+        version: 4.4.0(vue@3.4.31(typescript@4.7.4))
     devDependencies:
       '@types/async':
         specifier: ^3.2.16
@@ -80,10 +80,10 @@ importers:
         version: 18.19.39
       '@vitejs/plugin-basic-ssl':
         specifier: ^1.0.1
-        version: 1.1.0(vite@4.5.3)
+        version: 1.1.0(vite@4.5.3(@types/node@18.19.39)(sass@1.77.6))
       '@vitejs/plugin-vue':
         specifier: ^4.0.0
-        version: 4.6.2(vite@4.5.3)(vue@3.4.31)
+        version: 4.6.2(vite@4.5.3(@types/node@18.19.39)(sass@1.77.6))(vue@3.4.31(typescript@4.7.4))
       '@vue/tsconfig':
         specifier: ^0.1.3
         version: 0.1.3(@types/node@18.19.39)
@@ -1628,11 +1628,11 @@ snapshots:
 
   '@types/toastify-js@1.12.3': {}
 
-  '@vitejs/plugin-basic-ssl@1.1.0(vite@4.5.3)':
+  '@vitejs/plugin-basic-ssl@1.1.0(vite@4.5.3(@types/node@18.19.39)(sass@1.77.6))':
     dependencies:
       vite: 4.5.3(@types/node@18.19.39)(sass@1.77.6)
 
-  '@vitejs/plugin-vue@4.6.2(vite@4.5.3)(vue@3.4.31)':
+  '@vitejs/plugin-vue@4.6.2(vite@4.5.3(@types/node@18.19.39)(sass@1.77.6))(vue@3.4.31(typescript@4.7.4))':
     dependencies:
       vite: 4.5.3(@types/node@18.19.39)(sass@1.77.6)
       vue: 3.4.31(typescript@4.7.4)
@@ -1692,8 +1692,9 @@ snapshots:
       minimatch: 9.0.5
       muggle-string: 0.3.1
       path-browserify: 1.0.1
-      typescript: 4.7.4
       vue-template-compiler: 2.7.16
+    optionalDependencies:
+      typescript: 4.7.4
 
   '@vue/reactivity@3.4.31':
     dependencies:
@@ -1711,7 +1712,7 @@ snapshots:
       '@vue/shared': 3.4.31
       csstype: 3.1.3
 
-  '@vue/server-renderer@3.4.31(vue@3.4.31)':
+  '@vue/server-renderer@3.4.31(vue@3.4.31(typescript@4.7.4))':
     dependencies:
       '@vue/compiler-ssr': 3.4.31
       '@vue/shared': 3.4.31
@@ -1720,7 +1721,7 @@ snapshots:
   '@vue/shared@3.4.31': {}
 
   '@vue/tsconfig@0.1.3(@types/node@18.19.39)':
-    dependencies:
+    optionalDependencies:
       '@types/node': 18.19.39
 
   ansi-regex@5.0.1: {}
@@ -2063,11 +2064,11 @@ snapshots:
     dependencies:
       to-regex-range: 5.0.1
 
-  floating-vue@5.2.2(vue@3.4.31):
+  floating-vue@5.2.2(vue@3.4.31(typescript@4.7.4)):
     dependencies:
       '@floating-ui/dom': 1.1.1
       vue: 3.4.31(typescript@4.7.4)
-      vue-resize: 2.0.0-alpha.1(vue@3.4.31)
+      vue-resize: 2.0.0-alpha.1(vue@3.4.31(typescript@4.7.4))
 
   follow-redirects@1.15.6: {}
 
@@ -2401,12 +2402,13 @@ snapshots:
 
   pify@3.0.0: {}
 
-  pinia@2.1.7(typescript@4.7.4)(vue@3.4.31):
+  pinia@2.1.7(typescript@4.7.4)(vue@3.4.31(typescript@4.7.4)):
     dependencies:
       '@vue/devtools-api': 6.6.3
-      typescript: 4.7.4
       vue: 3.4.31(typescript@4.7.4)
-      vue-demi: 0.14.8(vue@3.4.31)
+      vue-demi: 0.14.8(vue@3.4.31(typescript@4.7.4))
+    optionalDependencies:
+      typescript: 4.7.4
 
   pirates@4.0.6: {}
 
@@ -2427,8 +2429,9 @@ snapshots:
   postcss-load-config@4.0.2(postcss@8.4.39):
     dependencies:
       lilconfig: 3.1.2
-      postcss: 8.4.39
       yaml: 2.4.5
+    optionalDependencies:
+      postcss: 8.4.39
 
   postcss-nested@6.0.1(postcss@8.4.39):
     dependencies:
@@ -2736,28 +2739,28 @@ snapshots:
 
   vite@4.5.3(@types/node@18.19.39)(sass@1.77.6):
     dependencies:
-      '@types/node': 18.19.39
       esbuild: 0.18.20
       postcss: 8.4.39
       rollup: 3.29.4
-      sass: 1.77.6
     optionalDependencies:
+      '@types/node': 18.19.39
       fsevents: 2.3.3
+      sass: 1.77.6
 
-  vue-cleave-component@3.0.2(vue@3.4.31):
+  vue-cleave-component@3.0.2(vue@3.4.31(typescript@4.7.4)):
     dependencies:
       cleave.js: 1.6.0
       vue: 3.4.31(typescript@4.7.4)
 
-  vue-demi@0.14.8(vue@3.4.31):
+  vue-demi@0.14.8(vue@3.4.31(typescript@4.7.4)):
     dependencies:
       vue: 3.4.31(typescript@4.7.4)
 
-  vue-resize@2.0.0-alpha.1(vue@3.4.31):
+  vue-resize@2.0.0-alpha.1(vue@3.4.31(typescript@4.7.4)):
     dependencies:
       vue: 3.4.31(typescript@4.7.4)
 
-  vue-router@4.4.0(vue@3.4.31):
+  vue-router@4.4.0(vue@3.4.31(typescript@4.7.4)):
     dependencies:
       '@vue/devtools-api': 6.6.3
       vue: 3.4.31(typescript@4.7.4)
@@ -2779,8 +2782,9 @@ snapshots:
       '@vue/compiler-dom': 3.4.31
       '@vue/compiler-sfc': 3.4.31
       '@vue/runtime-dom': 3.4.31
-      '@vue/server-renderer': 3.4.31(vue@3.4.31)
+      '@vue/server-renderer': 3.4.31(vue@3.4.31(typescript@4.7.4))
       '@vue/shared': 3.4.31
+    optionalDependencies:
       typescript: 4.7.4
 
   which-boxed-primitive@1.0.2:
