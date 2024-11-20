@@ -213,8 +213,7 @@ async function loadV2() {
       appStore.is_auto_create = true
     }
 
-    getDataChatbox()
-    await getDataMerchant()
+    await Promise.all([getDataMerchant(), getDataChatbox()])
 
     syncAndGetContact()
 
@@ -236,8 +235,8 @@ async function getDataMerchant() {
     if (!data.data) return
     merchantStore.orders = data.data?.orders
     if(merchantStore.orders[0] && merchantStore.orders[0].id) {
-      merchantStore.saveShowOrderId(merchantStore.orders[0].id)
-    }
+    merchantStore.saveShowOrderId(merchantStore.orders[0].id)
+  }
 
     commonStore.token_business = data.data?.access_token
     const setting = data.data?.setting
