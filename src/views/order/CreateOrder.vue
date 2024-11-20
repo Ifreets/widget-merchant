@@ -1651,7 +1651,6 @@ function calculatorOrder(is_update_order?: boolean) {
 async function createNewOrder(status?: string) {
   try {
     console.log(order_edit.value);
-    return
     
     if (!checkOrderValid()) return
     if (!order_edit.value.contact_id) {
