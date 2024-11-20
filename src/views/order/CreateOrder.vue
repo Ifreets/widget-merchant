@@ -1309,6 +1309,9 @@ async function initDataParams() {
       order_edit.value.locations.ward = addresses.value?.[0]?.ward
     }
     
+    // tắt tự động tạo từ lần thứ 2 trở đi
+    $appStore.is_auto_create = false
+
     return
   }
 
