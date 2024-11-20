@@ -1168,10 +1168,13 @@ onMounted(() => {
     
   }
   else{
+    console.log($merchant.setting?.online_status);
+    
     order_edit.value.order_journey = copy($merchant.setting?.online_status || [])
     order_edit.value.staffs = $merchant.setting?.online_staff
     order_edit.value.contact_id = $merchant.contact?.identifier_id
     order_edit.value.contact_info = $merchant.contact
+    console.log(order_edit.value.order_journey);
   }
 
   //khởi tạo giá trị của các field khi tạo đơn tự động
@@ -1940,7 +1943,10 @@ function checkStepActive() {
     })
   })
   if (!result && result !== 0) return 0
-  return result + 1
+
+  console.log(result);
+  
+  return result
 }
 
 /** Kích hoạt step tiếp theo */
