@@ -2112,10 +2112,10 @@ async function searchAddress(is_auto_create: boolean = false) {
   // })
   if (is_auto_create) {
     order_edit.value.full_address = JSON.parse(
-      JSON.stringify($appStore.data_client?.public_profile?.ai?.[0]?.note)
+      JSON.stringify($appStore.data_client?.public_profile?.ai?.[0]?.note || order_edit.value.address || '')
     )
   } else {
-    order_edit.value.full_address = JSON.parse(JSON.stringify(order_edit.value.address))
+    order_edit.value.full_address = JSON.parse(JSON.stringify(order_edit.value.address || ''))
   }
   addresses.value = await detectAddressV2({
     address: order_edit.value.address,
