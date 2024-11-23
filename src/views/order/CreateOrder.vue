@@ -133,7 +133,7 @@
                   </div>
                 </template>
                 <div
-                  v-if="!$merchant.orders?.length && !order_edit.id"
+                  v-if="$merchant.orders?.length && !order_edit.id"
                   class="px-3 py-1.5 hover:bg-slate-100 rounded-md w-full flex gap-2"
                   @click="
                     () => {
@@ -622,9 +622,12 @@
             :options="cleave_options"
             v-model="order_edit.shipping_fee"
             @change="calculatorOrder(true)"
-            @input="()=>{
-              if(order_edit.shipping_fee && order_edit.is_freeship) order_edit.is_freeship = false
-            }"
+            @input="
+              () => {
+                if (order_edit.shipping_fee && order_edit.is_freeship)
+                  order_edit.is_freeship = false
+              }
+            "
             :readonly="!isAvailablelUpdate('money')"
           />
         </div>
@@ -1144,7 +1147,8 @@ const check_address = computed(() => {
 
   const is_province_valid = !order_edit.value.locations?.province?.name
 
-  const is_district_valid = !order_edit.value.locations?.district?.name_with_type
+  const is_district_valid =
+    !order_edit.value.locations?.district?.name_with_type
 
   const is_ward_valid = !order_edit.value.locations?.ward?.name_with_type
 
@@ -1175,12 +1179,12 @@ onMounted(() => {
       customer_phone.value = order_edit.value.custom_fields?.last_phone || ''
     }
     calculatorOrder()
+  } else {
+    console.log($merchant.setting?.online_status)
 
-  }
-  else{
-    console.log($merchant.setting?.online_status);
-
-    order_edit.value.order_journey = copy($merchant.setting?.online_status || [])
+    order_edit.value.order_journey = copy(
+      $merchant.setting?.online_status || []
+    )
     order_edit.value.staffs = $merchant.setting?.online_staff
     order_edit.value.contact_id = $merchant.contact?.identifier_id
     order_edit.value.contact_info = $merchant.contact
@@ -1205,7 +1209,7 @@ watch(
 watch(
   () => order_edit.value.is_freeship,
   (newValue, oldValue) => {
-    if(newValue) order_edit.value.shipping_fee = 0
+    if (newValue) order_edit.value.shipping_fee = 0
     calculatorOrder()
   },
   { deep: true }
@@ -1214,9 +1218,9 @@ watch(
 /** hàm lấy danh sách địa chỉ đã chọn */
 async function getSelectedAddresses() {
   try {
-    console.log($merchant.contact?.identifier_id);
+    console.log($merchant.contact?.identifier_id)
 
-    if(!$merchant.contact?.identifier_id) return
+    if (!$merchant.contact?.identifier_id) return
 
     selected_address.value = await getSelectedAddress({
       contact_id: $merchant.contact?.identifier_id,
@@ -1229,7 +1233,7 @@ async function getSelectedAddresses() {
 /** hàm khởi tạo giá trị của các field khi tạo tự động */
 async function initDataParams() {
   if (order_edit.value?.id) return
-  customer_name.value =  $appStore.data_client.public_profile?.client_name || ''
+  customer_name.value = $appStore.data_client.public_profile?.client_name || ''
 
   // nếu không phải chế độ tạo tự động thì thôi
   if (!$appStore.is_auto_create) return
@@ -1240,9 +1244,10 @@ async function initDataParams() {
   const email = AI_DATA?.email?.[0]
   const phone = AI_DATA?.phone_number?.[0]
 
-  if(phone) customer_phone.value = phone
-  else customer_phone.value = $appStore.data_client?.conversation_contact?.client_phone || ''
-
+  if (phone) customer_phone.value = phone
+  else
+    customer_phone.value =
+      $appStore.data_client?.conversation_contact?.client_phone || ''
 
   const address = AI_DATA?.ctas?.place_order?.address || ''
   /** thành phố */
@@ -1668,7 +1673,8 @@ function calculatorOrder(is_update_order?: boolean) {
 
   // * Tính số tiền còn phải trả
   order_edit.value.money_unpaid =
-    Math.round(Number(order_edit.value.total_money)) - Number(order_edit.value.money_paid)
+    Math.round(Number(order_edit.value.total_money)) -
+    Number(order_edit.value.money_paid)
 
   if (is_update_order) updateAnOrder()
 }
@@ -1676,7 +1682,7 @@ function calculatorOrder(is_update_order?: boolean) {
 /** Tạo đơn hàng */
 async function createNewOrder(status?: string) {
   try {
-    console.log(order_edit.value);
+    console.log(order_edit.value)
 
     if (!checkOrderValid()) return
     if (!order_edit.value.contact_id) {
@@ -1965,7 +1971,7 @@ function checkStepActive() {
   })
   if (!result && result !== 0) return 0
 
-  console.log(result);
+  console.log(result)
 
   return result
 }
@@ -2113,15 +2119,25 @@ async function searchAddress(is_auto_create: boolean = false) {
   //   address: order.value.address,
   // })
   if (is_auto_create) {
+    const MESSAGE =
+      /** dạng tin nhắn ảnh */
+      $appStore.data_client?.public_profile?.ai?.[0]?.ocr?.original_text ||
+      /** tin nhắn thường */
+      $appStore.data_client?.public_profile?.message_text ||
+      ''
+
     order_edit.value.full_address = JSON.parse(
-      JSON.stringify($appStore.data_client?.public_profile?.ai?.[0]?.note || full_address.value || '')
+      JSON.stringify(MESSAGE || full_address.value || '')
     )
   } else {
-    order_edit.value.full_address = JSON.parse(JSON.stringify(full_address.value || ''))
+    order_edit.value.full_address = JSON.parse(
+      JSON.stringify(order_edit.value.address || '')
+    )
   }
   addresses.value = await detectAddressV2({
-    address: full_address.value,
+    address: full_address.value || order_edit.value.address,
   })
+  full_address.value = ''
 }
 
 /** Chọn địa chỉ */
@@ -2162,7 +2178,10 @@ async function getDetailLocation(address: Addresses) {
   if (order_edit.value.locations) {
     // * Lưu dữ liệu tỉnh thành
     provinces.value.map(item => {
-      if (item.code === location_detail.province?.id && order_edit.value.locations) {
+      if (
+        item.code === location_detail.province?.id &&
+        order_edit.value.locations
+      ) {
         order_edit.value.locations.province = item
         search_provice.value = item.name || ''
       }
@@ -2436,5 +2455,5 @@ function linkToProductApp() {
   )
 }
 
-defineExpose({ initDataParams })
+defineExpose({ initDataParams, getSelectedAddresses })
 </script>

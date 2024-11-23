@@ -290,6 +290,8 @@ async function syncAndGetContact() {
     // * Lưu lại thông tin contact
     merchantStore.saveMerchantContact(contact)
 
+    create_order.value?.getSelectedAddresses()
+
     merchantStore.order_edit.contact_id = contact?.identifier_id
     merchantStore.order_edit.contact_info = contact
   } catch (error) {
