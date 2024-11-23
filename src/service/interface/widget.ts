@@ -261,6 +261,17 @@ interface IDataAI {
 }
 
 export interface ICustomerInfo extends CustomerInfo {
+  conversation_staff:{
+    /**id nhân viên */
+    fb_staff_id?: string;
+    /**thông tin của nhân viên */
+    snap_staff?: {
+        /**tên nhân viên */
+        name?: string;
+    };
+    /**id nhân viên */
+    user_id?: string
+  },
   /** thông tin từ fb */
   public_profile?: {
     /** địa chỉ */

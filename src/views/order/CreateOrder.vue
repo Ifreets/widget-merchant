@@ -1203,9 +1203,8 @@ watch(
 watch(
   () => order_edit.value.is_freeship,
   (newValue, oldValue) => {
+    if(newValue) order_edit.value.shipping_fee = 0
     calculatorOrder()
-    if(!newValue) return
-    order_edit.value.shipping_fee = 0
   },
   { deep: true }
 )
@@ -1704,6 +1703,7 @@ async function createNewOrder(status?: string) {
       ...formatOrderData(order_edit.value),
       status: status ? status : 'DRART_ORDER',
       chatbox_widget_token: WIDGET?.access_token,
+      assigned_employee: $appStore.data_client?.conversation_staff?.user_id,
     })
     order_edit.value = new_order
     /** Lưu lại đơn mới vào store */
