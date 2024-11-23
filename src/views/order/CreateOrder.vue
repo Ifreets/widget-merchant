@@ -1114,6 +1114,8 @@ const district_index = ref<number>(0)
 /** Index của ward */
 const ward_index = ref<number>(0)
 
+const full_address = ref<string>('')
+
 /** đang gọi api */
 const is_calling_api = ref<boolean>(false)
 
@@ -1308,10 +1310,10 @@ async function initDataParams() {
   console.log(array)
 
   if (array.length) {
-    order_edit.value.address = array.join(', ')
+    full_address.value = array.join(', ')
   }
 
-  if (!order_edit.value.address) return
+  if (!full_address.value) return
 
   // tìm kiếm địa chỉ
   await searchAddress(true)
@@ -2112,13 +2114,13 @@ async function searchAddress(is_auto_create: boolean = false) {
   // })
   if (is_auto_create) {
     order_edit.value.full_address = JSON.parse(
-      JSON.stringify($appStore.data_client?.public_profile?.ai?.[0]?.note || order_edit.value?.address || '')
+      JSON.stringify($appStore.data_client?.public_profile?.ai?.[0]?.note || full_address.value || '')
     )
   } else {
-    order_edit.value.full_address = JSON.parse(JSON.stringify(order_edit.value.address || ''))
+    order_edit.value.full_address = JSON.parse(JSON.stringify(full_address.value || ''))
   }
   addresses.value = await detectAddressV2({
-    address: order_edit.value.address,
+    address: full_address.value,
   })
 }
 
