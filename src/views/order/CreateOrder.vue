@@ -2118,6 +2118,7 @@ async function searchAddress(is_auto_create: boolean = false) {
   // addresses.value = await detectAddress({
   //   address: order.value.address,
   // })
+  
   if (is_auto_create) {
     const MESSAGE =
       /** dạng tin nhắn ảnh */
