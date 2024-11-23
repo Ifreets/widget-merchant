@@ -94,7 +94,7 @@
             <template #box>
               <div
                 v-if="show_dropbox && isAvailablelUpdate('address')"
-                class="w-full p-1 bg-white rounded-md border shadow-md flex flex-col gap-1 mt-1"
+                class="w-full p-1 bg-white rounded-md border shadow-md flex flex-col gap-1 mt-1 max-h-60 overflow-y-auto"
               >
                 <template
                   v-if="order_edit.address"
@@ -2118,7 +2118,7 @@ async function searchAddress(is_auto_create: boolean = false) {
   // addresses.value = await detectAddress({
   //   address: order.value.address,
   // })
-  
+
   if (is_auto_create) {
     const MESSAGE =
       /** dạng tin nhắn ảnh */
