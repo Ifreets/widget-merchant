@@ -20,7 +20,10 @@
             merchantStore.current_tab === 'CREATE_ORDER',
           'text-gray-500': merchantStore.current_tab !== 'CREATE_ORDER',
         }"
-        @click="merchantStore.current_tab = 'CREATE_ORDER'"
+        @click="() => {
+          merchantStore.current_tab = 'CREATE_ORDER'
+          merchantStore.saveOrderEdit(JSON.parse(JSON.stringify(INIT_ORDER)))
+        }"
       >
         <span v-if="!merchantStore.order_edit.id">
           Tạo đơn
@@ -33,6 +36,7 @@
   </header>
 </template>
 <script setup lang="ts">
+import { INIT_ORDER } from '@/service/constant';
 import { useMerchantStore } from '@/stores'
 const merchantStore = useMerchantStore()
 /** Chuyển qua tab đơn hàng */

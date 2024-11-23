@@ -3,6 +3,20 @@ import { useAppStore, useCommonStore } from '@/stores'
 import { request } from '@/service/helper/asyncRequest'
 
 
+// * API lấy thông tin cho widget
+export const getConfigChatbox = async (data:{}) => {
+    try {
+        return await request({
+            uri: 'https://api.merchant.vn/v1/public/chatbox/get_config',
+            method: 'POST',
+            body: data,
+            headers: {},
+        })
+    } catch (e) {
+        throw e
+    }
+}
+
 // * API khách hàng
 /** Đồng bộ dữ liệu khách hàng tới merchant */
 export const syncContact = async () => {
@@ -94,6 +108,8 @@ export const updateOrder = async (data: {}) => {
 export const getProduct = async (data: {}) => {
     try {
         const commonStore = useCommonStore()
+        console.log(commonStore.token_business);
+        
         return await request({
             uri: 'https://api-product.merchant.vn/product/get_product',
             method: 'POST',
@@ -226,6 +242,23 @@ export const getAddress = async (data: {}) => {
         const commonStore = useCommonStore()
         return await request({
             uri: 'https://api-product.merchant.vn/locations/get_address',
+            method: 'POST',
+            body: data,
+            headers: {
+                'token-business': commonStore.token_business,
+            },
+        })
+    } catch (e) {
+        throw e
+    }
+}
+
+/** lấy danh sách địa chỉ đã chọn */
+export const getSelectedAddress = async (data: {}) => {
+    try {
+        const commonStore = useCommonStore()
+        return await request({
+            uri: 'https://api-product.merchant.vn/order/get_contact_address',
             method: 'POST',
             body: data,
             headers: {

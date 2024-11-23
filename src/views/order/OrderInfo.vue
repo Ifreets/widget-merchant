@@ -37,7 +37,7 @@
       :class="
         current_action?.bg_color?.replace('bg', 'border') || 'border-black'
       "
-      v-if="merchantStore.show_order_id == props.order?.id"
+      v-show="merchantStore.show_order_id == props.order?.id"
     >
       <OrderJourney :order="props.order" :update="update"/>
       <!-- Tên khách hàng -->
@@ -293,7 +293,7 @@ function getFullName(order: any) {
   // let first_name = order.contact_info.first_name || ''
   // let last_name = order.contact_info.last_name || ''
   // return `${last_name} ${first_name}`
-  return order.custom_fields.customer_name || ''
+  return order.custom_fields?.customer_name || ''
 }
 
 /** Lấy địa chỉ */

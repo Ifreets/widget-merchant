@@ -1,6 +1,6 @@
 <template>
-  <article class="h-full flex flex-col overflow-hidden">
-    <section class="h-full flex flex-col gap-2 overflow-auto scrollbar-thin">
+  <article class="h-full flex flex-col">
+    <section class="h-full flex flex-col gap-2">
       <!-- Hành trình đơn hàng -->
       <!-- <OrderJourney :order="order" /> -->
       <!-- Thông tin đơn hàng -->
@@ -69,7 +69,7 @@
                   id="address-input"
                   type="text"
                   placeholder="Địa chỉ"
-                  v-model="order.address"
+                  v-model="order_edit.address"
                   @input="search_address"
                   @keyup.enter="selectLocation('address')"
                   @keyup.up="controlLocation('address', 'up')"
@@ -79,12 +79,12 @@
                   class="px-3 py-2.5 border rounded-md placeholder:text-slate-500 w-full"
                   :class="{
                     'border-red-500':
-                      !order.address && alert_validate && check_address,
+                      !order_edit.address && alert_validate && check_address,
                   }"
                 />
                 <img
                   :src="DeleteIcon"
-                  v-show="order.address"
+                  v-show="order_edit.address"
                   @click="removeLocation('all')"
                   v-if="isAvailablelUpdate('address')"
                   class="absolute right-3 w-2 cursor-pointer"
@@ -96,24 +96,49 @@
                 v-if="show_dropbox && isAvailablelUpdate('address')"
                 class="w-full p-1 bg-white rounded-md border shadow-md flex flex-col gap-1 mt-1"
               >
-                <template v-for="(address, index) in addresses">
-                <div
-                  @click="getDetailLocation(address)"
-                  class="px-3 py-1.5 hover:bg-slate-100 rounded-md w-full"
-                  :class="{
-                    'bg-slate-100': index === location_index,
-                  }"
+                <template
+                  v-if="order_edit.address"
+                  v-for="(address, index) in addresses"
                 >
-                  {{ address?.address_name }}
-                </div>
-              </template>
+                  <div
+                    @click="getDetailLocation(address)"
+                    class="px-3 py-1.5 hover:bg-slate-100 rounded-md w-full"
+                    :class="{
+                      'bg-slate-100': index === location_index,
+                    }"
+                  >
+                    {{ address?.address_name }}
+                  </div>
+                </template>
+                <template
+                  v-else
+                  v-for="(address, index) in selected_address"
+                >
+                  <div
+                    @click="
+                      () => {
+                        order_edit.address = address.address
+                        order_edit.locations = JSON.parse(
+                          JSON.stringify(address.locations)
+                        )
+                        show_dropbox = false
+                      }
+                    "
+                    class="px-3 py-1.5 hover:bg-slate-100 rounded-md w-full"
+                    :class="{
+                      'bg-slate-100': index === location_index,
+                    }"
+                  >
+                    {{ address?.full_address }}
+                  </div>
+                </template>
                 <div
-                  v-if="!isEmpty(lastest_address) && !order.id"
+                  v-if="!$merchant.orders?.length && !order_edit.id"
                   class="px-3 py-1.5 hover:bg-slate-100 rounded-md w-full flex gap-2"
                   @click="
                     () => {
-                      order.address = lastest_address.address
-                      order.locations = lastest_address.locations
+                      order_edit.address = $merchant.orders?.[0]?.address
+                      order_edit.locations = $merchant.orders?.[0].locations
                       show_dropbox = false
                     }
                   "
@@ -137,7 +162,8 @@
                   id="province-input"
                   v-model="search_provice"
                   :placeholder="
-                    get(order, 'locations.province.name') || `Tỉnh, thành phố`
+                    get(order_edit, 'locations.province.name') ||
+                    `Tỉnh, thành phố`
                   "
                   @input="searchLocation('province')"
                   @keyup.enter="selectLocation('province')"
@@ -153,30 +179,30 @@
                   @focusout="
                     () => {
                       search_provice =
-                        get(order, 'locations.province.name') || ''
+                        get(order_edit, 'locations.province.name') || ''
                     }
                   "
                   class="w-full flex items-center justify-between p-2 border rounded-md"
                   :class="{
                     'border-red-500':
-                      !get(order, 'locations.province.name') &&
+                      !get(order_edit, 'locations.province.name') &&
                       alert_validate &&
                       check_address,
                     'placeholder:text-black': get(
-                      order,
+                      order_edit,
                       'locations.province.name'
                     ),
                   }"
                 />
                 <ArrowIcon
                   class="text-gray-500 absolute right-3"
-                  v-show="!get(order, 'locations.province.name')"
+                  v-show="!get(order_edit, 'locations.province.name')"
                 />
                 <img
                   :src="DeleteIcon"
                   @click="removeLocation('province')"
                   class="absolute right-3 w-2 cursor-pointer"
-                  v-show="get(order, 'locations.province.name')"
+                  v-show="get(order_edit, 'locations.province.name')"
                   v-if="isAvailablelUpdate('address')"
                 />
               </div>
@@ -213,7 +239,7 @@
                   id="district-input"
                   v-model="search_district"
                   :placeholder="
-                    get(order, 'locations.district.name_with_type') ||
+                    get(order_edit, 'locations.district.name_with_type') ||
                     `Quận, huyện`
                   "
                   @focusin="
@@ -225,7 +251,8 @@
                   @focusout="
                     () => {
                       search_district =
-                        get(order, 'locations.district.name_with_type') || ''
+                        get(order_edit, 'locations.district.name_with_type') ||
+                        ''
                     }
                   "
                   @input="searchLocation('district')"
@@ -236,24 +263,24 @@
                   class="w-full flex items-center justify-between p-2 border rounded-md"
                   :class="{
                     'border-red-500':
-                      !get(order, 'locations.district.name_with_type') &&
+                      !get(order_edit, 'locations.district.name_with_type') &&
                       alert_validate &&
                       check_address,
                     'placeholder:text-black': get(
-                      order,
+                      order_edit,
                       'locations.district.name_with_type'
                     ),
                   }"
                 />
                 <ArrowIcon
                   class="text-gray-500 absolute right-3"
-                  v-show="!get(order, 'locations.district.name_with_type')"
+                  v-show="!get(order_edit, 'locations.district.name_with_type')"
                 />
                 <img
                   :src="DeleteIcon"
                   @click="removeLocation('district')"
                   class="absolute right-3 w-2 cursor-pointer"
-                  v-show="get(order, 'locations.district.name_with_type')"
+                  v-show="get(order_edit, 'locations.district.name_with_type')"
                   v-if="isAvailablelUpdate('address')"
                 />
               </div>
@@ -288,7 +315,8 @@
                   id="ward-input"
                   v-model="search_ward"
                   :placeholder="
-                    get(order, 'locations.ward.name_with_type') || `Phường, xã`
+                    get(order_edit, 'locations.ward.name_with_type') ||
+                    `Phường, xã`
                   "
                   @focusin="
                     () => {
@@ -299,7 +327,7 @@
                   @focusout="
                     () => {
                       search_ward =
-                        get(order, 'locations.ward.name_with_type') || ''
+                        get(order_edit, 'locations.ward.name_with_type') || ''
                     }
                   "
                   @input="searchLocation('ward')"
@@ -310,24 +338,24 @@
                   class="w-full flex items-center justify-between p-2 border rounded-md k"
                   :class="{
                     'border-red-500':
-                      !get(order, 'locations.ward.name_with_type') &&
+                      !get(order_edit, 'locations.ward.name_with_type') &&
                       alert_validate &&
                       check_address,
                     'placeholder:text-black': get(
-                      order,
+                      order_edit,
                       'locations.ward.name_with_type'
                     ),
                   }"
                 />
                 <ArrowIcon
                   class="text-gray-500 absolute right-3"
-                  v-show="!get(order, 'locations.ward.name_with_type')"
+                  v-show="!get(order_edit, 'locations.ward.name_with_type')"
                 />
                 <img
                   :src="DeleteIcon"
                   @click="removeLocation('ward')"
                   class="absolute right-3 w-2 cursor-pointer"
-                  v-show="get(order, 'locations.ward.name_with_type')"
+                  v-show="get(order_edit, 'locations.ward.name_with_type')"
                   v-if="isAvailablelUpdate('address')"
                 />
               </div>
@@ -363,7 +391,7 @@
           <Dropbox
             class="border py-2 px-3 rounded-md group focus-within:border-blue-600 focus-within:border-2"
             :class="{
-              '!border-red-500': !order.products?.length && alert_validate,
+              '!border-red-500': !order_edit.products?.length && alert_validate,
             }"
           >
             <template #trigger>
@@ -469,7 +497,7 @@
               </tr>
             </thead>
             <tbody>
-              <tr v-if="!order.products?.length">
+              <tr v-if="!order_edit.products?.length">
                 <td
                   colspan="5"
                   class="text-center py-3 text-slate-500"
@@ -484,7 +512,7 @@
               </tr>
               <tr
                 v-else
-                v-for="(product, index) in order.products"
+                v-for="(product, index) in order_edit.products"
                 class="cursor-pointer hover:bg-slate-200 group w-max font-medium"
               >
                 <td class="p-1 rounded-s">
@@ -556,13 +584,13 @@
               <tr class="bg-slate-200 font-semibold sticky bottom-0">
                 <td class="text-end rounded-s p-1">Tổng</td>
                 <td class="text-end p-1">
-                  {{ order.quantity || 0 }}
+                  {{ order_edit.quantity || 0 }}
                 </td>
                 <td class="text-end p-1">
-                  {{ currency(order.custom_fields?.products_price) || 0 }}
+                  {{ currency(order_edit.custom_fields?.products_price) || 0 }}
                 </td>
                 <td class="text-end rounded-e p-1">
-                  {{ currency(order.total_price) || 0 }}
+                  {{ currency(order_edit.total_price) || 0 }}
                 </td>
               </tr>
             </tbody>
@@ -577,14 +605,14 @@
         <div class="flex justify-between items-center">
           <p>- Miễn phí giao hàng</p>
           <Toggle
-            v-model="order.is_freeship"
+            v-model="order_edit.is_freeship"
             :title="''"
           />
         </div>
         <div class="grid grid-cols-2 items-center">
           <p>- Tổng giá trị đơn hàng</p>
           <p class="font-bold text-base text-end text-green-600">
-            {{ currency(order.total_money) || 0 }}
+            {{ currency(order_edit.total_money) || 0 }}
           </p>
         </div>
         <div class="flex justify-between items-center">
@@ -592,8 +620,11 @@
           <cleave
             class="w-32 outline-none border-b border-black text-end font-medium text-base"
             :options="cleave_options"
-            v-model="order.shipping_fee"
+            v-model="order_edit.shipping_fee"
             @change="calculatorOrder(true)"
+            @input="()=>{
+              if(order_edit.shipping_fee && order_edit.is_freeship) order_edit.is_freeship = false
+            }"
             :readonly="!isAvailablelUpdate('money')"
           />
         </div>
@@ -602,16 +633,18 @@
           <cleave
             class="w-32 outline-none border-b border-black text-end font-medium text-base"
             :options="cleave_options"
-            v-model="order.discount"
+            v-model="order_edit.discount"
             @change="
               () => {
-                order.total_price =
-                  Number(order.price || 0) - Number(order.discount || 0)
-                order.total_money =
-                  Number(order.total_price || 0) +
-                  Number(order.shipping_fee || 0)
-                order.money_unpaid =
-                  Number(order.total_money || 0) - Number(order.money_paid || 0)
+                order_edit.total_price =
+                  Number(order_edit.price || 0) -
+                  Number(order_edit.discount || 0)
+                order_edit.total_money =
+                  Number(order_edit.total_price || 0) +
+                  Number(order_edit.shipping_fee || 0)
+                order_edit.money_unpaid =
+                  Number(order_edit.total_money || 0) -
+                  Number(order_edit.money_paid || 0)
                 updateAnOrder()
               }
             "
@@ -740,7 +773,7 @@
         <div class="grid grid-cols-2">
           <p>- Còn phải thu</p>
           <p class="font-bold text-base text-red-500 text-end">
-            {{ currency(order.money_unpaid) || 0 }}
+            {{ currency(order_edit.money_unpaid) || 0 }}
           </p>
         </div>
       </div>
@@ -752,7 +785,7 @@
         <p class="font-medium">Nhân viên phụ trách</p>
         <div class="grid grid-cols-2 gap-2 mb-2">
           <div
-            v-for="(staff, index) in order.staffs"
+            v-for="(staff, index) in order_edit.staffs"
             v-show="staff.active"
             class="relative"
             :class="{
@@ -856,14 +889,14 @@
             type="text"
             class="w-full flex items-center justify-between py-2.5 px-3 outline-none border rounded-md placeholder:text-slate-500 text-sm"
             placeholder="Ghi chú với khách"
-            v-model="order.note"
+            v-model="order_edit.note"
             :readonly="!isAvailablelUpdate('')"
           />
           <input
             type="text"
             class="w-full flex items-center justify-between py-2.5 px-3 outline-none border rounded-md placeholder:text-slate-500 text-sm"
             placeholder="Ghi chú nội bộ"
-            v-model="order.internal_note"
+            v-model="order_edit.internal_note"
             :readonly="!isAvailablelUpdate('')"
           />
           <!-- <p class="max-h-20 overflow-auto">{{ urlParams }}</p> -->
@@ -871,11 +904,13 @@
       </div>
     </section>
     <div
-      v-if="!order.id && order.order_journey && isAvailablelUpdate('')"
-      class="py-2 border-t"
+      v-if="
+        !order_edit.id && order_edit.order_journey && isAvailablelUpdate('')
+      "
+      class="py-2 border-t sticky bottom-0 bg-white"
     >
       <div
-        v-for="(step, step_index) in order.order_journey"
+        v-for="(step, step_index) in order_edit.order_journey"
         v-show="checkStepActive() === step_index"
         class="flex gap-2 flex-row-reverse"
       >
@@ -894,7 +929,7 @@
     </div>
     <div
       v-else
-      class="p-2 border-t"
+      class="p-2 border-t sticky bottom-0"
     >
       <button
         class="w-full py-2 text-base font-semibold text-white bg-black rounded-md"
@@ -925,6 +960,7 @@ import {
   updateContact,
   createProduct,
   detectAddressV2,
+  getSelectedAddress,
 } from '@/service/api/merchant'
 
 import WIDGET from 'bbh-chatbox-widget-js-sdk'
@@ -961,11 +997,13 @@ import type {
   LocationDetail,
   PaymentMethods,
   OrderLocation,
+  ISelectedAddress,
 } from '@/service/interface'
 import { checkPhone } from '@/service/helper/validate'
-import { PRODUCT_DEFAULT } from '@/service/constant'
+import { INIT_ORDER, PRODUCT_DEFAULT, PROVINCE } from '@/service/constant'
 import Toggle from '@/components/Toggle.vue'
 import CheckCircle from '@/components/icons/CheckCircle.vue'
+import { storeToRefs } from 'pinia'
 
 // const urlParams = new URLSearchParams(window.location.search)
 
@@ -973,65 +1011,22 @@ import CheckCircle from '@/components/icons/CheckCircle.vue'
 const $merchant = useMerchantStore()
 const $appStore = useAppStore()
 
+const { order_edit } = storeToRefs($merchant)
+
 /** Toast */
 const $toast = new Toast()
 
-/** đơn hàng */
-const order = ref<Order>({
-  products: [],
-  quantity: 0,
-  price: 0,
-  discount: 0,
-  vat: 0,
-  total_price: 0,
-  total_money: 0,
-  money_paid: 0,
-  money_back: 0,
-  money_proceeds: 0,
-  money_unpaid: 0,
-  save_in_debt: false,
-  payment_method: '',
-  cashier: '',
-  note: '',
-  status: '',
-  contact_id: $merchant.contact?.identifier_id,
-  contact_info: {},
-  other_costs: [],
-  total_other_costs: 0,
-  images: [],
-  address: !$appStore.is_auto_create ? $merchant.orders?.[0]?.address : '',
-  is_freeship: false,
-  internal_note: '',
-  internal_images: [],
-  created_date: new Date(),
-  custom_fields: {
-    sales_channel: 'online',
-    source: 'Facebook',
-    page_id: $appStore.data_client?.public_profile?.page_id || '',
-    master: '',
-    assistant: '',
-    last_phone: '',
-    customer_name: '',
-    fb_client_id: $appStore.data_client?.public_profile?.fb_client_id || '',
-  },
-  locations: !$appStore.is_auto_create ? JSON.parse(JSON.stringify($merchant.orders?.[0]?.locations || {})) : {},
-  order_journey: $merchant.setting?.online_status || [],
-  staffs: $merchant.setting?.online_staff || [],
-  inventory_quantity: 0,
-})
+const selected_address = ref<ISelectedAddress[]>([])
 
-/** địa chỉ gần nhất */
-const lastest_address = ref<{ address?: string; locations?: OrderLocation }>({
-  address: $merchant.orders?.[0]?.address,
-  locations: $merchant.orders?.[0]?.locations,
-})
+/** đơn hàng */
+// const order = ref<Order>(JSON.parse(JSON.stringify(INIT_ORDER)))
 
 /** hiển thị địa chỉ gần nhất */
 const lastest_address_show = computed(() => {
-  if($appStore.is_auto_create) return ''
+  if ($appStore.is_auto_create || !$merchant.orders?.length) return ''
   let arr = []
-  const LOCATION = lastest_address.value.locations
-  if (lastest_address.value.address) arr.push(lastest_address.value.address)
+  const LOCATION = $merchant.orders?.[0]?.locations
+  if ($merchant.orders?.[0]?.address) arr.push($merchant.orders?.[0]?.address)
 
   if (LOCATION?.ward?.name) arr.push(LOCATION?.ward?.name)
 
@@ -1059,7 +1054,7 @@ const start_search = debounce(() => {
 
 /** Tìm kiếm địa chỉ */
 const search_address = debounce(() => {
-  searchAddress(true)
+  searchAddress()
 }, 500)
 
 /** Danh sách phường xã */
@@ -1087,10 +1082,10 @@ const snap_districts = ref<DistrictData[]>([])
 const payment_method = ref<PaymentMethods>('CASH')
 
 /** Danh sách tỉnh thành */
-const provinces = ref<ProvinceData[]>($merchant.provinces)
+const provinces = ref<ProvinceData[]>(PROVINCE)
 
 /** Dữ liệu danh sách */
-const snap_provinces = ref<ProvinceData[]>($merchant.provinces)
+const snap_provinces = ref<ProvinceData[]>(PROVINCE)
 
 /** Danh sách địa chỉ */
 const addresses = ref<Addresses[]>([])
@@ -1119,19 +1114,12 @@ const district_index = ref<number>(0)
 /** Index của ward */
 const ward_index = ref<number>(0)
 
-/** dữ liệu lấy từ param để tự động tạo đơn */
-const data_auto_create = ref<{
-  phone?: string
-  email?: string
-  address?: string
-}>({})
-
 /** đang gọi api */
 const is_calling_api = ref<boolean>(false)
 
 /** kiểm tra đơn hàng đã điền đủ thông tin chưa */
 const check_order_valid = computed(() => {
-  if (!order.value.products?.length) {
+  if (!order_edit.value.products?.length) {
     return false
   }
   if (customer_name.value === '') {
@@ -1147,20 +1135,16 @@ const check_order_valid = computed(() => {
   return true
 })
 
-// const show_addresses = computed<Addresses[]>(() => {
-//   const TEMP = addresses.value.filter(item => item?.engine !== 'FILTER')
-//   return TEMP
-// })
-
 /** kiểm tra địa chỉ đã điền chưa */
 const check_address = computed(() => {
-  const is_address_valid = !order.value.address
+  return false
+  const is_address_valid = !order_edit.value.address
 
-  const is_province_valid = !order.value.locations?.province?.name
+  const is_province_valid = !order_edit.value.locations?.province?.name
 
-  const is_district_valid = !order.value.locations?.district?.name_with_type
+  const is_district_valid = !order_edit.value.locations?.district?.name_with_type
 
-  const is_ward_valid = !order.value.locations?.ward?.name_with_type
+  const is_ward_valid = !order_edit.value.locations?.ward?.name_with_type
 
   return (
     is_address_valid || is_province_valid || is_district_valid || is_ward_valid
@@ -1176,28 +1160,36 @@ const is_phone_valid = computed(() => {
 })
 
 onMounted(() => {
-  if ($merchant.order_edit.id) {
-    order.value = $merchant.order_edit
-    if (order.value.locations) {
-      search_provice.value = order.value.locations.province?.name || ''
+  console.log($merchant.setting?.online_status)
+
+  if (order_edit.value?.id) {
+    order_edit.value = $merchant.order_edit
+    if (order_edit.value.locations) {
+      search_provice.value = order_edit.value.locations.province?.name || ''
       search_district.value =
-        order.value.locations.district?.name_with_type || ''
-      search_ward.value = order.value.locations.ward?.name_with_type || ''
-      customer_name.value = order.value.custom_fields?.customer_name || ''
-      customer_phone.value = order.value.custom_fields?.last_phone || ''
+        order_edit.value.locations.district?.name_with_type || ''
+      search_ward.value = order_edit.value.locations.ward?.name_with_type || ''
+      customer_name.value = order_edit.value.custom_fields?.customer_name || ''
+      customer_phone.value = order_edit.value.custom_fields?.last_phone || ''
     }
     calculatorOrder()
-    return
+
   }
-  if (!order.value.id) {
-    order.value.order_journey = copy($merchant.setting?.online_status || [])
-    order.value.staffs = $merchant.setting?.online_staff
-    order.value.contact_id = $merchant.contact?.identifier_id
-    order.value.contact_info = $merchant.contact
+  else{
+    console.log($merchant.setting?.online_status);
+
+    order_edit.value.order_journey = copy($merchant.setting?.online_status || [])
+    order_edit.value.staffs = $merchant.setting?.online_staff
+    order_edit.value.contact_id = $merchant.contact?.identifier_id
+    order_edit.value.contact_info = $merchant.contact
+    order_edit.value.address = copy($merchant.orders?.[0]?.address || '')
+    order_edit.value.locations = copy($merchant.orders?.[0]?.locations || {})
   }
 
   //khởi tạo giá trị của các field khi tạo đơn tự động
   initDataParams()
+  getSelectedAddresses()
+  console.log(order_edit.value)
 })
 
 watch(
@@ -1208,8 +1200,35 @@ watch(
   }
 )
 
+watch(
+  () => order_edit.value.is_freeship,
+  (newValue, oldValue) => {
+    if(newValue) order_edit.value.shipping_fee = 0
+    calculatorOrder()
+  },
+  { deep: true }
+)
+
+/** hàm lấy danh sách địa chỉ đã chọn */
+async function getSelectedAddresses() {
+  try {
+    console.log($merchant.contact?.identifier_id);
+
+    if(!$merchant.contact?.identifier_id) return
+
+    selected_address.value = await getSelectedAddress({
+      contact_id: $merchant.contact?.identifier_id,
+    })
+  } catch (error) {
+    $toast.error(error as string)
+  }
+}
+
 /** hàm khởi tạo giá trị của các field khi tạo tự động */
 async function initDataParams() {
+  if (order_edit.value?.id) return
+  customer_name.value =  $appStore.data_client.public_profile?.client_name || ''
+
   // nếu không phải chế độ tạo tự động thì thôi
   if (!$appStore.is_auto_create) return
 
@@ -1218,6 +1237,11 @@ async function initDataParams() {
   // lấy giá trị từ url param
   const email = AI_DATA?.email?.[0]
   const phone = AI_DATA?.phone_number?.[0]
+
+  if(phone) customer_phone.value = phone
+  else customer_phone.value = $appStore.data_client?.conversation_contact?.client_phone || ''
+
+
   const address = AI_DATA?.ctas?.place_order?.address || ''
   /** thành phố */
   const city = AI_DATA?.ctas?.place_order?.city || ''
@@ -1232,19 +1256,12 @@ async function initDataParams() {
 
   const place = AI_DATA?.ctas?.place_order?.place || ''
 
-  //lưu lại
-  data_auto_create.value = {
-    email,
-    phone,
-    address,
-  }
-
   /** tên tỉnh lấy từ chat */
   let city_name = $appStore.data_client?.public_profile?.location?.city
 
   //nếu AI không quét ra thành phố thì lấy thành phố của chatbox
   if (!city && city_name) {
-    $merchant.provinces.forEach(item => {
+    PROVINCE.forEach(item => {
       /** tên tỉnh không dấu */
       const nonAccentVnProvince = nonAccentVn(item.name || '')
       /** tên tỉnh không dấu và không khoảng trắng */
@@ -1260,68 +1277,74 @@ async function initDataParams() {
 
   // nếu có địa chỉ thì tự động điền
   // if (address) {
-    // gán địa chỉ chọn địa chỉ
-    const array = []
+  // gán địa chỉ chọn địa chỉ
+  const array = []
 
-    /** có số nhà và đường và ít nhất 1 trong 3 field tỉnh, quận, phường */
-    if (house_number && street_name && (ward_name || district_name || city)) {
-      array.push(house_number)
-      array.push(street_name)
-      if (ward_name) array.push(ward_name)
-      if (district_name) array.push(district_name)
-      if (city) array.push(city)
+  const house_street = `${house_number} ${street_name}`.trim()
+
+  /** có số nhà và đường và ít nhất 1 trong 3 field tỉnh, quận, phường */
+  if (house_street && (ward_name || district_name || city)) {
+    array.push(house_street)
+    if (ward_name) array.push(ward_name)
+    if (district_name) array.push(district_name)
+    if (city) array.push(city)
+  }
+
+  console.log(array)
+
+  /** có place và it nhất 1 trong 3 field tỉnh, quận, phường */
+  if (!array.length && place && (ward_name || district_name || city)) {
+    array.push(place)
+    if (ward_name) array.push(ward_name)
+    if (district_name) array.push(district_name)
+    if (city) array.push(city)
+  }
+
+  /** chỉ có đường hoặc place */
+  if (!array.length && (house_street || place || address)) {
+    array.push(address)
+  }
+
+  console.log(array)
+
+  if (array.length) {
+    order_edit.value.address = array.join(', ')
+  }
+
+  if (!order_edit.value.address) return
+
+  // tìm kiếm địa chỉ
+  await searchAddress(true)
+
+  if (addresses.value?.[0]?.engine === 'FILTER' && order_edit.value.locations) {
+    if (addresses.value?.[0]?.address) {
+      order_edit.value.address = addresses.value?.[0]?.address
+    }
+    if (addresses.value?.[0]?.province) {
+      order_edit.value.locations.province = addresses.value?.[0]?.province
+    }
+    if (addresses.value?.[0]?.district) {
+      order_edit.value.locations.district = addresses.value?.[0]?.district
+    }
+    if (addresses.value?.[0]?.ward) {
+      order_edit.value.locations.ward = addresses.value?.[0]?.ward
     }
 
-    console.log(array)
+    // tắt tự động tạo từ lần thứ 2 trở đi
+    $appStore.is_auto_create = false
 
-    /** có place và it nhất 1 trong 3 field tỉnh, quận, phường */
-    if (!array.length && place && (ward_name || district_name || city)) {
-      array.push(place)
-      if (ward_name) array.push(ward_name)
-      if (district_name) array.push(district_name)
-      if (city) array.push(city)
-    }
+    return
+  }
 
-    /** chỉ có đường hoặc place */
-    if (!array.length && (street_name || place || address)) {
-      array.push(address)
-    }
+  console.log(ward_name, district_name, street_name)
 
-    console.log(array)
-
-    if (array.length) order.value.address = array.join(', ')
-
-    if(!order.value.address) return
-
-    // tìm kiếm địa chỉ
-    await searchAddress()
-
-    if(addresses.value?.[0]?.engine === 'FILTER' && order.value.locations){
-      if(addresses.value?.[0]?.address){
-        order.value.address = addresses.value?.[0]?.address
-      }
-      if(addresses.value?.[0]?.province){
-        order.value.locations.province = addresses.value?.[0]?.province
-      }
-      if(addresses.value?.[0]?.district){
-        order.value.locations.district = addresses.value?.[0]?.district
-      }
-      if(addresses.value?.[0]?.ward){
-        order.value.locations.ward = addresses.value?.[0]?.ward
-      }
-      return 
-    }
-
-    console.log(ward_name,district_name,street_name);
-    
-
-    // chọn địa chỉ
-    if ((ward_name || district_name) && street_name) {
-      getDetailLocation(addresses.value[0])
-    } else {
-      focusInput('address-input')
-    }
-    // order.value.address = address
+  // chọn địa chỉ
+  if ((ward_name || district_name) && house_street) {
+    getDetailLocation(addresses.value[0])
+  } else {
+    focusInput('address-input')
+  }
+  // order.value.address = address
   // }
 
   // tắt tự động tạo từ lần thứ 2 trở đi
@@ -1369,9 +1392,7 @@ function selectPayment(value: PaymentMethods) {
 
 /** Lấy ra tên khách hàng */
 function getContactName() {
-  return `${$merchant.contact?.first_name || ''} ${
-    $merchant.contact?.last_name || ''
-  }`
+  return `${$appStore.data_client.public_profile?.client_name || ''}`
 }
 
 /** Lấy ra sdt của contact */
@@ -1389,9 +1410,9 @@ async function selectProvince(item: ProvinceData) {
   search_provice.value = item.name || ''
   search_district.value = ''
   search_ward.value = ''
-  if (order.value.locations) order.value.locations.province = item
-  if (order.value.locations) order.value.locations.district = {}
-  if (order.value.locations) order.value.locations.ward = {}
+  if (order_edit.value.locations) order_edit.value.locations.province = item
+  if (order_edit.value.locations) order_edit.value.locations.district = {}
+  if (order_edit.value.locations) order_edit.value.locations.ward = {}
   districts.value = await getDistrict({
     province_id: item.code,
   })
@@ -1404,8 +1425,8 @@ async function selectDistrict(item: DistrictData) {
   show_dropbox.value = false
   search_district.value = item.name_with_type || ''
   search_ward.value = ''
-  if (order.value.locations) order.value.locations.district = item
-  if (order.value.locations) order.value.locations.ward = {}
+  if (order_edit.value.locations) order_edit.value.locations.district = item
+  if (order_edit.value.locations) order_edit.value.locations.ward = {}
   wards.value = await getWard({
     district_id: item.code,
   })
@@ -1417,7 +1438,7 @@ async function selectDistrict(item: DistrictData) {
 function selectWard(item: WardData) {
   show_dropbox.value = false
   search_ward.value = item.name_with_type || ''
-  if (order.value.locations) order.value.locations.ward = item
+  if (order_edit.value.locations) order_edit.value.locations.ward = item
   focusInput('product-input')
   product_index.value = 0
 }
@@ -1436,9 +1457,9 @@ async function loadProduct() {
 }
 
 function addProduct() {
-  if (!order.value.products) return
-  order.value.products = [
-    ...order.value.products,
+  if (!order_edit.value.products) return
+  order_edit.value.products = [
+    ...order_edit.value.products,
     JSON.parse(JSON.stringify(PRODUCT_DEFAULT)),
   ]
 }
@@ -1448,8 +1469,8 @@ function selectProduct(item: Product, still_show_box?: boolean) {
   // if (!isAvailablelUpdate("product")) return (show_dropbox.value = false);
 
   /** Cập nhật số lượng sản phẩm */
-  if (order.value.products?.some(i => i.product_id === item.product_id)) {
-    order.value.products = order.value.products.map(product => {
+  if (order_edit.value.products?.some(i => i.product_id === item.product_id)) {
+    order_edit.value.products = order_edit.value.products.map(product => {
       if (
         product.product_id === item.product_id &&
         product.quantity &&
@@ -1461,7 +1482,7 @@ function selectProduct(item: Product, still_show_box?: boolean) {
     })
   } else {
     /** Thêm sản phẩm vào order */
-    order.value.products?.push({
+    order_edit.value.products?.push({
       product_id: item.product_id,
       product_name: item.name,
       images: item.images,
@@ -1504,7 +1525,7 @@ function selectProduct(item: Product, still_show_box?: boolean) {
 
 /** Loại bỏ sản phẩm khỏi order */
 function removeProduct(index: number) {
-  order.value.products = order.value.products?.filter((item, i) => {
+  order_edit.value.products = order_edit.value.products?.filter((item, i) => {
     return i !== index
   })
   calculatorOrder()
@@ -1526,10 +1547,10 @@ function calculatorOrder(is_update_order?: boolean) {
   let inventory_quantity = 0
 
   /** Mảng sản phẩm trong đơn hàng */
-  const products = order.value.products || []
+  const products = order_edit.value.products || []
 
   /** Tính toán số lượng và giá từng loại sản phẩm */
-  order.value.products = products.map(item => {
+  order_edit.value.products = products.map(item => {
     /** Tính phần trăng thuế */
     let percent_vat = Number(item.vat) / 100
 
@@ -1618,34 +1639,34 @@ function calculatorOrder(is_update_order?: boolean) {
     return item
   })
 
-  order.value.quantity = quantity
-  order.value.price = price
-  order.value.vat = vat
-  order.value.discount = discount
-  order.value.total_price = price + vat - discount
-  order.value.inventory_quantity = inventory_quantity
-  if (order.value.custom_fields) {
-    order.value.custom_fields['products_price'] = product_price
+  order_edit.value.quantity = quantity
+  order_edit.value.price = price
+  order_edit.value.vat = vat
+  order_edit.value.discount = discount
+  order_edit.value.total_price = price + vat - discount
+  order_edit.value.inventory_quantity = inventory_quantity
+  if (order_edit.value.custom_fields) {
+    order_edit.value.custom_fields['products_price'] = product_price
   }
 
   let total_other_costs = 0
 
   // * Tính tổng chi phí khác
-  order.value.other_costs?.map(item => {
+  order_edit.value.other_costs?.map(item => {
     total_other_costs += Number(item.value)
   })
 
-  order.value.total_other_costs = total_other_costs
+  order_edit.value.total_other_costs = total_other_costs
 
   // * Tính tổng tiền khách cần trả
-  order.value.total_money =
-    Number(order.value.total_price) +
-    Number(order.value.total_other_costs) +
-    Number(order.value.shipping_fee || 0)
+  order_edit.value.total_money =
+    Number(order_edit.value.total_price) +
+    Number(order_edit.value.total_other_costs) +
+    Number(order_edit.value.shipping_fee || 0)
 
   // * Tính số tiền còn phải trả
-  order.value.money_unpaid =
-    Math.round(Number(order.value.total_money)) - Number(order.value.money_paid)
+  order_edit.value.money_unpaid =
+    Math.round(Number(order_edit.value.total_money)) - Number(order_edit.value.money_paid)
 
   if (is_update_order) updateAnOrder()
 }
@@ -1653,8 +1674,10 @@ function calculatorOrder(is_update_order?: boolean) {
 /** Tạo đơn hàng */
 async function createNewOrder(status?: string) {
   try {
+    console.log(order_edit.value);
+
     if (!checkOrderValid()) return
-    if (!order.value.contact_id) {
+    if (!order_edit.value.contact_id) {
       return $toast.error('Vui lòng chọn khách hàng trước khi tạo đơn hàng')
     }
     // * Check địa chỉ
@@ -1677,11 +1700,12 @@ async function createNewOrder(status?: string) {
     await createNewProduct()
 
     let new_order = await createOrder({
-      ...formatOrderData(order.value),
+      ...formatOrderData(order_edit.value),
       status: status ? status : 'DRART_ORDER',
       chatbox_widget_token: WIDGET?.access_token,
+      assigned_employee: $appStore.data_client?.conversation_staff?.user_id,
     })
-    order.value = new_order
+    order_edit.value = new_order
     /** Lưu lại đơn mới vào store */
     $merchant.saveOrders([new_order, ...$merchant.orders])
     $toast.success('Tạo đơn hàng thành công')
@@ -1694,16 +1718,16 @@ async function createNewOrder(status?: string) {
 /** tạo các sản phẩm mới */
 async function createNewProduct() {
   try {
-    if (!order.value.products) return
-    for (let index = 0; index < order.value.products.length; index++) {
-      const element = order.value.products[index]
+    if (!order_edit.value.products) return
+    for (let index = 0; index < order_edit.value.products.length; index++) {
+      const element = order_edit.value.products[index]
       if (element.product_id) continue
       const res = await createProduct({
         ...element,
         name: element.product_name,
         price: Number(element.price),
       })
-      order.value.products[index] = {
+      order_edit.value.products[index] = {
         ...element,
         product_id: res?.product_id,
         inventory_quantity: res?.inventory_quantity || 0,
@@ -1719,14 +1743,14 @@ async function createNewProduct() {
 /** Cập nhật order */
 async function updateAnOrder(status?: string) {
   // * Nếu order chưa có id thì dừng lại
-  if (!order.value.id) return
+  if (!order_edit.value.id) return
 
   // * Nếu có trạng thái truyền vào thì cho thay đổi status order
-  if (status) order.value.status = status
+  if (status) order_edit.value.status = status
 
   try {
     if (!checkOrderValid()) return
-    await updateOrder(formatOrderData(order.value))
+    await updateOrder(formatOrderData(order_edit.value))
   } catch (e) {
     $toast.error(e as string)
   }
@@ -1736,13 +1760,13 @@ async function updateAnOrder(status?: string) {
 function isAvailablelUpdate(
   type: 'product' | 'customer' | 'money' | 'address' | ''
 ) {
-  if (order.value.is_archived) return false
+  if (order_edit.value.is_archived) return false
 
   // * Nếu là đơn hàng đang tạo thì không cần check
-  if (!order.value.order_id) return true
+  if (!order_edit.value.order_id) return true
 
   // * Các trường hợp được update sản phẩm
-  switch (order.value.status) {
+  switch (order_edit.value.status) {
     case 'DRART_ORDER':
       if (type === 'product') return true
       if (type === 'customer') return true
@@ -1850,7 +1874,7 @@ function getStaffName(staff: EmployeeData) {
 
 /** Bỏ chọn nhân viên */
 function unSelectEmployee(index: number) {
-  let staffs = order.value.staffs || []
+  let staffs = order_edit.value.staffs || []
   if (staffs[index]) {
     staffs[index] = {
       ...staffs[index],
@@ -1860,21 +1884,21 @@ function unSelectEmployee(index: number) {
       employee_id: '',
       user_id: '',
     }
-    order.value.staffs = staffs
+    order_edit.value.staffs = staffs
   }
   show_dropbox.value = false
 }
 
 /** Chọn nhân viên */
 function selectEmployee(employee: EmployeeData, index: number) {
-  let staffs = order.value.staffs || []
+  let staffs = order_edit.value.staffs || []
   if (staffs[index]) {
     staffs[index] = {
       ...staffs[index],
       ...pick(employee, ['branch_id', 'business_id', 'team_id', 'user_id']),
       employee_id: employee?._id || '',
     }
-    order.value.staffs = staffs
+    order_edit.value.staffs = staffs
   }
   show_dropbox.value = false
 }
@@ -1883,7 +1907,7 @@ function selectEmployee(employee: EmployeeData, index: number) {
 function checkOrderValid() {
   alert_validate.value = true
   // * Kiểm tra sản phẩm
-  if (!order.value.products?.length) {
+  if (!order_edit.value.products?.length) {
     $toast.error('Vui lòng chọn sản phẩm trước khi tạo đơn hàng')
     scrollToElement('product-input')
     return false
@@ -1931,14 +1955,17 @@ function formatOrderData(order: Order) {
 // * Check xem trạng thái đơn hàng nào đang được kích hoạt
 function checkStepActive() {
   let result
-  const order_journey = order.value?.order_journey || []
+  const order_journey = order_edit.value?.order_journey || []
   order_journey.map((step, index_step) => {
     step.map(status => {
       if (status.is_active) result = index_step
     })
   })
   if (!result && result !== 0) return 0
-  return result + 1
+
+  console.log(result);
+
+  return result
 }
 
 /** Kích hoạt step tiếp theo */
@@ -1952,7 +1979,7 @@ async function activeStep(
     if (!checkOrderValid()) return
     /** Kích hoạt 1 bước trong hành trình đơn hàng */
     function activeStatus() {
-      order.value.order_journey?.map((step, index_step) => {
+      order_edit.value.order_journey?.map((step, index_step) => {
         step.map((status, index_status) => {
           if (index_step === step_index && index_status === status_index) {
             status.is_active = true
@@ -1969,8 +1996,8 @@ async function activeStep(
     //   throw 'Số điện thoại không hợp lệ'
     // }
 
-    order.value.custom_fields = {
-      ...order.value.custom_fields,
+    order_edit.value.custom_fields = {
+      ...order_edit.value.custom_fields,
       customer_name: customer_name.value,
       last_phone: customer_phone.value,
     }
@@ -1983,9 +2010,10 @@ async function activeStep(
 
     // * Tạo đơn nháp
     if (action === 'DRART_ORDER') {
+      console.log(order_edit.value)
       if (
-        order.value.custom_fields?.sales_channel === 'online' &&
-        !order.value.contact_id
+        order_edit.value.custom_fields?.sales_channel === 'online' &&
+        !order_edit.value.contact_id
       ) {
         return $toast.error('Vui lòng chọn khách hàng trước khi tạo đơn hàng')
       }
@@ -2021,7 +2049,7 @@ async function activeStep(
 
     // * Xác nhận xuất kho hàng
     if (action === 'INVENTORY_EXPORT') {
-      order.value.is_inventory_export = true
+      order_edit.value.is_inventory_export = true
       activeStatus()
       updateAnOrder('INVENTORY_EXPORT')
     }
@@ -2029,7 +2057,7 @@ async function activeStep(
     // * Xác nhận nhập kho hàng
     if (action === 'INVENTORY_IMPORT') {
       // * Nếu token chưa được xuất kho thì thông báo lỗi
-      if (!order.value.is_inventory_export) {
+      if (!order_edit.value.is_inventory_export) {
         return $toast.error('Đơn hàng chưa được xuất kho')
       }
 
@@ -2078,24 +2106,43 @@ async function activeStep(
 }
 
 /** Tìm kiếm địa chỉ */
-async function searchAddress(is_remove_engine_filter: boolean = false) {
+async function searchAddress(is_auto_create: boolean = false) {
   // addresses.value = await detectAddress({
   //   address: order.value.address,
   // })
-  const res:Addresses[] = await detectAddressV2({
-    address: order.value.address,
-  })
-  if(is_remove_engine_filter) {
-    addresses.value = res?.filter(item => item?.engine !== 'FILTER')
-    return
+  if (is_auto_create) {
+    order_edit.value.full_address = JSON.parse(
+      JSON.stringify($appStore.data_client?.public_profile?.ai?.[0]?.note)
+    )
+  } else {
+    order_edit.value.full_address = JSON.parse(JSON.stringify(order_edit.value.address))
   }
-  addresses.value = res
+  addresses.value = await detectAddressV2({
+    address: order_edit.value.address,
+  })
 }
 
 /** Chọn địa chỉ */
 async function getDetailLocation(address: Addresses) {
+  if (address?.engine === 'FILTER' && order_edit.value.locations) {
+    if (address?.address) {
+      order_edit.value.address = address?.address
+    }
+    if (address?.province) {
+      order_edit.value.locations.province = address?.province
+    }
+    if (address?.district) {
+      order_edit.value.locations.district = address?.district
+    }
+    if (address?.ward) {
+      order_edit.value.locations.ward = address?.ward
+    }
+    focusInput('product-input')
+    return
+  }
+
   /** Gán địa chỉ */
-  order.value.address = address.address_name?.split(' - ')?.[0]
+  order_edit.value.address = address.address_name?.split(' - ')?.[0]
 
   // * Tắt dropbox
   show_dropbox.value = false
@@ -2110,17 +2157,17 @@ async function getDetailLocation(address: Addresses) {
   })) as LocationDetail
 
   // * Gán dữ liệu loction
-  if (order.value.locations) {
+  if (order_edit.value.locations) {
     // * Lưu dữ liệu tỉnh thành
     provinces.value.map(item => {
-      if (item.code === location_detail.province?.id && order.value.locations) {
-        order.value.locations.province = item
+      if (item.code === location_detail.province?.id && order_edit.value.locations) {
+        order_edit.value.locations.province = item
         search_provice.value = item.name || ''
       }
     })
 
     // * Lưu dữ liệu quận huyện
-    order.value.locations.district = {
+    order_edit.value.locations.district = {
       code: location_detail.district?.id,
       name: location_detail.district?.name,
       name_with_type: location_detail.district?.name,
@@ -2128,19 +2175,19 @@ async function getDetailLocation(address: Addresses) {
     search_district.value = location_detail.district?.name || ''
 
     // * Lưu dữ liệu phường xã
-    order.value.locations.ward = {
+    order_edit.value.locations.ward = {
       code: location_detail.ward?.id,
       name: location_detail.ward?.name,
       name_with_type: location_detail.ward?.name,
     }
     search_ward.value = location_detail.ward?.name || ''
 
-    order.value.locations.street = {
+    order_edit.value.locations.street = {
       code: location_detail.street?.id,
       name: location_detail.street?.name,
     }
 
-    order.value.locations.house_number = {
+    order_edit.value.locations.house_number = {
       code: location_detail.house_number?.id,
       name: location_detail.house_number?.name,
     }
@@ -2199,27 +2246,27 @@ function searchLocation(type: 'province' | 'district' | 'ward') {
 
 /** Xóa location */
 function removeLocation(type: 'province' | 'district' | 'ward' | 'all') {
-  if (order.value.locations?.province && type === 'province') {
-    order.value.locations.province = {}
-    order.value.locations.district = {}
-    order.value.locations.ward = {}
+  if (order_edit.value.locations?.province && type === 'province') {
+    order_edit.value.locations.province = {}
+    order_edit.value.locations.district = {}
+    order_edit.value.locations.ward = {}
     search_district.value = ''
     search_ward.value = ''
     focusInput('province-input')
   }
-  if (order.value.locations?.district && type === 'district') {
-    order.value.locations.district = {}
-    order.value.locations.ward = {}
+  if (order_edit.value.locations?.district && type === 'district') {
+    order_edit.value.locations.district = {}
+    order_edit.value.locations.ward = {}
     search_ward.value = ''
     focusInput('district-input')
   }
-  if (order.value.locations?.ward && type === 'ward') {
-    order.value.locations.ward = {}
+  if (order_edit.value.locations?.ward && type === 'ward') {
+    order_edit.value.locations.ward = {}
     focusInput('ward-input')
   }
   if (type === 'all') {
-    order.value.address = ''
-    order.value.locations = {
+    order_edit.value.address = ''
+    order_edit.value.locations = {
       province: {},
       district: {},
       ward: {},
@@ -2386,4 +2433,6 @@ function linkToProductApp() {
     '_blank'
   )
 }
+
+defineExpose({ initDataParams })
 </script>
