@@ -1,13 +1,9 @@
 <template>
-  <article
-    class="px-3 text-sm flex flex-col gap-2 h-dvh"
-  >
+  <article class="px-3 text-sm flex flex-col gap-2 h-dvh">
     <div
       class="flex gap-1 w-full flex-shrink-0 items-center sticky top-0 z-10 pt-1 bg-white"
     >
-      <Header
-        class="w-full"
-      />
+      <Header class="w-full" />
       <img
         v-tooltip="'Cài đặt'"
         v-if="WIDGET.is_admin"
@@ -81,12 +77,12 @@ const create_order = ref<InstanceType<typeof CreateOrder>>()
 // lắng nghe sự kiện từ chatbox
 WIDGET.onEvent(async () => {
   // load()
-  if( current_tab.value !== 'ORDERS'){
+  if (current_tab.value !== 'ORDERS') {
     order_edit.value = copy(INIT_ORDER)
     order_edit.value.order_journey = copy(
       merchantStore.setting?.online_status || []
     )
-    create_order.value?.removeLocation('all',false)
+    create_order.value?.removeLocation('all', false)
   }
   loadV2()
 })
@@ -237,7 +233,6 @@ async function loadV2() {
 
     // * Lưu lại danh sách nhân viên
     merchantStore.saveEmployees(employees.data)
-
   } catch {}
 }
 
@@ -249,16 +244,15 @@ async function getDataMerchant() {
     })
     if (!data.data) return
     merchantStore.orders = data.data?.orders
-    if(merchantStore.orders[0] && merchantStore.orders[0].id) {
-    merchantStore.saveShowOrderId(merchantStore.orders[0].id)
-  }
+    if (merchantStore.orders[0] && merchantStore.orders[0].id) {
+      merchantStore.saveShowOrderId(merchantStore.orders[0].id)
+    }
 
     commonStore.token_business = data.data?.access_token
     const setting = data.data?.setting
     merchantStore.saveSetting(setting)
     merchantStore.order_edit.order_journey = setting?.online_status || []
     merchantStore.order_edit.staffs = setting?.online_staff || []
-
   } catch (error) {
     throw error
   }
@@ -266,7 +260,6 @@ async function getDataMerchant() {
 
 async function getDataChatbox() {
   try {
-
     const partner_token = queryString('partner_token')
     const client_id = queryString('client_id')
     const message_id = queryString('message_id')
@@ -279,10 +272,9 @@ async function getDataChatbox() {
     // })
     const data = await WIDGET.getClientInfo()
 
-    if(!data) return
+    if (!data) return
 
-    console.log('data', data);
-    
+    console.log('data', data)
 
     merchantStore.order_edit.custom_fields = {
       ...merchantStore.order_edit.custom_fields,
@@ -290,8 +282,7 @@ async function getDataChatbox() {
       fb_client_id: data.public_profile?.fb_client_id || '',
     }
 
-    console.log('aaaaaaaaaa',merchantStore.order_edit.custom_fields);
-    
+    console.log('aaaaaaaaaa', merchantStore.order_edit.custom_fields)
 
     appStore.data_client = data
 
