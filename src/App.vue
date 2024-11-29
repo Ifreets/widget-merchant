@@ -5,7 +5,7 @@
       type="FULL"
     /> -->
     <LoadingBar />
-    <div class="h-full overflow-hidden overflow-y-auto">
+    <div class="h-full overflow-hidden">
       <router-view />
     </div>
     <Color />

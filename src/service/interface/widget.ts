@@ -316,7 +316,7 @@ export interface ICustomerInfo extends CustomerInfo {
     /** thông tin người dùng fb */
     fb_user_info?: FbUserInfo
     /** data ai */
-    ai?: IDataAI[]
+    ai: IDataAI[]
 
     message_text?: string
   }

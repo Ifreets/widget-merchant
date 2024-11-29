@@ -1,5 +1,6 @@
 /** Dữ liệu tỉnh thành */
 export interface ProvinceData {
+    id?:string
     name?: string,
     slug?: string,
     type?: string,
@@ -10,6 +11,7 @@ export interface ProvinceData {
 
 /** Dữ liệu quận huyện */
 export interface DistrictData {
+    id?:string
     name?: string,
     type?: string,
     slug?: string,
@@ -23,6 +25,7 @@ export interface DistrictData {
 
 /** Dữ liệu xã phường */
 export interface WardData {
+    id?:string
     name?: string,
     type?: string,
     slug?: string,

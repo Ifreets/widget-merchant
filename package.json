@@ -20,7 +20,7 @@
     "async": "^3.2.4",
     "autoprefixer": "^10.4.13",
     "axios": "^1.7.2",
-    "bbh-chatbox-widget-js-sdk": "^1.0.5",
+    "bbh-chatbox-widget-js-sdk": "^1.0.6",
     "date-fns": "^3.6.0",
     "floating-vue": "^5.2.2",
     "i": "^0.3.7",

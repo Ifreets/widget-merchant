@@ -1,6 +1,6 @@
 <template>
-  <article class="h-full flex flex-col">
-    <section class="h-full flex flex-col gap-2">
+  <article class="h-full flex flex-col overflow-auto scrollbar-thin">
+    <section class="h-max flex flex-col gap-2">
       <!-- Hành trình đơn hàng -->
       <!-- <OrderJourney :order="order" /> -->
       <!-- Thông tin đơn hàng -->
@@ -133,7 +133,11 @@
                   </div>
                 </template>
                 <div
-                  v-if="$merchant.orders?.length && !order_edit.id"
+                  v-if="
+                    $merchant.orders?.length &&
+                    !order_edit.id &&
+                    lastest_address_show
+                  "
                   class="px-3 py-1.5 hover:bg-slate-100 rounded-md w-full flex gap-2"
                   @click="
                     () => {
@@ -238,10 +242,7 @@
                   type="text"
                   id="district-input"
                   v-model="search_district"
-                  :placeholder="
-                    get(order_edit, 'locations.district.name_with_type') ||
-                    `Quận, huyện`
-                  "
+                  :placeholder="getDistrictName() || `Quận, huyện`"
                   @focusin="
                     () => {
                       search_district = ''
@@ -250,9 +251,7 @@
                   "
                   @focusout="
                     () => {
-                      search_district =
-                        get(order_edit, 'locations.district.name_with_type') ||
-                        ''
+                      search_district = getDistrictName() || ''
                     }
                   "
                   @input="searchLocation('district')"
@@ -263,24 +262,19 @@
                   class="w-full flex items-center justify-between p-2 border rounded-md"
                   :class="{
                     'border-red-500':
-                      !get(order_edit, 'locations.district.name_with_type') &&
-                      alert_validate &&
-                      check_address,
-                    'placeholder:text-black': get(
-                      order_edit,
-                      'locations.district.name_with_type'
-                    ),
+                      !getDistrictName() && alert_validate && check_address,
+                    'placeholder:text-black': getDistrictName(),
                   }"
                 />
                 <ArrowIcon
                   class="text-gray-500 absolute right-3"
-                  v-show="!get(order_edit, 'locations.district.name_with_type')"
+                  v-show="!getDistrictName()"
                 />
                 <img
                   :src="DeleteIcon"
                   @click="removeLocation('district')"
                   class="absolute right-3 w-2 cursor-pointer"
-                  v-show="get(order_edit, 'locations.district.name_with_type')"
+                  v-show="getDistrictName()"
                   v-if="isAvailablelUpdate('address')"
                 />
               </div>
@@ -932,7 +926,7 @@
     </div>
     <div
       v-else
-      class="p-2 border-t sticky bottom-0"
+      class="p-2 border-t sticky bottom-0 bg-white"
     >
       <button
         class="w-full py-2 text-base font-semibold text-white bg-black rounded-md"
@@ -968,7 +962,7 @@ import {
 
 import WIDGET from 'bbh-chatbox-widget-js-sdk'
 import { ref, onMounted, computed, watch } from 'vue'
-import { get, isNumber, pick, debounce, isEmpty } from 'lodash'
+import { get, isNumber, pick, debounce, isEmpty, add } from 'lodash'
 
 // * Components
 import cleave from 'vue-cleave-component'
@@ -1682,7 +1676,7 @@ function calculatorOrder(is_update_order?: boolean) {
 /** Tạo đơn hàng */
 async function createNewOrder(status?: string) {
   try {
-    console.log(order_edit.value)
+    removeFullAddress()
 
     if (!checkOrderValid()) return
     if (!order_edit.value.contact_id) {
@@ -1750,6 +1744,8 @@ async function createNewProduct() {
 
 /** Cập nhật order */
 async function updateAnOrder(status?: string) {
+  removeFullAddress()
+
   // * Nếu order chưa có id thì dừng lại
   if (!order_edit.value.id) return
 
@@ -1925,6 +1921,7 @@ function checkOrderValid() {
     scrollToElement('customer-name-input')
     return false
   }
+
   // if (customer_phone.value === '') {
   //   $toast.error('Vui lòng nhập số điện thoại trước khi tạo đơn hàng')
   //   scrollToElement('phone-input')
@@ -2143,93 +2140,108 @@ async function searchAddress(is_auto_create: boolean = false) {
 
 /** Chọn địa chỉ */
 async function getDetailLocation(address: Addresses) {
-  if (address?.engine === 'FILTER' && order_edit.value.locations) {
-    if (address?.address) {
-      order_edit.value.address = address?.address
-    }
-    if (address?.province) {
-      order_edit.value.locations.province = address?.province
-    }
-    if (address?.district) {
-      order_edit.value.locations.district = address?.district
-    }
-    if (address?.ward) {
-      order_edit.value.locations.ward = address?.ward
-    }
-    focusInput('product-input')
-    return
-  }
-
-  /** Gán địa chỉ */
-  order_edit.value.address = address.address_name?.split(' - ')?.[0]
-
-  // * Tắt dropbox
-  show_dropbox.value = false
-
-  // * Focus vào input tìm kiếm sản phẩm
-  focusInput('product-input')
-
-  /** Lấy dữ liệu chi tiết */
-  let location_detail = (await getAddress({
-    address_id: address.address_id,
-    address_name: address.address_name,
-  })) as LocationDetail
-
-  // * Gán dữ liệu loction
-  if (order_edit.value.locations) {
-    // * Lưu dữ liệu tỉnh thành
-    provinces.value.map(item => {
-      if (
-        item.code === location_detail.province?.id &&
-        order_edit.value.locations
-      ) {
-        order_edit.value.locations.province = item
-        search_provice.value = item.name || ''
+  try {
+    if (address?.engine && order_edit.value.locations) {
+      if (address?.address) {
+        order_edit.value.address = address?.address
       }
-    })
-
-    // * Lưu dữ liệu quận huyện
-    order_edit.value.locations.district = {
-      code: location_detail.district?.id,
-      name: location_detail.district?.name,
-      name_with_type: location_detail.district?.name,
+      if (address?.province) {
+        order_edit.value.locations.province = address?.province
+        const CODE = Number(address.province?.id) ? address.province?.id : address.province?.code
+        districts.value = await getDistrict({
+          province_id: CODE,
+        })
+        snap_districts.value = districts.value
+      }
+      if (address?.district) {
+        order_edit.value.locations.district = address?.district
+        const CODE = Number(address.district?.id) ? address.district?.id : address.district?.code
+        wards.value = await getWard({
+          district_id: CODE,
+        })
+        snap_wards.value = wards.value
+        
+      }
+      if (address?.ward) {
+        order_edit.value.locations.ward = address?.ward
+      }
+      focusInput('product-input')
+      return
     }
-    search_district.value = location_detail.district?.name || ''
 
-    // * Lưu dữ liệu phường xã
-    order_edit.value.locations.ward = {
-      code: location_detail.ward?.id,
-      name: location_detail.ward?.name,
-      name_with_type: location_detail.ward?.name,
-    }
-    search_ward.value = location_detail.ward?.name || ''
+    /** Gán địa chỉ */
+    order_edit.value.address = address.address_name?.split(' - ')?.[0]
 
-    order_edit.value.locations.street = {
-      code: location_detail.street?.id,
-      name: location_detail.street?.name,
+    // * Tắt dropbox
+    show_dropbox.value = false
+
+    // * Focus vào input tìm kiếm sản phẩm
+    focusInput('product-input')
+
+    /** Lấy dữ liệu chi tiết */
+    let location_detail = (await getAddress({
+      address_id: address.address_id,
+      address_name: address.address_name,
+    })) as LocationDetail
+
+    // * Gán dữ liệu loction
+    if (order_edit.value.locations) {
+      // * Lưu dữ liệu tỉnh thành
+      provinces.value.map(item => {
+        if (
+          item.code === location_detail.province?.id &&
+          order_edit.value.locations
+        ) {
+          order_edit.value.locations.province = item
+          search_provice.value = item.name || ''
+        }
+      })
+
+      // * Lưu dữ liệu quận huyện
+      order_edit.value.locations.district = {
+        code: location_detail.district?.id,
+        name: location_detail.district?.name,
+        name_with_type: location_detail.district?.name,
+      }
+      search_district.value = location_detail.district?.name || ''
+
+      // * Lưu dữ liệu phường xã
+      order_edit.value.locations.ward = {
+        code: location_detail.ward?.id,
+        name: location_detail.ward?.name,
+        name_with_type: location_detail.ward?.name,
+      }
+      search_ward.value = location_detail.ward?.name || ''
+
+      order_edit.value.locations.street = {
+        code: location_detail.street?.id,
+        name: location_detail.street?.name,
+      }
+
+      order_edit.value.locations.house_number = {
+        code: location_detail.house_number?.id,
+        name: location_detail.house_number?.name,
+      }
     }
 
-    order_edit.value.locations.house_number = {
-      code: location_detail.house_number?.id,
-      name: location_detail.house_number?.name,
+    // * Lấy thêm thông tin quận huyện
+    if (location_detail.province?.id) {
+      districts.value = await getDistrict({
+        province_id: location_detail.province?.id,
+      })
+      snap_districts.value = districts.value
     }
+    // * Lấy thêm thông tin phường xã
+    if (location_detail.district?.id) {
+      wards.value = await getWard({
+        district_id: location_detail.district?.id,
+      })
+      snap_wards.value = wards.value
+    }
+    product_index.value = 0
+  } catch (error) {
+    $toast.error(error as string)
   }
-
-  // * Lấy thêm thông tin quận huyện
-  if (location_detail.province?.id) {
-    districts.value = await getDistrict({
-      province_id: location_detail.province?.id,
-    })
-    snap_districts.value = districts.value
-  }
-  // * Lấy thêm thông tin phường xã
-  if (location_detail.district?.id) {
-    wards.value = await getWard({
-      district_id: location_detail.district?.id,
-    })
-    snap_wards.value = wards.value
-  }
-  product_index.value = 0
 }
 
 /** Tìm kiếm location */
@@ -2266,25 +2278,34 @@ function searchLocation(type: 'province' | 'district' | 'ward') {
   }
 }
 
-/** Xóa location */
-function removeLocation(type: 'province' | 'district' | 'ward' | 'all') {
+/** Xóa location
+ * @param type 'province': Xóa tỉnh,Thành phố
+ * @param type 'district': Xóa quận huyện
+ * @param type 'ward': Xóa phường xã
+ * @param type 'all': Xóa toàn bộ
+ * @param focus: Focus vào input
+ */
+function removeLocation(
+  type: 'province' | 'district' | 'ward' | 'all',
+  focus: boolean = true
+) {
   if (order_edit.value.locations?.province && type === 'province') {
     order_edit.value.locations.province = {}
     order_edit.value.locations.district = {}
     order_edit.value.locations.ward = {}
     search_district.value = ''
     search_ward.value = ''
-    focusInput('province-input')
+    if (focus) focusInput('province-input')
   }
   if (order_edit.value.locations?.district && type === 'district') {
     order_edit.value.locations.district = {}
     order_edit.value.locations.ward = {}
     search_ward.value = ''
-    focusInput('district-input')
+    if (focus) focusInput('district-input')
   }
   if (order_edit.value.locations?.ward && type === 'ward') {
     order_edit.value.locations.ward = {}
-    focusInput('ward-input')
+    if (focus) focusInput('ward-input')
   }
   if (type === 'all') {
     order_edit.value.address = ''
@@ -2293,7 +2314,7 @@ function removeLocation(type: 'province' | 'district' | 'ward' | 'all') {
       district: {},
       ward: {},
     }
-    focusInput('address-input')
+    if (focus) focusInput('address-input')
     search_provice.value = ''
     search_district.value = ''
     search_ward.value = ''
@@ -2456,5 +2477,24 @@ function linkToProductApp() {
   )
 }
 
-defineExpose({ initDataParams, getSelectedAddresses })
+/** lấy tên quận huyện */
+function getDistrictName() {
+  return (
+    get(order_edit.value, 'locations.district.name_with_type') ||
+    get(order_edit.value, 'locations.district.name')
+  )
+}
+
+/** nếu không có location thì xóa full_address */
+function removeFullAddress() {
+  if (
+    isEmpty(order_edit.value.locations?.province) &&
+    isEmpty(order_edit.value.locations?.district) &&
+    isEmpty(order_edit.value.locations?.ward)
+  ) {
+    order_edit.value.full_address = ''
+  }
+}
+
+defineExpose({ initDataParams, getSelectedAddresses, removeLocation })
 </script>

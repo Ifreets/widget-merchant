@@ -1,8 +1,11 @@
 <template>
-  <article class="px-3 text-sm flex flex-col gap-2 overflow-auto scrollbar-thin h-dvh">
-    <div class="flex gap-1 w-full flex-shrink-0 items-center sticky top-0 z-10 pt-1 bg-white">
+  <article
+    class="px-3 text-sm flex flex-col gap-2 h-dvh"
+  >
+    <div
+      class="flex gap-1 w-full flex-shrink-0 items-center sticky top-0 z-10 pt-1 bg-white"
+    >
       <Header
-        v-model="current_tab"
         class="w-full"
       />
       <img
@@ -17,7 +20,10 @@
       v-if="merchantStore.current_tab === 'ORDERS'"
       :contact_id="contact_id"
     />
-    <CreateOrder ref="create_order" v-if="merchantStore.current_tab === 'CREATE_ORDER'" />
+    <CreateOrder
+      ref="create_order"
+      v-if="merchantStore.current_tab === 'CREATE_ORDER'"
+    />
     <ModalSetting
       v-if="is_show_modal_setting"
       v-model="is_show_modal_setting"
@@ -50,17 +56,19 @@ import ModalSetting from '@/views/order/ModalSetting.vue'
 import type { IConfigWidget } from '@/service/interface'
 import { Toast } from '@/service/helper/toast'
 import { decodeClientV2 } from '@/service/api/chatbot'
+import { storeToRefs } from 'pinia'
+import { copy } from '@/service/helper/format'
+import { INIT_ORDER } from '@/service/constant'
 
 /** store */
 const appStore = useAppStore()
 const commonStore = useCommonStore()
 const merchantStore = useMerchantStore()
 
+const { order_edit, current_tab } = storeToRefs(merchantStore)
+
 /** toast */
 const $toast = new Toast()
-
-/** tab hiện tại */
-const current_tab = ref<'ORDERS' | 'CREATE_ORDER'>('ORDERS')
 
 /** id contact */
 const contact_id = ref<string>('')
@@ -73,6 +81,10 @@ const create_order = ref<InstanceType<typeof CreateOrder>>()
 // lắng nghe sự kiện từ chatbox
 WIDGET.onEvent(async () => {
   // load()
+  if( current_tab.value !== 'ORDERS'){
+    order_edit.value = copy(INIT_ORDER)
+    create_order.value?.removeLocation('all',false)
+  }
   loadV2()
 })
 
@@ -243,7 +255,7 @@ async function getDataMerchant() {
     merchantStore.saveSetting(setting)
     merchantStore.order_edit.order_journey = setting?.online_status || []
     merchantStore.order_edit.staffs = setting?.online_staff || []
-    
+
   } catch (error) {
     throw error
   }
@@ -256,22 +268,29 @@ async function getDataChatbox() {
     const client_id = queryString('client_id')
     const message_id = queryString('message_id')
 
-    const data = await decodeClientV2({
-      access_token: partner_token === 'undefined' ? null : partner_token,
-      client_id: client_id === 'undefined' ? null : client_id,
-      message_id: message_id === 'undefined' ? null : message_id,
-      secret_key: $env.secret_key,
-    })
+    // const data = await decodeClientV2({
+    //   access_token: partner_token === 'undefined' ? null : partner_token,
+    //   client_id: client_id === 'undefined' ? null : client_id,
+    //   message_id: message_id === 'undefined' ? null : message_id,
+    //   secret_key: $env.secret_key,
+    // })
+    const data = await WIDGET.getClientInfo()
 
-    console.log(data.data)
-    if(!data.data) return
+    if(!data) return
+
+    console.log('data', data);
+    
+
     merchantStore.order_edit.custom_fields = {
       ...merchantStore.order_edit.custom_fields,
-      page_id: data.data.public_profile?.page_id || '',
-      fb_client_id: data.data.public_profile?.fb_client_id || '',
+      page_id: data.public_profile?.page_id || '',
+      fb_client_id: data.public_profile?.fb_client_id || '',
     }
 
-    appStore.data_client = data.data
+    console.log('aaaaaaaaaa',merchantStore.order_edit.custom_fields);
+    
+
+    appStore.data_client = data
 
     create_order.value?.initDataParams()
   } catch (error) {
