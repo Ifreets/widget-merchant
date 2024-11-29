@@ -925,7 +925,7 @@
       </div>
     </div>
     <div
-      v-else
+      v-if="order_edit.id"
       class="p-2 border-t sticky bottom-0 bg-white"
     >
       <button
@@ -1228,6 +1228,8 @@ async function getSelectedAddresses() {
 async function initDataParams() {
   if (order_edit.value?.id) return
   customer_name.value = $appStore.data_client.public_profile?.client_name || ''
+  customer_phone.value =
+      $appStore.data_client?.conversation_contact?.client_phone || ''
 
   // nếu không phải chế độ tạo tự động thì thôi
   if (!$appStore.is_auto_create) return
@@ -1238,10 +1240,7 @@ async function initDataParams() {
   const email = AI_DATA?.email?.[0]
   const phone = AI_DATA?.phone_number?.[0]
 
-  if (phone) customer_phone.value = phone
-  else
-    customer_phone.value =
-      $appStore.data_client?.conversation_contact?.client_phone || ''
+  if (phone) customer_phone.value = phone   
 
   const address = AI_DATA?.ctas?.place_order?.address || ''
   /** thành phố */
