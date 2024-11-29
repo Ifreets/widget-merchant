@@ -83,6 +83,9 @@ WIDGET.onEvent(async () => {
   // load()
   if( current_tab.value !== 'ORDERS'){
     order_edit.value = copy(INIT_ORDER)
+    order_edit.value.order_journey = copy(
+      merchantStore.setting?.online_status || []
+    )
     create_order.value?.removeLocation('all',false)
   }
   loadV2()

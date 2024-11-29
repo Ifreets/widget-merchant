@@ -925,7 +925,7 @@
       </div>
     </div>
     <div
-      v-else
+      v-if="order_edit.id"
       class="p-2 border-t sticky bottom-0 bg-white"
     >
       <button
