@@ -1022,7 +1022,14 @@ const {
   province_index,
   district_index,
   ward_index,
-} = useLocation()
+  provinces,
+  snap_provinces,
+  districts,
+  snap_districts,
+  wards,
+  snap_wards,
+  addresses,
+} = useLocation(order_edit)
 
 const selected_address = ref<ISelectedAddress[]>([])
 
@@ -1065,12 +1072,6 @@ const search_address = debounce(() => {
   searchAddress()
 }, 500)
 
-/** Danh sách phường xã */
-const wards = ref<WardData[]>([])
-
-/** Snap danh sách phường xã */
-const snap_wards = ref<WardData[]>([])
-
 /** danh sách sản phẩm */
 const products = ref<Product[]>([])
 
@@ -1080,23 +1081,29 @@ const search_product = ref<string>('')
 /** mở/đóng modal */
 const show_dropbox = ref<boolean>(false)
 
-/** Danh sách quận huyện */
-const districts = ref<DistrictData[]>([])
-
-/** Snap danh sách quận huyện */
-const snap_districts = ref<DistrictData[]>([])
-
 /** phương thức thanh toán */
 const payment_method = ref<PaymentMethods>('CASH')
 
-/** Danh sách tỉnh thành */
-const provinces = ref<ProvinceData[]>(PROVINCE)
+// /** Danh sách tỉnh thành */
+// const provinces = ref<ProvinceData[]>(PROVINCE)
 
-/** Dữ liệu danh sách */
-const snap_provinces = ref<ProvinceData[]>(PROVINCE)
+// /** Dữ liệu danh sách */
+// const snap_provinces = ref<ProvinceData[]>(PROVINCE)
 
-/** Danh sách địa chỉ */
-const addresses = ref<Addresses[]>([])
+// /** Danh sách quận huyện */
+// const districts = ref<DistrictData[]>([])
+
+// /** Snap danh sách quận huyện */
+// const snap_districts = ref<DistrictData[]>([])
+
+// /** Danh sách phường xã */
+// const wards = ref<WardData[]>([])
+
+// /** Snap danh sách phường xã */
+// const snap_wards = ref<WardData[]>([])
+
+// /** Danh sách địa chỉ */
+// const addresses = ref<Addresses[]>([])
 
 // /** Nội dung tìm kiếm province */
 // const search_provice = ref<string>('')
