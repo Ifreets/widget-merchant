@@ -2139,7 +2139,7 @@ async function searchAddress(is_auto_create: boolean = false) {
   })
 
   // full_address.value = ''
-  order_edit.value.address = ''
+  // order_edit.value.address = ''
 }
 
 /** Chọn địa chỉ */
