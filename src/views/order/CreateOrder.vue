@@ -44,7 +44,7 @@
             </template>
             <template #box>
               <div
-                class="bg-white border rounded-lg p-1 my-1"
+                class="bg-white border rounded-lg p-1 my-1 max-h-40 overflow-auto scrollbar-thin"
                 v-if="show_dropbox"
               >
                 <div
@@ -1111,7 +1111,7 @@ const district_index = ref<number>(0)
 /** Index của ward */
 const ward_index = ref<number>(0)
 
-const full_address = ref<string>('')
+// const full_address = ref<string>('')
 
 /** đang gọi api */
 const is_calling_api = ref<boolean>(false)
@@ -1290,8 +1290,6 @@ async function initDataParams() {
     if (city) array.push(city)
   }
 
-  console.log(array)
-
   /** có place và it nhất 1 trong 3 field tỉnh, quận, phường */
   if (!array.length && place && (ward_name || district_name || city)) {
     array.push(place)
@@ -1305,13 +1303,13 @@ async function initDataParams() {
     array.push(address)
   }
 
-  console.log(array)
-
   if (array.length) {
-    full_address.value = array.join(', ')
+    // full_address.value = array.join(', ')
+    order_edit.value.address = array.join(', ')
   }
 
-  if (!full_address.value) return
+  // if (!full_address.value) return
+  if(!order_edit.value.address) return
 
   // tìm kiếm địa chỉ
   await searchAddress(true)
@@ -1335,8 +1333,6 @@ async function initDataParams() {
 
     return
   }
-
-  console.log(ward_name, district_name, street_name)
 
   // chọn địa chỉ
   if ((ward_name || district_name) && house_street) {
@@ -1737,7 +1733,8 @@ async function createNewProduct() {
       }
     }
   } catch (e) {
-    $toast.error(e as string)
+    // $toast.error(e as string)
+    throw e
   }
 }
 
@@ -2123,18 +2120,26 @@ async function searchAddress(is_auto_create: boolean = false) {
       $appStore.data_client?.public_profile?.message_text ||
       ''
 
-    order_edit.value.full_address = JSON.parse(
-      JSON.stringify(MESSAGE || full_address.value || '')
-    )
+    // order_edit.value.full_address = JSON.parse(
+    //   JSON.stringify(MESSAGE || full_address.value || '')
+    // )
+
+    order_edit.value.full_address = copy(MESSAGE || order_edit.value.address || '')
   } else {
     order_edit.value.full_address = JSON.parse(
       JSON.stringify(order_edit.value.address || '')
     )
   }
+  // addresses.value = await detectAddressV2({
+  //   address: full_address.value || order_edit.value.address,
+  // })
+
   addresses.value = await detectAddressV2({
-    address: full_address.value || order_edit.value.address,
+    address: order_edit.value.address,
   })
-  full_address.value = ''
+
+  // full_address.value = ''
+  order_edit.value.address = ''
 }
 
 /** Chọn địa chỉ */
