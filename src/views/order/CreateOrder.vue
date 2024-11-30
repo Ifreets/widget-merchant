@@ -1001,6 +1001,7 @@ import { INIT_ORDER, PRODUCT_DEFAULT, PROVINCE } from '@/service/constant'
 import Toggle from '@/components/Toggle.vue'
 import CheckCircle from '@/components/icons/CheckCircle.vue'
 import { storeToRefs } from 'pinia'
+import { useLocation } from '@/composable/location'
 
 // const urlParams = new URLSearchParams(window.location.search)
 
@@ -1012,6 +1013,16 @@ const { order_edit } = storeToRefs($merchant)
 
 /** Toast */
 const $toast = new Toast()
+
+const {
+  search_provice,
+  search_district,
+  search_ward,
+  location_index,
+  province_index,
+  district_index,
+  ward_index,
+} = useLocation()
 
 const selected_address = ref<ISelectedAddress[]>([])
 
@@ -1087,29 +1098,29 @@ const snap_provinces = ref<ProvinceData[]>(PROVINCE)
 /** Danh sách địa chỉ */
 const addresses = ref<Addresses[]>([])
 
-/** Nội dung tìm kiếm province */
-const search_provice = ref<string>('')
+// /** Nội dung tìm kiếm province */
+// const search_provice = ref<string>('')
 
-/** Nội dung tìm kiếm district */
-const search_district = ref<string>('')
+// /** Nội dung tìm kiếm district */
+// const search_district = ref<string>('')
 
-/** Nội dung tìm kiếm ward */
-const search_ward = ref<string>('')
+// /** Nội dung tìm kiếm ward */
+// const search_ward = ref<string>('')
+
+// /** Index của địa chỉ */
+// const location_index = ref<number>(0)
+
+// /** Index của province */
+// const province_index = ref<number>(0)
+
+// /** Index của district */
+// const district_index = ref<number>(0)
+
+// /** Index của ward */
+// const ward_index = ref<number>(0)
 
 /** Index của sản phẩm */
 const product_index = ref<number>(0)
-
-/** Index của địa chỉ */
-const location_index = ref<number>(0)
-
-/** Index của province */
-const province_index = ref<number>(0)
-
-/** Index của district */
-const district_index = ref<number>(0)
-
-/** Index của ward */
-const ward_index = ref<number>(0)
 
 // const full_address = ref<string>('')
 
