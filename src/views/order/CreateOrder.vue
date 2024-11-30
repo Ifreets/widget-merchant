@@ -155,6 +155,7 @@
           </Dropbox>
         </div>
         <div class="grid grid-cols-1">
+          <!-- Tỉnh thành phố -->
           <Dropbox>
             <template #trigger>
               <div
@@ -165,10 +166,7 @@
                   type="text"
                   id="province-input"
                   v-model="search_provice"
-                  :placeholder="
-                    get(order_edit, 'locations.province.name') ||
-                    `Tỉnh, thành phố`
-                  "
+                  :placeholder="getProvinceName() || `Tỉnh, thành phố`"
                   @input="searchLocation('province')"
                   @keyup.enter="selectLocation('province')"
                   @keyup.up="controlLocation('province', 'up')"
@@ -180,33 +178,23 @@
                       resetHidden()
                     }
                   "
-                  @focusout="
-                    () => {
-                      search_provice =
-                        get(order_edit, 'locations.province.name') || ''
-                    }
-                  "
+                  @focusout="() => (search_provice = getProvinceName() || '')"
                   class="w-full flex items-center justify-between p-2 border rounded-md"
                   :class="{
                     'border-red-500':
-                      !get(order_edit, 'locations.province.name') &&
-                      alert_validate &&
-                      check_address,
-                    'placeholder:text-black': get(
-                      order_edit,
-                      'locations.province.name'
-                    ),
+                      !getProvinceName() && alert_validate && check_address,
+                    'placeholder:text-black': getProvinceName(),
                   }"
                 />
                 <ArrowIcon
                   class="text-gray-500 absolute right-3"
-                  v-show="!get(order_edit, 'locations.province.name')"
+                  v-show="!getProvinceName()"
                 />
                 <img
                   :src="DeleteIcon"
                   @click="removeLocation('province')"
                   class="absolute right-3 w-2 cursor-pointer"
-                  v-show="get(order_edit, 'locations.province.name')"
+                  v-show="getProvinceName()"
                   v-if="isAvailablelUpdate('address')"
                 />
               </div>
@@ -232,6 +220,7 @@
           </Dropbox>
         </div>
         <div class="grid grid-cols-2 gap-2">
+          <!-- Quận huyện -->
           <Dropbox>
             <template #trigger>
               <div
@@ -249,11 +238,7 @@
                       resetHidden()
                     }
                   "
-                  @focusout="
-                    () => {
-                      search_district = getDistrictName() || ''
-                    }
-                  "
+                  @focusout="() => (search_district = getDistrictName() || '')"
                   @input="searchLocation('district')"
                   @keyup.enter="selectLocation('district')"
                   @keyup.up="controlLocation('district', 'up')"
@@ -298,6 +283,7 @@
               </div>
             </template>
           </Dropbox>
+          <!-- Phường xã -->
           <Dropbox>
             <template #trigger>
               <div
@@ -308,22 +294,14 @@
                   type="text"
                   id="ward-input"
                   v-model="search_ward"
-                  :placeholder="
-                    get(order_edit, 'locations.ward.name_with_type') ||
-                    `Phường, xã`
-                  "
+                  :placeholder="getWardName() || `Phường, xã`"
                   @focusin="
                     () => {
                       search_ward = ''
                       resetHidden()
                     }
                   "
-                  @focusout="
-                    () => {
-                      search_ward =
-                        get(order_edit, 'locations.ward.name_with_type') || ''
-                    }
-                  "
+                  @focusout="() => (search_ward = getWardName() || '')"
                   @input="searchLocation('ward')"
                   @keyup.enter="selectLocation('ward')"
                   @keyup.up="controlLocation('ward', 'up')"
@@ -332,24 +310,19 @@
                   class="w-full flex items-center justify-between p-2 border rounded-md k"
                   :class="{
                     'border-red-500':
-                      !get(order_edit, 'locations.ward.name_with_type') &&
-                      alert_validate &&
-                      check_address,
-                    'placeholder:text-black': get(
-                      order_edit,
-                      'locations.ward.name_with_type'
-                    ),
+                      !getWardName() && alert_validate && check_address,
+                    'placeholder:text-black': getWardName(),
                   }"
                 />
                 <ArrowIcon
                   class="text-gray-500 absolute right-3"
-                  v-show="!get(order_edit, 'locations.ward.name_with_type')"
+                  v-show="!getWardName()"
                 />
                 <img
                   :src="DeleteIcon"
                   @click="removeLocation('ward')"
                   class="absolute right-3 w-2 cursor-pointer"
-                  v-show="get(order_edit, 'locations.ward.name_with_type')"
+                  v-show="getWardName()"
                   v-if="isAvailablelUpdate('address')"
                 />
               </div>
@@ -1029,12 +1002,18 @@ const {
   wards,
   snap_wards,
   addresses,
+  chooseAddress,
+  chooseProvince,
+  chooseDistrict,
+  chooseWard,
+  getProvinceName,
+  getDistrictName,
+  getWardName,
+  searchAddressHook,
+  searchLocation
 } = useLocation(order_edit)
 
 const selected_address = ref<ISelectedAddress[]>([])
-
-/** đơn hàng */
-// const order = ref<Order>(JSON.parse(JSON.stringify(INIT_ORDER)))
 
 /** hiển thị địa chỉ gần nhất */
 const lastest_address_show = computed(() => {
@@ -1083,48 +1062,6 @@ const show_dropbox = ref<boolean>(false)
 
 /** phương thức thanh toán */
 const payment_method = ref<PaymentMethods>('CASH')
-
-// /** Danh sách tỉnh thành */
-// const provinces = ref<ProvinceData[]>(PROVINCE)
-
-// /** Dữ liệu danh sách */
-// const snap_provinces = ref<ProvinceData[]>(PROVINCE)
-
-// /** Danh sách quận huyện */
-// const districts = ref<DistrictData[]>([])
-
-// /** Snap danh sách quận huyện */
-// const snap_districts = ref<DistrictData[]>([])
-
-// /** Danh sách phường xã */
-// const wards = ref<WardData[]>([])
-
-// /** Snap danh sách phường xã */
-// const snap_wards = ref<WardData[]>([])
-
-// /** Danh sách địa chỉ */
-// const addresses = ref<Addresses[]>([])
-
-// /** Nội dung tìm kiếm province */
-// const search_provice = ref<string>('')
-
-// /** Nội dung tìm kiếm district */
-// const search_district = ref<string>('')
-
-// /** Nội dung tìm kiếm ward */
-// const search_ward = ref<string>('')
-
-// /** Index của địa chỉ */
-// const location_index = ref<number>(0)
-
-// /** Index của province */
-// const province_index = ref<number>(0)
-
-// /** Index của district */
-// const district_index = ref<number>(0)
-
-// /** Index của ward */
-// const ward_index = ref<number>(0)
 
 /** Index của sản phẩm */
 const product_index = ref<number>(0)
@@ -1178,8 +1115,6 @@ const is_phone_valid = computed(() => {
 })
 
 onMounted(() => {
-  console.log($merchant.setting?.online_status)
-
   if (order_edit.value?.id) {
     order_edit.value = $merchant.order_edit
     if (order_edit.value.locations) {
@@ -1192,8 +1127,6 @@ onMounted(() => {
     }
     calculatorOrder()
   } else {
-    console.log($merchant.setting?.online_status)
-
     order_edit.value.order_journey = copy(
       $merchant.setting?.online_status || []
     )
@@ -1207,7 +1140,6 @@ onMounted(() => {
   //khởi tạo giá trị của các field khi tạo đơn tự động
   initDataParams()
   getSelectedAddresses()
-  console.log(order_edit.value)
 })
 
 watch(
@@ -1247,7 +1179,7 @@ async function initDataParams() {
   if (order_edit.value?.id) return
   customer_name.value = $appStore.data_client.public_profile?.client_name || ''
   customer_phone.value =
-      $appStore.data_client?.conversation_contact?.client_phone || ''
+    $appStore.data_client?.conversation_contact?.client_phone || ''
 
   // nếu không phải chế độ tạo tự động thì thôi
   if (!$appStore.is_auto_create) return
@@ -1258,7 +1190,7 @@ async function initDataParams() {
   const email = AI_DATA?.email?.[0]
   const phone = AI_DATA?.phone_number?.[0]
 
-  if (phone) customer_phone.value = phone   
+  if (phone) customer_phone.value = phone
 
   const address = AI_DATA?.ctas?.place_order?.address || ''
   /** thành phố */
@@ -1327,11 +1259,11 @@ async function initDataParams() {
   }
 
   // if (!full_address.value) return
-  if(!order_edit.value.address) return
+  if (!order_edit.value.address) return
 
   // tìm kiếm địa chỉ
   await searchAddress(true)
-
+  
   if (addresses.value?.[0]?.engine === 'FILTER' && order_edit.value.locations) {
     if (addresses.value?.[0]?.address) {
       order_edit.value.address = addresses.value?.[0]?.address
@@ -1421,40 +1353,23 @@ function getContactPhone() {
 /** Chọn tỉnh thành */
 async function selectProvince(item: ProvinceData) {
   show_dropbox.value = false
-  search_provice.value = item.name || ''
-  search_district.value = ''
-  search_ward.value = ''
-  if (order_edit.value.locations) order_edit.value.locations.province = item
-  if (order_edit.value.locations) order_edit.value.locations.district = {}
-  if (order_edit.value.locations) order_edit.value.locations.ward = {}
-  districts.value = await getDistrict({
-    province_id: item.code,
-  })
-  snap_districts.value = districts.value
+  chooseProvince(item)
   focusInput('district-input')
 }
 
 /** Chọn quận huyện */
 async function selectDistrict(item: DistrictData) {
   show_dropbox.value = false
-  search_district.value = item.name_with_type || ''
-  search_ward.value = ''
-  if (order_edit.value.locations) order_edit.value.locations.district = item
-  if (order_edit.value.locations) order_edit.value.locations.ward = {}
-  wards.value = await getWard({
-    district_id: item.code,
-  })
-  snap_wards.value = wards.value
+  chooseDistrict(item)
   focusInput('ward-input')
 }
 
 /** Chọn phường xã */
 function selectWard(item: WardData) {
   show_dropbox.value = false
-  search_ward.value = item.name_with_type || ''
-  if (order_edit.value.locations) order_edit.value.locations.ward = item
-  focusInput('product-input')
+  chooseWard(item)
   product_index.value = 0
+  focusInput('product-input')
 }
 
 /** Lấy thông tin sản phẩm */
@@ -2037,7 +1952,6 @@ async function activeStep(
         return $toast.error('Vui lòng chọn khách hàng trước khi tạo đơn hàng')
       }
       createNewOrder()
-      console.log(123)
 
       activeStatus()
     }
@@ -2142,7 +2056,9 @@ async function searchAddress(is_auto_create: boolean = false) {
     //   JSON.stringify(MESSAGE || full_address.value || '')
     // )
 
-    order_edit.value.full_address = copy(MESSAGE || order_edit.value.address || '')
+    order_edit.value.full_address = copy(
+      MESSAGE || order_edit.value.address || ''
+    )
   } else {
     order_edit.value.full_address = JSON.parse(
       JSON.stringify(order_edit.value.address || '')
@@ -2151,152 +2067,26 @@ async function searchAddress(is_auto_create: boolean = false) {
   // addresses.value = await detectAddressV2({
   //   address: full_address.value || order_edit.value.address,
   // })
-
-  addresses.value = await detectAddressV2({
-    address: order_edit.value.address,
-  })
+  if(order_edit.value.address) await searchAddressHook(order_edit.value.address)
 
   // full_address.value = ''
-  order_edit.value.address = ''
+  // order_edit.value.address = ''
 }
 
 /** Chọn địa chỉ */
 async function getDetailLocation(address: Addresses) {
   try {
-    if (address?.engine && order_edit.value.locations) {
-      if (address?.address) {
-        order_edit.value.address = address?.address
-      }
-      if (address?.province) {
-        order_edit.value.locations.province = address?.province
-        const CODE = Number(address.province?.id) ? address.province?.id : address.province?.code
-        districts.value = await getDistrict({
-          province_id: CODE,
-        })
-        snap_districts.value = districts.value
-      }
-      if (address?.district) {
-        order_edit.value.locations.district = address?.district
-        const CODE = Number(address.district?.id) ? address.district?.id : address.district?.code
-        wards.value = await getWard({
-          district_id: CODE,
-        })
-        snap_wards.value = wards.value
-        
-      }
-      if (address?.ward) {
-        order_edit.value.locations.ward = address?.ward
-      }
-      focusInput('product-input')
-      return
-    }
-
-    /** Gán địa chỉ */
-    order_edit.value.address = address.address_name?.split(' - ')?.[0]
-
+    focusInput('product-input')
     // * Tắt dropbox
     show_dropbox.value = false
 
-    // * Focus vào input tìm kiếm sản phẩm
-    focusInput('product-input')
+    await chooseAddress(address)
 
-    /** Lấy dữ liệu chi tiết */
-    let location_detail = (await getAddress({
-      address_id: address.address_id,
-      address_name: address.address_name,
-    })) as LocationDetail
-
-    // * Gán dữ liệu loction
-    if (order_edit.value.locations) {
-      // * Lưu dữ liệu tỉnh thành
-      provinces.value.map(item => {
-        if (
-          item.code === location_detail.province?.id &&
-          order_edit.value.locations
-        ) {
-          order_edit.value.locations.province = item
-          search_provice.value = item.name || ''
-        }
-      })
-
-      // * Lưu dữ liệu quận huyện
-      order_edit.value.locations.district = {
-        code: location_detail.district?.id,
-        name: location_detail.district?.name,
-        name_with_type: location_detail.district?.name,
-      }
-      search_district.value = location_detail.district?.name || ''
-
-      // * Lưu dữ liệu phường xã
-      order_edit.value.locations.ward = {
-        code: location_detail.ward?.id,
-        name: location_detail.ward?.name,
-        name_with_type: location_detail.ward?.name,
-      }
-      search_ward.value = location_detail.ward?.name || ''
-
-      order_edit.value.locations.street = {
-        code: location_detail.street?.id,
-        name: location_detail.street?.name,
-      }
-
-      order_edit.value.locations.house_number = {
-        code: location_detail.house_number?.id,
-        name: location_detail.house_number?.name,
-      }
-    }
-
-    // * Lấy thêm thông tin quận huyện
-    if (location_detail.province?.id) {
-      districts.value = await getDistrict({
-        province_id: location_detail.province?.id,
-      })
-      snap_districts.value = districts.value
-    }
-    // * Lấy thêm thông tin phường xã
-    if (location_detail.district?.id) {
-      wards.value = await getWard({
-        district_id: location_detail.district?.id,
-      })
-      snap_wards.value = wards.value
-    }
     product_index.value = 0
   } catch (error) {
+    console.log(error);
+    
     $toast.error(error as string)
-  }
-}
-
-/** Tìm kiếm location */
-function searchLocation(type: 'province' | 'district' | 'ward') {
-  if (type === 'province') {
-    let search = nonAccentVn(search_provice.value)
-    product_index.value = 0
-    provinces.value = snap_provinces.value.filter(item => {
-      let name = nonAccentVn(item.name as string)
-      if (!search) return true
-      if (name.includes(search)) return true
-      return false
-    })
-  }
-  if (type === 'district') {
-    let search = nonAccentVn(search_district.value)
-    district_index.value = 0
-    districts.value = snap_districts.value.filter(item => {
-      let name = nonAccentVn(item.name as string)
-      if (!search) return true
-      if (name.includes(search)) return true
-      return false
-    })
-  }
-  if (type === 'ward') {
-    let search = nonAccentVn(search_ward.value)
-    ward_index.value = 0
-    wards.value = snap_wards.value.filter(item => {
-      let name = nonAccentVn(item.name as string)
-      if (!search) return true
-      if (name.includes(search)) return true
-      return false
-    })
   }
 }
 
@@ -2496,14 +2286,6 @@ function linkToProductApp() {
   window.open(
     `https://merchant.vn/login?chat_access_token=${WIDGET.access_token}&redirect=https://merchant.vn/a/product`,
     '_blank'
-  )
-}
-
-/** lấy tên quận huyện */
-function getDistrictName() {
-  return (
-    get(order_edit.value, 'locations.district.name_with_type') ||
-    get(order_edit.value, 'locations.district.name')
   )
 }
 
