@@ -20,6 +20,7 @@
       ref="create_order"
       v-if="merchantStore.current_tab === 'CREATE_ORDER'"
     />
+    <DetailReportContact ref="detail_report_contact"/>
     <ModalSetting
       v-if="is_show_modal_setting"
       v-model="is_show_modal_setting"
@@ -27,12 +28,6 @@
   </article>
 </template>
 <script setup lang="ts">
-// * libraries
-import { ref, onMounted } from 'vue'
-import WIDGET from 'bbh-chatbox-widget-js-sdk'
-import { queryString } from '@/service/helper/queyString'
-import { useAppStore, useCommonStore, useMerchantStore } from '@/stores'
-import { checkPhone, checkEmail } from '@/service/helper/validate'
 import {
   syncContact,
   getProvince,
@@ -41,26 +36,30 @@ import {
   getMerchantToken,
   getConfigChatbox,
 } from '@/service/api/merchant'
+import { Toast } from '@/service/helper/toast'
+import { copy } from '@/service/helper/format'
+import { INIT_ORDER } from '@/service/constant'
+import { decodeClientV2 } from '@/service/api/chatbot'
+import { queryString } from '@/service/helper/queyString'
+import { checkPhone, checkEmail } from '@/service/helper/validate'
+import { useAppStore, useCommonStore, useMerchantStore } from '@/stores'
+
+// * libraries
+import { storeToRefs } from 'pinia'
+import { ref, onMounted } from 'vue'
+import WIDGET from 'bbh-chatbox-widget-js-sdk'
 
 // * components
 import Header from '@/views/order/Header.vue'
 import Orders from '@/views/order/Orders.vue'
 import CreateOrder from '@/views/order/CreateOrder.vue'
 import ModalSetting from '@/views/order/ModalSetting.vue'
-
-// * Types
-import type { IConfigWidget } from '@/service/interface'
-import { Toast } from '@/service/helper/toast'
-import { decodeClientV2 } from '@/service/api/chatbot'
-import { storeToRefs } from 'pinia'
-import { copy } from '@/service/helper/format'
-import { INIT_ORDER } from '@/service/constant'
+import DetailReportContact from './order/DetailReportContact.vue'
 
 /** store */
 const appStore = useAppStore()
 const commonStore = useCommonStore()
 const merchantStore = useMerchantStore()
-
 const { order_edit, current_tab } = storeToRefs(merchantStore)
 
 /** toast */
@@ -73,6 +72,8 @@ const contact_id = ref<string>('')
 const is_show_modal_setting = ref<boolean>(false)
 
 const create_order = ref<InstanceType<typeof CreateOrder>>()
+
+const detail_report_contact = ref<InstanceType<typeof DetailReportContact>>()
 
 // lắng nghe sự kiện từ chatbox
 WIDGET.onEvent(async () => {
@@ -108,7 +109,9 @@ async function synchData() {
     merchantStore.saveCurrentTab('ORDERS')
 
     /** Thông tin contact từ merchant */
-    const contact = await syncContact()
+    const contact = await syncContact({
+      body: appStore.data_client,
+    })
 
     // * Lưu lại id contact
     contact_id.value = contact.identifier_id
@@ -123,7 +126,9 @@ async function synchData() {
     merchantStore.saveProvinces(provinces)
 
     /** Lấy setting */
-    const setting = await getSetting({ type: 'order' })
+    const setting = await getSetting({
+      body:{ type: 'order' }
+    })
 
     // * Lưu lại setting
     merchantStore.saveSetting(setting.value)
@@ -156,10 +161,12 @@ async function load() {
     // appStore.data_client = await WIDGET.decodeClient()
     // appStore.data_client = await WIDGET.getClientInfo()
     const data = await decodeClientV2({
-      access_token: partner_token === 'undefined' ? null : partner_token,
-      client_id: client_id === 'undefined' ? null : client_id,
-      message_id: message_id === 'undefined' ? null : message_id,
-      secret_key: $env.secret_key,
+      body: {
+        access_token: partner_token === 'undefined' ? null : partner_token,
+        client_id: client_id === 'undefined' ? null : client_id,
+        message_id: message_id === 'undefined' ? null : message_id,
+        secret_key: $env.secret_key,
+      }
     })
 
     if (data.data) {
@@ -167,14 +174,16 @@ async function load() {
     }
 
     const res = await getMerchantToken({
-      access_token: WIDGET.access_token,
-      // access_token: queryString('partner_token'),
-      secret_key: $env.secret_key,
-      ...(commonStore?.store?.chatbox_page_id
-        ? {
-            redirect_to_store: commonStore?.store?.chatbox_page_id,
-          }
-        : {}),
+      body: {
+        access_token: WIDGET.access_token,
+        // access_token: queryString('partner_token'),
+        secret_key: $env.secret_key,
+        ...(commonStore?.store?.chatbox_page_id
+          ? {
+              redirect_to_store: commonStore?.store?.chatbox_page_id,
+            }
+          : {}),
+      },
     })
 
     if (res?.data) {
@@ -225,6 +234,8 @@ async function loadV2() {
     }
 
     await Promise.all([getDataMerchant(), getDataChatbox()])
+    
+    detail_report_contact.value?.getReporContact()
 
     syncAndGetContact()
 
@@ -239,8 +250,11 @@ async function loadV2() {
 async function getDataMerchant() {
   try {
     const data = await getConfigChatbox({
-      access_token: WIDGET.access_token,
-      secret_key: $env.secret_key,
+      body: {
+        access_token: WIDGET.partner_token,
+        client_id: WIDGET.client_id,
+        secret_key: $env.secret_key,
+      },
     })
     if (!data.data) return
     merchantStore.orders = data.data?.orders
@@ -295,7 +309,9 @@ async function getDataChatbox() {
 async function syncAndGetContact() {
   try {
     /** Thông tin contact từ merchant */
-    const contact = await syncContact()
+    const contact = await syncContact({
+      body: appStore.data_client,
+    })
 
     // * Lưu lại id contact
     contact_id.value = contact.identifier_id

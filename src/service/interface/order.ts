@@ -282,3 +282,49 @@ export interface ISelectedAddress {
   /** id user */
   user_id?: string
 }
+
+/** dữ liệu báo cáo của khách hàng */
+export interface PhoneData {
+  /** ID của bản ghi */
+  _id?: string
+  /** Hash của số điện thoại */
+  phone?: string
+  /** UID người dùng */
+  uid?: string
+  /** Thông tin về đơn hàng báo cáo */
+  report_order?: {
+    [key: string]: {
+      /** Số lượng đơn hàng thất bại */
+      order_fail?: number
+      /** Số lượng đơn hàng thành công */
+      order_success?: number
+      /** Cảnh báo */
+      warning?: number
+    }
+  }
+  /** Danh sách số điện thoại cảnh báo */
+  warning_phone?: ReportedData[]
+}
+interface ReportedData {
+  /** UUID của báo cáo */
+  id?: string
+  /** Lý do báo cáo */
+  reason?: string
+  /** ID của trang liên quan */
+  page_id?: string
+  /** ID của cửa hàng (có thể null) */
+  shop_id?: string | null
+  /** Thời gian cập nhật gần nhất (ISO 8601) */
+  updated_at?: string
+  /** Thời gian tạo báo cáo (ISO 8601) */
+  inserted_at?: string
+  /** Thông tin người báo cáo */
+  reported_by?: {
+    /** ID Facebook của người báo cáo */
+    fb_id?: string
+    /** Tên Facebook của người báo cáo */
+    fb_name?: string
+  }
+  /** Số điện thoại liên quan */
+  phone_number?: string
+}

@@ -7,7 +7,7 @@ import { get } from 'lodash'
 import type { Method } from '@/service/interface/app'
 
 /** kiểu dữ liệu các tham số của request */
-interface InputRequest {
+export interface InputRequest {
   /** uri của request */
   uri: string
   /** phương thức request */

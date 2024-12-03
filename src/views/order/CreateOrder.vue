@@ -914,7 +914,6 @@
 import { Toast } from '@/service/helper/toast'
 import { nonAccentVn } from '@/service/helper/format'
 import { useAppStore, useMerchantStore } from '@/stores'
-import { queryString } from '@/service/helper/queyString'
 import { confirm2 as confirm } from '@/service/helper/alert'
 import { cleave_options, payment_methods } from '@/service/options'
 import { currency, convertEmployeeName, copy } from '@/service/helper/format'
@@ -922,20 +921,13 @@ import {
   createOrder,
   updateOrder,
   getProduct,
-  getPackage,
-  getDistrict,
-  getWard,
-  detectAddress,
-  getAddress,
-  updateContact,
   createProduct,
-  detectAddressV2,
   getSelectedAddress,
 } from '@/service/api/merchant'
 
 import WIDGET from 'bbh-chatbox-widget-js-sdk'
 import { ref, onMounted, computed, watch } from 'vue'
-import { get, isNumber, pick, debounce, isEmpty, add } from 'lodash'
+import { get, isNumber, pick, debounce, isEmpty } from 'lodash'
 
 // * Components
 import cleave from 'vue-cleave-component'
@@ -964,9 +956,7 @@ import type {
   ProvinceData,
   DistrictData,
   EmployeeData,
-  LocationDetail,
   PaymentMethods,
-  OrderLocation,
   ISelectedAddress,
 } from '@/service/interface'
 import { checkPhone } from '@/service/helper/validate'
@@ -975,8 +965,6 @@ import Toggle from '@/components/Toggle.vue'
 import CheckCircle from '@/components/icons/CheckCircle.vue'
 import { storeToRefs } from 'pinia'
 import { useLocation } from '@/composable/location'
-
-// const urlParams = new URLSearchParams(window.location.search)
 
 /** store merchant */
 const $merchant = useMerchantStore()
@@ -1167,7 +1155,9 @@ async function getSelectedAddresses() {
     if (!$merchant.contact?.identifier_id) return
 
     selected_address.value = await getSelectedAddress({
-      contact_id: $merchant.contact?.identifier_id,
+      body: {
+        contact_id: $merchant.contact?.identifier_id,
+      }
     })
   } catch (error) {
     $toast.error(error as string)
@@ -1376,7 +1366,9 @@ function selectWard(item: WardData) {
 async function loadProduct() {
   try {
     products.value = await getProduct({
-      search: search_product.value,
+      body: {
+        search: search_product.value,
+      }
     })
     is_calling_api.value = false
   } catch (e) {
@@ -1630,10 +1622,12 @@ async function createNewOrder(status?: string) {
     await createNewProduct()
 
     let new_order = await createOrder({
-      ...formatOrderData(order_edit.value),
-      status: status ? status : 'DRART_ORDER',
-      chatbox_widget_token: WIDGET?.access_token,
-      assigned_employee: $appStore.data_client?.conversation_staff?.user_id,
+      body:{
+        ...formatOrderData(order_edit.value),
+        status: status ? status : 'DRART_ORDER',
+        chatbox_widget_token: WIDGET?.access_token,
+        assigned_employee: $appStore.data_client?.conversation_staff?.user_id,
+      }
     })
     order_edit.value = new_order
     /** Lưu lại đơn mới vào store */
@@ -1653,9 +1647,11 @@ async function createNewProduct() {
       const element = order_edit.value.products[index]
       if (element.product_id) continue
       const res = await createProduct({
-        ...element,
-        name: element.product_name,
-        price: Number(element.price),
+        body: {
+          ...element,
+          name: element.product_name,
+          price: Number(element.price),
+        }
       })
       order_edit.value.products[index] = {
         ...element,
@@ -1683,7 +1679,9 @@ async function updateAnOrder(status?: string) {
 
   try {
     if (!checkOrderValid()) return
-    await updateOrder(formatOrderData(order_edit.value))
+    await updateOrder({
+      body: formatOrderData(order_edit.value)
+    })
   } catch (e) {
     $toast.error(e as string)
   }

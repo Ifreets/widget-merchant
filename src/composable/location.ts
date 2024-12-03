@@ -73,7 +73,9 @@ export function useLocation(order_edit: Ref<Order>) {
             ? address.province?.id
             : address.province?.code
           districts.value = await getDistrict({
-            province_id: CODE,
+            body: {
+              province_id: CODE,
+            },
           })
           snap_districts.value = districts.value
         }
@@ -83,7 +85,9 @@ export function useLocation(order_edit: Ref<Order>) {
             ? address.district?.id
             : address.district?.code
           wards.value = await getWard({
-            district_id: CODE,
+            body: {
+              district_id: CODE,
+            },
           })
           snap_wards.value = wards.value
         }
@@ -98,8 +102,10 @@ export function useLocation(order_edit: Ref<Order>) {
   
       /** Lấy dữ liệu chi tiết */
       let location_detail = (await getAddress({
-        address_id: address.address_id,
-        address_name: address.address_name,
+        body: {
+          address_id: address.address_id,
+          address_name: address.address_name,
+        }
       })) as LocationDetail
   
       // * Gán dữ liệu loction
@@ -145,14 +151,18 @@ export function useLocation(order_edit: Ref<Order>) {
       // * Lấy thêm thông tin quận huyện
       if (location_detail.province?.id) {
         districts.value = await getDistrict({
-          province_id: location_detail.province?.id,
+          body: {
+            province_id: location_detail.province?.id,
+          },
         })
         snap_districts.value = districts.value
       }
       // * Lấy thêm thông tin phường xã
       if (location_detail.district?.id) {
         wards.value = await getWard({
-          district_id: location_detail.district?.id,
+          body: {
+            district_id: location_detail.district?.id,
+          },
         })
         snap_wards.value = wards.value
       }
@@ -171,7 +181,9 @@ export function useLocation(order_edit: Ref<Order>) {
       if (order_edit.value.locations) order_edit.value.locations.district = {}
       if (order_edit.value.locations) order_edit.value.locations.ward = {}
       districts.value = await getDistrict({
-        province_id: item.code,
+        body: {
+          province_id: item.code,
+        },
       })
       snap_districts.value = districts.value
     } catch (error) {
@@ -187,7 +199,9 @@ export function useLocation(order_edit: Ref<Order>) {
       if (order_edit.value.locations) order_edit.value.locations.district = item
       if (order_edit.value.locations) order_edit.value.locations.ward = {}
       wards.value = await getWard({
-        district_id: item.code,
+        body: {
+          district_id: item.code,
+        }
       })
       snap_wards.value = wards.value
     } catch (error) {
@@ -236,7 +250,9 @@ export function useLocation(order_edit: Ref<Order>) {
   async function searchAddressHook(address: string) {
     try {
       addresses.value = await detectAddressV2({
-        address: address,
+        body: {
+          address: address,
+        }
       })
       console.log(addresses.value);
       
