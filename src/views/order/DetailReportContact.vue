@@ -119,10 +119,23 @@ const $toast = new Toast()
 
 const customer_data = ref<PhoneData>({})
 
-function getWidthSuccessOrder() {
-  return 0
+/** hàm tính chiều rộng của thống kê số đơn thành công */
+function getWidthSuccessOrder(){
+  const REPORT =  Object.values(customer_data.value?.report_order || {})
+
+  const WIDTH = 80 
+
+  if(!REPORT?.length || !REPORT[0].order_success) return 0
+
+  if(!REPORT[0].order_fail) return WIDTH
+
+  const TOTAL = REPORT[0].order_success + REPORT[0].order_fail
+  
+  return REPORT[0].order_success / TOTAL * WIDTH
 }
 
+
+/** hàm lấy dữ liệu thống kê khách hàng */
 async function getReporContact() {
   try {
     customer_data.value = {}
@@ -139,6 +152,7 @@ async function getReporContact() {
     $toast.error(error)
   }
 }
+
 
 defineExpose({ getReporContact })
 </script>
