@@ -13,7 +13,7 @@
       :triggers="['hover', 'touch']"
     >
       <div
-        class="flex items-center gap-2 border border-slate-200 rounded px-2"
+        class="flex items-center gap-2 border border-slate-200 rounded px-2 select-none"
         v-if="
           Object.values(customer_data?.report_order)[0]?.order_success || 
           Object.values(customer_data?.report_order)[0]?.order_fail
