@@ -1000,7 +1000,7 @@ const {
   getDistrictName,
   getWardName,
   searchAddressHook,
-  searchLocation
+  searchLocation,
 } = useLocation(order_edit)
 
 const selected_address = ref<ISelectedAddress[]>([])
@@ -1159,7 +1159,7 @@ async function getSelectedAddresses() {
     selected_address.value = await getSelectedAddress({
       body: {
         contact_id: $merchant.contact?.identifier_id,
-      }
+      },
     })
   } catch (error) {
     $toast.error(error as string)
@@ -1255,7 +1255,7 @@ async function initDataParams() {
 
   // tìm kiếm địa chỉ
   await searchAddress(true)
-  
+
   if (addresses.value?.[0]?.engine === 'FILTER' && order_edit.value.locations) {
     if (addresses.value?.[0]?.address) {
       order_edit.value.address = addresses.value?.[0]?.address
@@ -1335,11 +1335,9 @@ async function setContactPhone(value: string) {
       },
     })
     customer_phone.value = res.data
-    
+
     // updateAnOrder()
-  } catch (error) {
-    
-  }
+  } catch (error) {}
 }
 
 /** chọn phương thức thanh toán */
@@ -1390,7 +1388,7 @@ async function loadProduct() {
     products.value = await getProduct({
       body: {
         search: search_product.value,
-      }
+      },
     })
     is_calling_api.value = false
   } catch (e) {
@@ -1645,12 +1643,12 @@ async function createNewOrder(status?: string) {
     await createNewProduct()
 
     let new_order = await createOrder({
-      body:{
+      body: {
         ...formatOrderData(order_edit.value),
         status: status ? status : 'DRART_ORDER',
         chatbox_widget_token: WIDGET?.access_token,
-        assigned_employee: $appStore.data_client?.conversation_staff?.user_id
-      }
+        assigned_employee: $appStore.data_client?.conversation_staff?.user_id,
+      },
     })
     order_edit.value = new_order
     /** Lưu lại đơn mới vào store */
@@ -1674,7 +1672,7 @@ async function createNewProduct() {
           ...element,
           name: element.product_name,
           price: Number(element.price),
-        }
+        },
       })
       order_edit.value.products[index] = {
         ...element,
@@ -1704,7 +1702,7 @@ async function updateAnOrder(status?: string) {
   try {
     if (!checkOrderValid()) return
     await updateOrder({
-      body: formatOrderData(order_edit.value)
+      body: formatOrderData(order_edit.value),
     })
   } catch (e) {
     $toast.error(e as string)
@@ -2092,7 +2090,8 @@ async function searchAddress(is_auto_create: boolean = false) {
   // addresses.value = await detectAddressV2({
   //   address: full_address.value || order_edit.value.address,
   // })
-  if(order_edit.value.address) await searchAddressHook(order_edit.value.address)
+  if (order_edit.value.address)
+    await searchAddressHook(order_edit.value.address)
 
   // full_address.value = ''
   // order_edit.value.address = ''
@@ -2109,8 +2108,8 @@ async function getDetailLocation(address: Addresses) {
 
     product_index.value = 0
   } catch (error) {
-    console.log(error);
-    
+    console.log(error)
+
     $toast.error(error as string)
   }
 }
