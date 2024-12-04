@@ -10,6 +10,7 @@
       :delay="0"
       v-if="customer_data?.report_order"
       :placement="'top'"
+      :triggers="['hover', 'touch']"
     >
       <div
         class="flex items-center gap-2 border border-slate-200 rounded px-2"
@@ -54,7 +55,7 @@
         </div>
       </template>
     </VMenu>
-    <div class="flex gap-2">
+    <div class="flex gap-3">
       <a
         v-if="$app.data_client?.conversation_contact?.client_phone"
         :href="`zalo://conversation?phone=${$app.data_client?.conversation_contact?.client_phone}`"
