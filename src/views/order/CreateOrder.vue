@@ -923,6 +923,8 @@ import {
   getProduct,
   createProduct,
   getSelectedAddress,
+  getContact,
+  updateContact,
 } from '@/service/api/merchant'
 
 import WIDGET from 'bbh-chatbox-widget-js-sdk'
@@ -1301,7 +1303,7 @@ async function updatePhoneNumber() {
       return
     }
 
-    updateAnOrder()
+    // updateAnOrder()
   } catch (e) {
     console.log(e)
   }
@@ -1314,10 +1316,30 @@ function openSearchProduct() {
 }
 
 /** Cập nhật sdt */
-function setContactPhone(value: string) {
-  customer_phone.value = value
-  show_dropbox.value = false
-  updateAnOrder()
+async function setContactPhone(value: string) {
+  try {
+    show_dropbox.value = false
+    /** index của số điện thoại */
+    const INDEX = order_edit.value.contact_info?.suggest_phone
+      ?.split(',')
+      ?.findIndex(phone => phone === value)
+
+    if (INDEX === undefined || INDEX < 0) return
+
+    const res = await getContact({
+      body: {
+        id: order_edit.value.contact_info?.id,
+        key: 'phones',
+        key_index: INDEX,
+        type: 'HIDDEN_DATA',
+      },
+    })
+    customer_phone.value = res.data
+    
+    // updateAnOrder()
+  } catch (error) {
+    
+  }
 }
 
 /** chọn phương thức thanh toán */
@@ -1597,6 +1619,7 @@ function calculatorOrder(is_update_order?: boolean) {
 async function createNewOrder(status?: string) {
   try {
     removeFullAddress()
+    updatePhoneNumberContact()
 
     if (!checkOrderValid()) return
     if (!order_edit.value.contact_id) {
@@ -1626,7 +1649,7 @@ async function createNewOrder(status?: string) {
         ...formatOrderData(order_edit.value),
         status: status ? status : 'DRART_ORDER',
         chatbox_widget_token: WIDGET?.access_token,
-        assigned_employee: $appStore.data_client?.conversation_staff?.user_id,
+        assigned_employee: $appStore.data_client?.conversation_staff?.user_id
       }
     })
     order_edit.value = new_order
@@ -1670,6 +1693,7 @@ async function createNewProduct() {
 /** Cập nhật order */
 async function updateAnOrder(status?: string) {
   removeFullAddress()
+  updatePhoneNumberContact()
 
   // * Nếu order chưa có id thì dừng lại
   if (!order_edit.value.id) return
@@ -1932,6 +1956,9 @@ async function activeStep(
       ...order_edit.value.custom_fields,
       customer_name: customer_name.value,
       last_phone: customer_phone.value,
+      customer_phone: customer_phone.value,
+      page_id: $appStore.data_client.public_profile?.page_id || '',
+      fb_client_id: $appStore.data_client.public_profile?.fb_client_id || '',
     }
 
     // * Không xử lý gì cả
@@ -2295,6 +2322,20 @@ function removeFullAddress() {
     isEmpty(order_edit.value.locations?.ward)
   ) {
     order_edit.value.full_address = ''
+  }
+}
+
+/** động bộ số điện thoại qua contact */
+async function updatePhoneNumberContact() {
+  try {
+    await updateContact({
+      body: {
+        id: order_edit.value.contact_info?.id,
+        phones: [customer_phone.value],
+      },
+    })
+  } catch (e) {
+    console.log(e)
   }
 }
 

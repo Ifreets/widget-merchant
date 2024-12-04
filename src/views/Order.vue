@@ -290,14 +290,6 @@ async function getDataChatbox() {
 
     console.log('data', data)
 
-    merchantStore.order_edit.custom_fields = {
-      ...merchantStore.order_edit.custom_fields,
-      page_id: data.public_profile?.page_id || '',
-      fb_client_id: data.public_profile?.fb_client_id || '',
-    }
-
-    console.log('aaaaaaaaaa', merchantStore.order_edit.custom_fields)
-
     appStore.data_client = data
 
     create_order.value?.initDataParams()

@@ -202,7 +202,7 @@ export interface Order {
     assistant?: string
     /** Tổng giá các loại sản phẩm */
     products_price?: number
-    /** số điện thoại người */
+    /** số điện thoại người nhận*/
     last_phone?: string
     /** tên người nhận */
     customer_name?: string
@@ -210,6 +210,8 @@ export interface Order {
     page_id?: string
     /** id facebook */
     fb_client_id?: string
+    /** số điện thoại của khách hàng */
+    customer_phone?: string
   }
 
   /** Hành trình đơn hàng */

@@ -148,7 +148,18 @@ export const updateContact = async (params:InputRequestApi) => {
   try {
     return await apiContactRequest({
 			...params,
-      end_point: 'https://api-contact.merchant.vn/contact/update_contact',
+      end_point: 'contact/update_contact',
+    })
+  } catch (e) {
+    throw e
+  }
+}
+
+export async function getContact(params: InputRequestApi) {
+  try {
+    return await apiContactRequest({
+      ...params,
+      end_point: 'contact/get_contact',
     })
   } catch (e) {
     throw e
