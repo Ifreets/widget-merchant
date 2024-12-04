@@ -82,7 +82,7 @@
       <a
         v-if="contact?.identifier_id"
         class="flex-grow-0 flex-shrink-0 max-h-fit rounded border border-blue-700"
-        :href="`https://merchant.vn/a/contact?id=${contact?.identifier_id}`"
+        :href="`https://merchant.vn/login?chat_access_token=${WIDGET.access_token}&redirect=https://merchant.vn/a/contact?id=${contact?.identifier_id}`"
         target="_blank"
         v-tooltip="'Thông tin khách hàng'"
       >
@@ -99,6 +99,7 @@ import { getContactReport } from '@/service/api/merchant'
 // * libraries
 import { ref } from 'vue'
 import { storeToRefs } from 'pinia'
+import WIDGET from 'bbh-chatbox-widget-js-sdk'
 
 // * components
 
@@ -153,7 +154,13 @@ async function getReporContact() {
     console.log(e);
   }
 }
-
+/** mở truy cập sang merchant */
+function openLink() {
+  window.open(
+    `https://merchant.vn/login?chat_access_token=${WIDGET.access_token}&redirect=https://merchant.vn/a/order`,
+    '_blank'
+  )
+}
 
 defineExpose({ getReporContact })
 </script>
