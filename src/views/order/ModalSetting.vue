@@ -59,7 +59,7 @@
             class="flex gap-1 items-center cursor-pointer font-medium underline hover:text-blue-700"
             @click="openLink()"
           >
-            Truy cập Merchant 
+            Truy cập Merchant
             <LinkIcon class="w-4 h-4" />
           </p>
         </main>
@@ -133,8 +133,10 @@ onMounted(() => {
 async function getStores() {
   try {
     const res = await getStore({
-      access_token: WIDGET.access_token,
-      secret_key: $env.secret_key,
+      body: {
+        access_token: WIDGET.access_token,
+        secret_key: $env.secret_key,
+      },
     })
     if (res?.data) stores.value = res.data
   } catch (e) {
@@ -157,13 +159,15 @@ async function updateSetting() {
     commonStore.store = store.value
 
     const res = await getMerchantToken({
-      access_token: WIDGET.access_token,
-      secret_key: $env.secret_key,
-      ...(commonStore?.store?.chatbox_page_id
-        ? {
-            redirect_to_store: commonStore?.store?.chatbox_page_id,
-          }
-        : {}),
+      body: {
+        access_token: WIDGET.access_token,
+        secret_key: $env.secret_key,
+        ...(commonStore?.store?.chatbox_page_id
+          ? {
+              redirect_to_store: commonStore?.store?.chatbox_page_id,
+            }
+          : {}),
+      },
     })
 
     if (res?.data) {

@@ -22,7 +22,10 @@
           {{ status.title }}
         </button>
       </div>
-      <VMenu v-else :delay="0">
+      <VMenu
+        v-else
+        :delay="0"
+      >
         <p
           class="px-2 py-0.5 border rounded-md border-slate-500 text-slate-700 cursor-default"
         >
@@ -38,10 +41,12 @@
             <li
               v-for="(status, index_status) in step"
               class="cursor-pointer hover:bg-slate-100 rounded-md px-2 py-1"
-              @click="()=>{
-								updateStatus(status)
-								hide()
-							}"
+              @click="
+                () => {
+                  updateStatus(status)
+                  hide()
+                }
+              "
             >
               <button>
                 {{ status.title }}
@@ -133,7 +138,6 @@ function scollToLastStep() {
 
 async function updateStatus(status: ActionStep) {
   try {
-
     //* kích hoạt trạng thái ở trong hành trình
     const order_journey = props.order.order_journey?.map((step, index_step) => {
       return step?.map((action, index_action) => {
@@ -145,13 +149,15 @@ async function updateStatus(status: ActionStep) {
     })
 
     const res = await updateOrder({
-      id: props.order.id,
-      last_order_journey: {
-        ...status,
-        is_active: true,
+      body: {
+        id: props.order.id,
+        last_order_journey: {
+          ...status,
+          is_active: true,
+        },
+        status: status.action,
+        order_journey,
       },
-      status: status.action,
-      order_journey,
     })
     props.update(res)
   } catch (e) {

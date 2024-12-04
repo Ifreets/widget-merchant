@@ -59,7 +59,7 @@ export class Toast implements ToastInterFace {
     warning(message: string, position?: string, gravity?: string) {
         toast(message, "warning", position, gravity);
     }
-    error(message: string, position?: string, gravity?: string) {
+    error(message: any, position?: string, gravity?: string) {
         toast(message, "error", position, gravity);
     }
 }
