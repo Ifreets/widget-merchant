@@ -10,6 +10,9 @@ module.exports = {
       screens: {
         xs: '360px',
       },
+      maxHeight: {
+        'xl': '36rem',
+      },
       fontSize: {
         'xs-10': '10px',
       },

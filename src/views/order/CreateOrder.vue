@@ -22,6 +22,7 @@
             placeholder="Họ và tên"
             @change="updateAnOrder()"
             v-model="customer_name"
+            autocomplete="off"
           />
           <Dropbox>
             <template #trigger>
@@ -42,6 +43,7 @@
                   placeholder="Số điện thoại"
                   @change="updatePhoneNumber"
                   v-model="customer_phone"
+                  autocomplete="off"
                 />
                 <ArrowIcon class="text-gray-500 absolute right-3" />
               </div>
@@ -87,6 +89,7 @@
                     'py-2.5': checkIfMobile(),
                     'py-1.5': !checkIfMobile(),
                   }"
+                  autocomplete="off"
                 />
                 <img
                   :src="DeleteIcon"
@@ -193,6 +196,7 @@
                     'py-2.5': checkIfMobile(),
                     'py-1.5': !checkIfMobile(),
                   }"
+                  autocomplete="off"
                 />
                 <ArrowIcon
                   class="text-gray-500 absolute right-3"
@@ -209,7 +213,7 @@
             </template>
             <template #box>
               <div
-                class="w-full rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-40 overflow-auto mt-2"
+                class="w-full rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-xl overflow-auto scrollbar-thin mt-2"
                 v-show="show_dropbox && isAvailablelUpdate('address')"
               >
                 <div
@@ -260,6 +264,7 @@
                     'py-2.5': checkIfMobile(),
                     'py-1.5': !checkIfMobile(),
                   }"
+                  autocomplete="off"
                 />
                 <ArrowIcon
                   class="text-gray-500 absolute right-3"
@@ -276,7 +281,7 @@
             </template>
             <template #box>
               <div
-                class="w-full rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-40 overflow-auto mt-2"
+                class="w-full rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-xl overflow-auto scrollbar-thin mt-2"
                 v-show="show_dropbox && isAvailablelUpdate('address')"
               >
                 <div
@@ -325,6 +330,7 @@
                     'py-2.5': checkIfMobile(),
                     'py-1.5': !checkIfMobile(),
                   }"
+                  autocomplete="off"
                 />
                 <ArrowIcon
                   class="text-gray-500 absolute right-3"
@@ -341,7 +347,7 @@
             </template>
             <template #box>
               <div
-                class="w-full rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-40 overflow-auto mt-2"
+                class="w-full rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-xl overflow-auto scrollbar-thin mt-2"
                 v-show="show_dropbox && isAvailablelUpdate('address')"
               >
                 <div
@@ -395,6 +401,7 @@
                   placeholder="Nhập mã, tên sản phẩm..."
                   :readonly="!isAvailablelUpdate('product')"
                   class="flex-grow outline-none placeholder:text-slate-500 focus:group:border-blue-700"
+                  autocomplete="off"
                 />
                 <ArrowIcon class="flex-shink-0 text-gray-500" />
               </div>
@@ -521,6 +528,7 @@
                     v-model="product.product_name"
                     :placeholder="'Tên sản phẩm'"
                     class="w-32 border-b outline-none border-black bg-transparent placeholder:text-slate-500"
+                    autocomplete="off"
                   />
                 </td>
                 <td class="text-end p-1">
@@ -885,6 +893,7 @@
             placeholder="Ghi chú với khách"
             v-model="order_edit.note"
             :readonly="!isAvailablelUpdate('')"
+            autocomplete="off"
           />
           <input
             type="text"
@@ -896,6 +905,7 @@
             placeholder="Ghi chú nội bộ"
             v-model="order_edit.internal_note"
             :readonly="!isAvailablelUpdate('')"
+            autocomplete="off"
           />
           <!-- <p class="max-h-20 overflow-auto">{{ urlParams }}</p> -->
         </div>
