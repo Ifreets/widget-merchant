@@ -1143,6 +1143,11 @@ const is_phone_valid = computed(() => {
 })
 
 onMounted(() => {
+  document.querySelectorAll('input').forEach((input) => {
+    input.setAttribute('name', 'field-' + Math.random().toString(36).substring(2, 15));
+  });
+
+
   if (order_edit.value?.id) {
     order_edit.value = $merchant.order_edit
     if (order_edit.value.locations) {
