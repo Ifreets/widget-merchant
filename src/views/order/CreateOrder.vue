@@ -163,7 +163,7 @@
             </template>
           </Dropbox>
         </div>
-        <div class="grid grid-cols-1">
+        <div class="grid grid-cols-3 gap-2">
           <!-- Tỉnh thành phố -->
           <Dropbox>
             <template #trigger>
@@ -230,8 +230,8 @@
               </div>
             </template>
           </Dropbox>
-        </div>
-        <div class="grid grid-cols-2 gap-2">
+        <!-- </div> -->
+        <!-- <div class="grid grid-cols-2 gap-2"> -->
           <!-- Quận huyện -->
           <Dropbox>
             <template #trigger>
