@@ -11,7 +11,7 @@ module.exports = {
         xs: '360px',
       },
       maxHeight: {
-        'xl': '36rem',
+        'sm': '60vh',
       },
       fontSize: {
         'xs-10': '10px',

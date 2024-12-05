@@ -163,7 +163,7 @@
             </template>
           </Dropbox>
         </div>
-        <div class="grid grid-cols-3 gap-2">
+        <div class="grid grid-cols-1">
           <!-- Tỉnh thành phố -->
           <Dropbox>
             <template #trigger>
@@ -188,7 +188,7 @@
                     }
                   "
                   @focusout="() => (search_provice = getProvinceName() || '')"
-                  class="w-full flex items-center justify-between px-3 border rounded-md"
+                  class="w-full flex items-center justify-between px-3 pr-5 border rounded-md"
                   :class="{
                     'border-red-500':
                       !getProvinceName() && alert_validate && check_address,
@@ -213,7 +213,7 @@
             </template>
             <template #box>
               <div
-                class="w-full rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-xl overflow-auto scrollbar-thin mt-2"
+                class="w-full rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-sm overflow-auto scrollbar-thin mt-2"
                 v-show="show_dropbox && isAvailablelUpdate('address')"
               >
                 <div
@@ -230,8 +230,8 @@
               </div>
             </template>
           </Dropbox>
-        <!-- </div> -->
-        <!-- <div class="grid grid-cols-2 gap-2"> -->
+        </div>
+        <div class="grid grid-cols-2 gap-2">
           <!-- Quận huyện -->
           <Dropbox>
             <template #trigger>
@@ -256,7 +256,7 @@
                   @keyup.up="controlLocation('district', 'up')"
                   @keyup.down="controlLocation('district', 'down')"
                   @keydown.tab="tabEvent('district')"
-                  class="w-full flex items-center justify-between px-3 border rounded-md"
+                  class="w-full flex items-center justify-between px-3 pr-5 border rounded-md"
                   :class="{
                     'border-red-500':
                       !getDistrictName() && alert_validate && check_address,
@@ -281,7 +281,7 @@
             </template>
             <template #box>
               <div
-                class="w-full rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-xl overflow-auto scrollbar-thin mt-2"
+                class="w-full rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-sm overflow-auto scrollbar-thin mt-2"
                 v-show="show_dropbox && isAvailablelUpdate('address')"
               >
                 <div
@@ -322,7 +322,7 @@
                   @keyup.up="controlLocation('ward', 'up')"
                   @keyup.down="controlLocation('ward', 'down')"
                   @keydown.tab="tabEvent('ward')"
-                  class="w-full flex items-center justify-between px-3 border rounded-md k"
+                  class="w-full flex items-center justify-between px-3 pr-5 border rounded-md k"
                   :class="{
                     'border-red-500':
                       !getWardName() && alert_validate && check_address,
@@ -347,7 +347,7 @@
             </template>
             <template #box>
               <div
-                class="w-full rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-xl overflow-auto scrollbar-thin mt-2"
+                class="w-full rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-sm overflow-auto scrollbar-thin mt-2"
                 v-show="show_dropbox && isAvailablelUpdate('address')"
               >
                 <div
@@ -1143,11 +1143,6 @@ const is_phone_valid = computed(() => {
 })
 
 onMounted(() => {
-  document.querySelectorAll('input').forEach((input) => {
-    input.setAttribute('name', 'field-' + Math.random().toString(36).substring(2, 15));
-  });
-
-
   if (order_edit.value?.id) {
     order_edit.value = $merchant.order_edit
     if (order_edit.value.locations) {
