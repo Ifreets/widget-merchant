@@ -1,13 +1,13 @@
 <template>
   <p
     v-if="!merchantStore.orders?.length"
-    class="text-center py-3 text-slate-500 h-full"
+    class="text-center py-3 px-2 text-slate-500 h-full"
   >
     Chưa có đơn nào được tạo
   </p>
   <article
     v-if="merchantStore.orders?.length"
-    class="overflow-y-auto h-full scrollbar-thin flex flex-col gap-2"
+    class="overflow-y-auto h-full scrollbar-thin flex flex-col gap-2 px-2"
   >
     <section v-for="(order, index) in merchantStore.orders">
       <OrderInfo

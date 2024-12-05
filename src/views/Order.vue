@@ -1,7 +1,7 @@
 <template>
-  <article class="px-3 text-sm flex flex-col gap-2 h-dvh">
+  <article class="text-sm flex flex-col gap-2 h-dvh">
     <div
-      class="flex gap-1 w-full flex-shrink-0 items-center sticky top-0 z-10 pt-1 bg-white"
+      class="px-2 flex gap-1 w-full flex-shrink-0 items-center sticky top-0 z-10 pt-1 bg-white"
     >
       <Header class="w-full" />
       <img

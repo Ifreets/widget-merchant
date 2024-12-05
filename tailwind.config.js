@@ -15,5 +15,11 @@ module.exports = {
       },
     },
   },
+  safelist: [
+    "px-1.5",
+    "px-2.5",
+    "p-1.5",
+    "p-2.5"
+  ],
   plugins: [],
 }

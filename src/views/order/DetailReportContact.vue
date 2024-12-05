@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center w-full pb-2"
+  <div class="flex items-center w-full pb-2 px-2"
     v-if="$merchant.current_tab === 'ORDERS'"
     :class="{
       'justify-between':customer_data?.report_order,

@@ -1,5 +1,5 @@
 <template>
-  <article class="h-full flex flex-col overflow-auto scrollbar-thin">
+  <article class="h-full px-2 flex flex-col overflow-auto scrollbar-thin">
     <section class="h-max flex flex-col gap-2">
       <!-- Hành trình đơn hàng -->
       <!-- <OrderJourney :order="order" /> -->
@@ -12,9 +12,11 @@
         <div class="grid grid-cols-2 gap-2">
           <input
             id="customer-name-input"
-            class="px-3 py-2.5 border rounded-md outline-none placeholder:text-slate-500"
+            class="px-3 border rounded-md outline-none placeholder:text-slate-500"
             :class="{
               'border-red-500': !customer_name && alert_validate,
+              'py-2.5': checkIfMobile(),
+              'py-1.5': !checkIfMobile(),
             }"
             type="text"
             placeholder="Họ và tên"
@@ -29,10 +31,12 @@
               >
                 <input
                   id="phone-input"
-                  class="w-full px-3 py-2.5 border rounded-md outline-none placeholder:text-slate-500"
+                  class="w-full px-3 border rounded-md outline-none placeholder:text-slate-500"
                   :class="{
                     'border-red-500':
                       (!customer_phone || is_phone_valid) && alert_validate,
+                      'py-2.5': checkIfMobile(),
+                      'py-1.5': !checkIfMobile(),
                   }"
                   type="text"
                   placeholder="Số điện thoại"
@@ -76,10 +80,12 @@
                   @keyup.down="controlLocation('address', 'down')"
                   @keydown.tab="tabEvent('address')"
                   :readonly="!isAvailablelUpdate('address')"
-                  class="px-3 py-2.5 border rounded-md placeholder:text-slate-500 w-full"
+                  class="px-3 border rounded-md placeholder:text-slate-500 w-full"
                   :class="{
                     'border-red-500':
                       !order_edit.address && alert_validate && check_address,
+                    'py-2.5': checkIfMobile(),
+                    'py-1.5': !checkIfMobile(),
                   }"
                 />
                 <img
@@ -179,11 +185,13 @@
                     }
                   "
                   @focusout="() => (search_provice = getProvinceName() || '')"
-                  class="w-full flex items-center justify-between p-2 border rounded-md"
+                  class="w-full flex items-center justify-between px-3 border rounded-md"
                   :class="{
                     'border-red-500':
                       !getProvinceName() && alert_validate && check_address,
                     'placeholder:text-black': getProvinceName(),
+                    'py-2.5': checkIfMobile(),
+                    'py-1.5': !checkIfMobile(),
                   }"
                 />
                 <ArrowIcon
@@ -244,11 +252,13 @@
                   @keyup.up="controlLocation('district', 'up')"
                   @keyup.down="controlLocation('district', 'down')"
                   @keydown.tab="tabEvent('district')"
-                  class="w-full flex items-center justify-between p-2 border rounded-md"
+                  class="w-full flex items-center justify-between px-3 border rounded-md"
                   :class="{
                     'border-red-500':
                       !getDistrictName() && alert_validate && check_address,
                     'placeholder:text-black': getDistrictName(),
+                    'py-2.5': checkIfMobile(),
+                    'py-1.5': !checkIfMobile(),
                   }"
                 />
                 <ArrowIcon
@@ -307,11 +317,13 @@
                   @keyup.up="controlLocation('ward', 'up')"
                   @keyup.down="controlLocation('ward', 'down')"
                   @keydown.tab="tabEvent('ward')"
-                  class="w-full flex items-center justify-between p-2 border rounded-md k"
+                  class="w-full flex items-center justify-between px-3 border rounded-md k"
                   :class="{
                     'border-red-500':
                       !getWardName() && alert_validate && check_address,
                     'placeholder:text-black': getWardName(),
+                    'py-2.5': checkIfMobile(),
+                    'py-1.5': !checkIfMobile(),
                   }"
                 />
                 <ArrowIcon
@@ -356,9 +368,11 @@
         </div>
         <div class="flex gap-2 items-center">
           <Dropbox
-            class="border py-2 px-3 rounded-md group focus-within:border-blue-600 focus-within:border-2"
+            class="border px-3 rounded-md group focus-within:border-blue-600 focus-within:border-2"
             :class="{
               '!border-red-500': !order_edit.products?.length && alert_validate,
+              'py-2.5': checkIfMobile(),
+              'py-1.5': !checkIfMobile(),
             }"
           >
             <template #trigger>
@@ -441,7 +455,11 @@
             </template>
           </Dropbox>
           <div
-            class="bg-black p-2 rounded-md h-fit cursor-pointer"
+            class="bg-black rounded-md h-fit cursor-pointer"
+            :class="{
+              'p-2.5': checkIfMobile(),
+              'p-1.5': !checkIfMobile(),
+            }"
             @click="addProduct"
             v-tooltip="'Thêm nhanh SP'"
           >
@@ -765,10 +783,12 @@
             <Dropbox>
               <template v-slot:trigger>
                 <div
-                  class="px-3 py-2.5 rounded-md border bg-white"
+                  class="px-3 rounded-md border bg-white"
                   :class="{
                     'text-gray-500': !staff.employee_id,
                     'text-gray-800': staff.employee_id,
+                    'py-2.5': checkIfMobile(),
+                    'py-1.5': !checkIfMobile(),
                   }"
                   @click="
                     isAvailablelUpdate('')
@@ -857,14 +877,22 @@
         <div class="grid grid-cols-2 gap-2.5">
           <input
             type="text"
-            class="w-full flex items-center justify-between py-2.5 px-3 outline-none border rounded-md placeholder:text-slate-500 text-sm"
+            class="w-full flex items-center justify-between px-3 outline-none border rounded-md placeholder:text-slate-500 text-sm"
+            :class="{
+              'py-2.5': checkIfMobile(),
+              'py-1.5': !checkIfMobile(),
+            }"
             placeholder="Ghi chú với khách"
             v-model="order_edit.note"
             :readonly="!isAvailablelUpdate('')"
           />
           <input
             type="text"
-            class="w-full flex items-center justify-between py-2.5 px-3 outline-none border rounded-md placeholder:text-slate-500 text-sm"
+            class="w-full flex items-center justify-between px-3 outline-none border rounded-md placeholder:text-slate-500 text-sm"
+            :class="{
+              'py-2.5': checkIfMobile(),
+              'py-1.5': !checkIfMobile(),
+            }"
             placeholder="Ghi chú nội bộ"
             v-model="order_edit.internal_note"
             :readonly="!isAvailablelUpdate('')"
@@ -1148,6 +1176,11 @@ watch(
   },
   { deep: true }
 )
+
+/** kiểm tra thiết bị */
+function checkIfMobile(){
+  return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
+}
 
 /** hàm lấy danh sách địa chỉ đã chọn */
 async function getSelectedAddresses() {
