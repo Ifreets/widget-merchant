@@ -2000,6 +2000,7 @@ async function activeStep(
       customer_phone: customer_phone.value,
       page_id: $appStore.data_client.public_profile?.page_id || '',
       fb_client_id: $appStore.data_client.public_profile?.fb_client_id || '',
+      page_name: $appStore.data_client.public_profile?.page_name || '',
     }
 
     // * Không xử lý gì cả

@@ -208,6 +208,8 @@ export interface Order {
     customer_name?: string
     /** id trang */
     page_id?: string
+    /** tên trang */
+    page_name?: string
     /** id facebook */
     fb_client_id?: string
     /** số điện thoại của khách hàng */
