@@ -102,7 +102,7 @@
             </template>
             <template #box>
               <div
-                v-if="show_dropbox && isAvailablelUpdate('address')"
+                v-if="show_dropbox && isAvailablelUpdate('address') && addresses.length"
                 class="w-full p-1 bg-white rounded-md border shadow-md flex flex-col gap-1 mt-1 max-h-60 overflow-y-auto"
               >
                 <template
@@ -213,7 +213,7 @@
             </template>
             <template #box>
               <div
-                class="w-full rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-sm overflow-auto scrollbar-thin mt-2"
+                class="w-full rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-sm overflow-auto scrollbar-thin mt-1"
                 v-show="show_dropbox && isAvailablelUpdate('address')"
               >
                 <div
@@ -281,8 +281,8 @@
             </template>
             <template #box>
               <div
-                class="w-full rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-sm overflow-auto scrollbar-thin mt-2"
-                v-show="show_dropbox && isAvailablelUpdate('address')"
+                class="w-full rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-sm overflow-auto scrollbar-thin mt-1"
+                v-show="show_dropbox && isAvailablelUpdate('address') && districts.length"
               >
                 <div
                   :id="`district-${index}`"
@@ -348,7 +348,7 @@
             <template #box>
               <div
                 class="w-full rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-sm overflow-auto scrollbar-thin mt-2"
-                v-show="show_dropbox && isAvailablelUpdate('address')"
+                v-show="show_dropbox && isAvailablelUpdate('address') && wards.length"
               >
                 <div
                   :id="`ward-${index}`"
@@ -1747,6 +1747,7 @@ async function updateAnOrder(status?: string) {
     await updateOrder({
       body: formatOrderData(order_edit.value),
     })
+    $toast.success('Cập nhật đơn hàng thành công')
   } catch (e) {
     $toast.error(e as string)
   }
@@ -2189,15 +2190,15 @@ function removeLocation(
   }
   if (type === 'all') {
     order_edit.value.address = ''
-    order_edit.value.locations = {
-      province: {},
-      district: {},
-      ward: {},
-    }
+    // order_edit.value.locations = {
+    //   province: {},
+    //   district: {},
+    //   ward: {},
+    // }
     if (focus) focusInput('address-input')
-    search_provice.value = ''
-    search_district.value = ''
-    search_ward.value = ''
+    // search_provice.value = ''
+    // search_district.value = ''
+    // search_ward.value = ''
   }
   resetHidden()
 }
