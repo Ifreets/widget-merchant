@@ -114,6 +114,9 @@ export interface SettingData {
 
     /** Nhân viên bán hàng */
     saler: StaffInfo
+
+    /** thêm nhanh sản phẩm */
+    quick_add_product?: boolean
 };
 
 /** Dữ liệu trong từng step */

@@ -462,6 +462,7 @@
             </template>
           </Dropbox>
           <div
+            v-show="$merchant?.setting?.quick_add_product"
             class="bg-black rounded-md h-fit cursor-pointer"
             :class="{
               'p-2.5': checkIfMobile(),
@@ -2025,7 +2026,7 @@ async function activeStep(
     }
 
     // * Tạo đơn nháp
-    if (action === 'DRART_ORDER') {
+    if (action === 'DRART_ORDER' || action === 'WAITING_ITEM') {
       console.log(order_edit.value)
       if (
         order_edit.value.custom_fields?.sales_channel === 'online' &&
@@ -2033,9 +2034,8 @@ async function activeStep(
       ) {
         return $toast.error('Vui lòng chọn khách hàng trước khi tạo đơn hàng')
       }
-      createNewOrder()
-
       activeStatus()
+      createNewOrder()
     }
 
     // * Xác nhận không thay đổi sản phẩm
