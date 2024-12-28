@@ -1684,6 +1684,7 @@ async function createNewOrder(status?: string) {
     // }
 
     // await createNewProduct()
+    validateProduct()
 
     let new_order = await createOrder({
       body: {
@@ -1701,6 +1702,16 @@ async function createNewOrder(status?: string) {
     console.log(e)
     $toast.error(e as string)
   }
+}
+
+/** kiểm tra sản phẩm đã có tên và giá chưa */
+function validateProduct() {
+  if (!order_edit.value.products) return
+  /** sản phẩm có hợp lệ hết không */
+  const IS_VALID = order_edit.value.products.every(
+    item => item.product_name
+  )
+  if(!IS_VALID) throw 'Vui lòng nhập đầy đủ tên cho sản phẩm'
 }
 
 /** tạo các sản phẩm mới */
@@ -1744,6 +1755,9 @@ async function updateAnOrder(status?: string) {
 
   try {
     if (!checkOrderValid()) return
+
+    validateProduct()
+
     await updateOrder({
       body: formatOrderData(order_edit.value),
     })
