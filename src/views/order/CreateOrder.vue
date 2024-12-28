@@ -1683,7 +1683,7 @@ async function createNewOrder(status?: string) {
     //   return $toast.error('Vui lòng chọn phường xã trước khi tạo đơn hàng')
     // }
 
-    await createNewProduct()
+    // await createNewProduct()
 
     let new_order = await createOrder({
       body: {
@@ -1704,32 +1704,32 @@ async function createNewOrder(status?: string) {
 }
 
 /** tạo các sản phẩm mới */
-async function createNewProduct() {
-  try {
-    if (!order_edit.value.products) return
-    for (let index = 0; index < order_edit.value.products.length; index++) {
-      const element = order_edit.value.products[index]
-      if (element.product_id) continue
-      const res = await createProduct({
-        body: {
-          ...element,
-          name: element.product_name,
-          price: Number(element.price),
-        },
-      })
-      order_edit.value.products[index] = {
-        ...element,
-        product_id: res?.product_id,
-        inventory_quantity: res?.inventory_quantity || 0,
-        revenue_allocation: res?.custom_fields?.revenue_allocation || false,
-        service_fee: res.service_fee || 0,
-      }
-    }
-  } catch (e) {
-    // $toast.error(e as string)
-    throw e
-  }
-}
+// async function createNewProduct() {
+//   try {
+//     if (!order_edit.value.products) return
+//     for (let index = 0; index < order_edit.value.products.length; index++) {
+//       const element = order_edit.value.products[index]
+//       if (element.product_id) continue
+//       const res = await createProduct({
+//         body: {
+//           ...element,
+//           name: element.product_name,
+//           price: Number(element.price),
+//         },
+//       })
+//       order_edit.value.products[index] = {
+//         ...element,
+//         product_id: res?.product_id,
+//         inventory_quantity: res?.inventory_quantity || 0,
+//         revenue_allocation: res?.custom_fields?.revenue_allocation || false,
+//         service_fee: res.service_fee || 0,
+//       }
+//     }
+//   } catch (e) {
+//     // $toast.error(e as string)
+//     throw e
+//   }
+// }
 
 /** Cập nhật order */
 async function updateAnOrder(status?: string) {
