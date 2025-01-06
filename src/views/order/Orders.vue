@@ -1,10 +1,17 @@
 <template>
-  <p
+  <div
     v-if="!merchantStore.orders?.length"
-    class="text-center py-3 px-2 text-slate-500 h-full"
+    class="flex flex-col gap-2 items-center py-3 px-2 h-full"
   >
-    Chưa có đơn nào được tạo
-  </p>
+    <p class="text-slate-500">Chưa có đơn nào được tạo</p>
+    <p
+      class="flex gap-1 items-center cursor-pointer font-medium underline hover:text-blue-700"
+      @click="openLink()"
+    >
+      Truy cập Merchant
+      <LinkIcon class="w-4 h-4" />
+    </p>
+  </div>
   <article
     v-if="merchantStore.orders?.length"
     class="overflow-y-auto h-full scrollbar-thin flex flex-col gap-2 px-2"
@@ -22,8 +29,16 @@ import { ref, watch, onMounted } from 'vue'
 import { useCommonStore, useMerchantStore } from '@/stores'
 import { getOrder } from '@/service/api/merchant'
 
+// * library
+import WIDGET from 'bbh-chatbox-widget-js-sdk'
+
 // * Components
 import OrderInfo from '@/views/order/OrderInfo.vue'
+
+// * icons
+import LinkIcon from '@/components/icons/LinkIcon.vue'
+
+// * interfaces
 import type { Order } from '@/service/interface'
 
 // * props
@@ -59,5 +74,13 @@ async function getOrders() {
   } catch (e) {
     console.log(e)
   }
+}
+
+/** mở truy cập sang merchant */
+function openLink() {
+  window.open(
+    `https://merchant.vn/login?chat_access_token=${WIDGET.access_token}&redirect=https://merchant.vn/a/order`,
+    '_blank'
+  )
 }
 </script>
