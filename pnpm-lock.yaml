@@ -24,8 +24,8 @@ importers:
         specifier: ^1.7.2
         version: 1.7.2
       bbh-chatbox-widget-js-sdk:
-        specifier: ^1.0.6
-        version: 1.0.6
+        specifier: ^1.0.8
+        version: 1.0.8
       date-fns:
         specifier: ^3.6.0
         version: 3.6.0
@@ -448,8 +448,8 @@ packages:
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
 
-  bbh-chatbox-widget-js-sdk@1.0.6:
-    resolution: {integrity: sha512-EU8ZRgy5+8BXYAgD8U/jTmRYtcaAlinTAltc7L+9SSnz08w5NIgAEfRI+q6s/GxcM7kicG7FeV5t+dfRh2LL8Q==}
+  bbh-chatbox-widget-js-sdk@1.0.8:
+    resolution: {integrity: sha512-+6Lg53vxqIrzAPpt4O680P+I7xUz2k7K+41CtwXKlrlzeSZInOnluDHwO7/hyy45UGwTbwIM3tiakGnxZjrN5w==}
 
   binary-extensions@2.3.0:
     resolution: {integrity: sha512-Ceh+7ox5qe7LJuLHoY0feh3pHuUDHAcRUeyL2VYghZwfpkNIy/+8Ocg0a3UuSoYzavmylwuLWQOf3hl0jjMMIw==}
@@ -1791,7 +1791,7 @@ snapshots:
 
   balanced-match@1.0.2: {}
 
-  bbh-chatbox-widget-js-sdk@1.0.6:
+  bbh-chatbox-widget-js-sdk@1.0.8:
     dependencies:
       axios: 1.7.2
       lodash: 4.17.21
