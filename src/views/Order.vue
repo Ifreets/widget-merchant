@@ -20,7 +20,7 @@
       ref="create_order"
       v-if="merchantStore.current_tab === 'CREATE_ORDER'"
     />
-    <DetailReportContact ref="detail_report_contact"/>
+    <DetailReportContact ref="detail_report_contact" />
     <ModalSetting
       v-if="is_show_modal_setting"
       v-model="is_show_modal_setting"
@@ -127,7 +127,7 @@ async function synchData() {
 
     /** Lấy setting */
     const setting = await getSetting({
-      body:{ type: 'order' }
+      body: { type: 'order' },
     })
 
     // * Lưu lại setting
@@ -166,7 +166,7 @@ async function load() {
         client_id: client_id === 'undefined' ? null : client_id,
         message_id: message_id === 'undefined' ? null : message_id,
         secret_key: $env.secret_key,
-      }
+      },
     })
 
     if (data.data) {
@@ -226,15 +226,22 @@ async function load() {
 
 async function loadV2() {
   try {
-    const MESSAGE_ID = queryString('message_id')
+    /** id tin nhắn */
+    const MESSAGE_ID = WIDGET.message_id
 
-    if (MESSAGE_ID && MESSAGE_ID !== 'undefined') {
+    /** id bình luận */
+    const COMMENT_ID = WIDGET.comment_id
+
+    if (
+      (MESSAGE_ID && MESSAGE_ID !== 'undefined') ||
+      (COMMENT_ID && COMMENT_ID !== 'undefined')
+    ) {
       merchantStore.current_tab = 'CREATE_ORDER'
       appStore.is_auto_create = true
     }
 
     await Promise.all([getDataMerchant(), getDataChatbox()])
-    
+
     detail_report_contact.value?.getReporContact()
 
     syncAndGetContact()
@@ -329,6 +336,8 @@ function getFieldParam() {
   let email = AI_DATA?.email?.[0]
   let phone = AI_DATA?.phone_number?.[0]
   let cta = AI_DATA?.cta
+
+  console.log(cta)
 
   // check xem số điện thoại có hợp lệ hay không
   if (!phone || !checkPhone(phone)) phone = ''
