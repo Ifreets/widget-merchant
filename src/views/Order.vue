@@ -47,7 +47,7 @@ import { useAppStore, useCommonStore, useMerchantStore } from '@/stores'
 // * libraries
 import { storeToRefs } from 'pinia'
 import { ref, onMounted } from 'vue'
-import WIDGET from 'bbh-chatbox-widget-js-sdk'
+import WIDGET, { type ChatboxEvent } from 'bbh-chatbox-widget-js-sdk'
 
 // * components
 import Header from '@/views/order/Header.vue'
@@ -76,8 +76,11 @@ const create_order = ref<InstanceType<typeof CreateOrder>>()
 const detail_report_contact = ref<InstanceType<typeof DetailReportContact>>()
 
 // lắng nghe sự kiện từ chatbox
-WIDGET.onEvent(async () => {
-  // load()
+WIDGET.onEvent(async (error:any,data: ChatboxEvent) => {
+  // nếu không phải sự kiện chuyển hội thoại khách hàng thì thôi
+  if(data.type !== 'RELOAD') return
+
+  // nếu là tạo mới thì reset lại form
   if (current_tab.value !== 'ORDERS') {
     order_edit.value = copy(INIT_ORDER)
     order_edit.value.order_journey = copy(
@@ -85,6 +88,7 @@ WIDGET.onEvent(async () => {
     )
     create_order.value?.removeLocation('all', false)
   }
+  // load lại dữ liệu
   loadV2()
 })
 
