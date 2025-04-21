@@ -1,5 +1,9 @@
 <template>
-  <article class="text-sm flex flex-col gap-2 h-dvh">
+  <article class="text-sm flex flex-col gap-2 h-dvh relative">
+    <button
+      class="w-2 h-2 absolute top-0 left-0 z-20"
+      @click="copyLink()"
+    ></button>
     <div
       class="px-2 flex gap-1 w-full flex-shrink-0 items-center sticky top-0 z-10 pt-1 bg-white"
     >
@@ -76,9 +80,9 @@ const create_order = ref<InstanceType<typeof CreateOrder>>()
 const detail_report_contact = ref<InstanceType<typeof DetailReportContact>>()
 
 // lắng nghe sự kiện từ chatbox
-WIDGET.onEvent(async (error:any,data: ChatboxEvent) => {
+WIDGET.onEvent(async (error: any, data: ChatboxEvent) => {
   // nếu không phải sự kiện chuyển hội thoại khách hàng thì thôi
-  if(data.type !== 'RELOAD') return
+  if (data.type !== 'RELOAD') return
 
   // nếu là tạo mới thì reset lại form
   if (current_tab.value !== 'ORDERS') {
@@ -354,5 +358,17 @@ function getFieldParam() {
     is_auto_create: !!cta,
     phone,
   }
+}
+
+/** hàm sao chép link của url */
+function copyLink() {
+  const textarea = document.createElement('textarea')
+  textarea.value = window.location.href
+  textarea.style.position = 'fixed'
+  document.body.appendChild(textarea)
+  textarea.select()
+  document.execCommand('copy')
+  document.body.removeChild(textarea)
+  console.log('Copied using fallback!')
 }
 </script>
