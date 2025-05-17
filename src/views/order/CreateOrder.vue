@@ -533,31 +533,31 @@
                   />
                 </td>
                 <td class="text-end p-1">
-                  <cleave
+                  <InputMoney
                     class="text-end border-b border-black outline-none bg-transparent w-12"
                     :class="{
                       'text-slate-500': Number(product.quantity) === 0,
                     }"
-                    :options="cleave_options"
                     v-model="product.quantity"
-                    @change="calculatorOrder(true)"
+                    :onChange="()=>calculatorOrder(true)"
                     type="tel"
+                    :min="0"
                   />
                 </td>
                 <td class="text-end p-1">
-                  <cleave
+                  <InputMoney
                     class="w-16 text-end border-b border-black outline-none bg-transparent"
                     :class="{
                       'text-slate-500':
                         !product.product_name || Number(product.price) === 0,
                     }"
-                    :options="cleave_options"
                     v-model="product.price"
-                    @change="calculatorOrder(true)"
+                    :onChange="() => calculatorOrder(true)"
                     type="tel"
                     :readonly="
                       !isAvailablelUpdate('product') || !product.product_name
                     "
+                    :min="0"
                   />
                 </td>
                 <td class="text-end p-1 rounded-e">
@@ -611,11 +611,10 @@
         </div>
         <div class="flex justify-between items-center">
           <p>- Phí vận chuyển</p>
-          <cleave
+          <InputMoney
             class="w-32 outline-none border-b border-black text-end font-medium text-base"
-            :options="cleave_options"
             v-model="order_edit.shipping_fee"
-            @change="calculatorOrder(true)"
+            :onChange="()=>calculatorOrder(true)"
             @input="
               () => {
                 if (order_edit.shipping_fee && order_edit.is_freeship)
@@ -623,15 +622,15 @@
               }
             "
             :readonly="!isAvailablelUpdate('money')"
+            :min="0"
           />
         </div>
         <div class="flex justify-between items-center">
           <p>- Giá giảm</p>
-          <cleave
+          <InputMoney
             class="w-32 outline-none border-b border-black text-end font-medium text-base"
-            :options="cleave_options"
             v-model="order_edit.discount"
-            @change="
+            :onChange="
               () => {
                 order_edit.total_price =
                   Number(order_edit.price || 0) -
@@ -645,57 +644,10 @@
                 updateAnOrder()
               }
             "
+            :min="0"
             :readonly="!isAvailablelUpdate('money')"
           />
         </div>
-
-        <!-- <div class="grid grid-cols-2 items-center">
-          <p>- Hình thức thanh toán</p>
-          <div class="flex justify-end relative">
-            <Dropbox place="bottom">
-              <template #trigger>
-                <button
-                  class="flex items-center gap-1 text-end absolute right-0 -top-2.5"
-                  @click="show_dropbox = true"
-                >
-                  <span>{{ payment_methods[payment_method] }}</span>
-                  <span>Tiền mặt</span>
-                  <ArrowIcon />
-                </button>
-              </template>
-              <template #box>
-                <div
-                  class="w-full rounded-md p-1 shadow-md mt-3 border bg-white"
-                  v-if="show_dropbox"
-                >
-                  <div
-                    v-for="(value, key) in payment_methods"
-                    @click="selectPayment(key)"
-                    class="px-3 py-1.5 hover:bg-slate-100"
-                  >
-                    {{ value }}
-                  </div>
-                </div>
-              </template>
-            </Dropbox>
-          </div>
-        </div> -->
-
-        <!-- <div
-          class="grid grid-cols-2 items-center"
-          v-if="payment_method === 'CASH'"
-        >
-          <p>- Đã thanh toán</p>
-          <div class="flex justify-end">
-            <cleave
-              class="w-32 outline-none border-b border-black text-end text-blue-700 font-bold text-base"
-              :options="cleave_options"
-              v-model="order.money_paid"
-              @change="calculatorOrder(true)"
-              :readonly="!isAvailablelUpdate('money')"
-            />
-          </div>
-        </div> -->
         <div
           class="w-full mt-1"
           v-if="payment_method === 'MOMO' || payment_method === 'TRANSFER'"
@@ -950,62 +902,59 @@
   </article>
 </template>
 <script setup lang="ts">
-import { Toast } from '@/service/helper/toast'
-import { nonAccentVn } from '@/service/helper/format'
-import { useAppStore, useMerchantStore } from '@/stores'
-import { confirm2 as confirm } from '@/service/helper/alert'
-import { cleave_options, payment_methods } from '@/service/options'
-import { currency, convertEmployeeName, copy } from '@/service/helper/format'
+import { useLocation } from '@/composable/location'
 import {
   createOrder,
-  updateOrder,
-  getProduct,
-  createProduct,
-  getSelectedAddress,
   getContact,
+  getProduct,
+  getSelectedAddress,
   updateContact,
+  updateOrder
 } from '@/service/api/merchant'
+import { PRODUCT_DEFAULT, PROVINCE } from '@/service/constant'
+import { confirm2 as confirm } from '@/service/helper/alert'
+import { convertEmployeeName, copy, currency, nonAccentVn } from '@/service/helper/format'
+import { Toast } from '@/service/helper/toast'
+import { checkPhone } from '@/service/helper/validate'
+import { useAppStore, useMerchantStore } from '@/stores'
 
+// * Libraries
 import WIDGET from 'bbh-chatbox-widget-js-sdk'
-import { ref, onMounted, computed, watch } from 'vue'
-import { get, isNumber, pick, debounce, isEmpty } from 'lodash'
+import { debounce, get, isEmpty, isNumber, pick } from 'lodash'
+import { storeToRefs } from 'pinia'
+import { computed, onMounted, ref, watch } from 'vue'
 
 // * Components
-import cleave from 'vue-cleave-component'
 import Dropbox from '@/components/Dropbox.vue'
-import OrderJourney from '@/views/order/OrderJourney.vue'
+import InputMoney from '@/components/InputMoney.vue'
+import Toggle from '@/components/Toggle.vue'
 
 // * Icons
 import BagIcon from '@/assets/icons/bag.svg'
-import UserIcon from '@/assets/icons/user.svg'
-import SearchIcon from '@/assets/icons/search.svg'
 import CancelIcon from '@/assets/icons/cancel.svg'
-import QRMomoImage from '@/assets/imgs/qr-momo.png'
-import QRBankImage from '@/assets/imgs/qr-bank.png'
-import ProductIcon from '@/assets/icons/product.svg'
-import DeleteIcon from '@/assets/icons/delete-black.svg'
-import ArrowIcon from '@/components/icons/ArrowIcon.vue'
 import CreditCardIcon from '@/assets/icons/credit-card.svg'
+import DeleteIcon from '@/assets/icons/delete-black.svg'
+import ProductIcon from '@/assets/icons/product.svg'
 import QuestionMaskIcon from '@/assets/icons/question-mark.svg'
+import SearchIcon from '@/assets/icons/search.svg'
+import UserIcon from '@/assets/icons/user.svg'
+import QRBankImage from '@/assets/imgs/qr-bank.png'
+import QRMomoImage from '@/assets/imgs/qr-momo.png'
+import ArrowIcon from '@/components/icons/ArrowIcon.vue'
+import CheckCircle from '@/components/icons/CheckCircle.vue'
 
 /** Dữ liệu interface */
 import type {
-  Order,
-  Product,
-  WardData,
   Addresses,
-  ProvinceData,
   DistrictData,
   EmployeeData,
-  PaymentMethods,
   ISelectedAddress,
+  Order,
+  PaymentMethods,
+  Product,
+  ProvinceData,
+  WardData,
 } from '@/service/interface'
-import { checkPhone } from '@/service/helper/validate'
-import { INIT_ORDER, PRODUCT_DEFAULT, PROVINCE } from '@/service/constant'
-import Toggle from '@/components/Toggle.vue'
-import CheckCircle from '@/components/icons/CheckCircle.vue'
-import { storeToRefs } from 'pinia'
-import { useLocation } from '@/composable/location'
 
 /** store merchant */
 const $merchant = useMerchantStore()
@@ -1044,6 +993,15 @@ const {
 
 const selected_address = ref<ISelectedAddress[]>([])
 
+/** cảnh báo */
+const alert_validate = ref<boolean>(false)
+
+/** tên của người nhận */
+const customer_name = ref(getContactName())
+
+/** số điện thoại người nhận */
+const customer_phone = ref(getContactPhone())
+
 /** hiển thị địa chỉ gần nhất */
 const lastest_address_show = computed(() => {
   if ($appStore.is_auto_create || !$merchant.orders?.length) return ''
@@ -1059,15 +1017,6 @@ const lastest_address_show = computed(() => {
 
   return arr.join(', ')
 })
-
-/** cảnh báo */
-const alert_validate = ref<boolean>(false)
-
-/** tên của người nhận */
-const customer_name = ref(getContactName())
-
-/** số điện thoại người nhận */
-const customer_phone = ref(getContactPhone())
 
 /** Tìm kiếm sản phẩm */
 const start_search = debounce(() => {
@@ -1094,8 +1043,6 @@ const payment_method = ref<PaymentMethods>('CASH')
 
 /** Index của sản phẩm */
 const product_index = ref<number>(0)
-
-// const full_address = ref<string>('')
 
 /** đang gọi api */
 const is_calling_api = ref<boolean>(false)
@@ -1654,7 +1601,7 @@ function calculatorOrder(is_update_order?: boolean) {
     Math.round(Number(order_edit.value.total_money)) -
     Number(order_edit.value.money_paid)
 
-  if (is_update_order) updateAnOrder()
+  // if (is_update_order) updateAnOrder()
 }
 
 /** Tạo đơn hàng */
@@ -1683,8 +1630,6 @@ async function createNewOrder(status?: string) {
     // if (!order.value?.locations?.ward?.code) {
     //   return $toast.error('Vui lòng chọn phường xã trước khi tạo đơn hàng')
     // }
-
-    // await createNewProduct()
     validateProduct()
 
     let new_order = await createOrder({
@@ -1715,41 +1660,17 @@ function validateProduct() {
   if(!IS_VALID) throw 'Vui lòng nhập đầy đủ tên cho sản phẩm'
 }
 
-/** tạo các sản phẩm mới */
-// async function createNewProduct() {
-//   try {
-//     if (!order_edit.value.products) return
-//     for (let index = 0; index < order_edit.value.products.length; index++) {
-//       const element = order_edit.value.products[index]
-//       if (element.product_id) continue
-//       const res = await createProduct({
-//         body: {
-//           ...element,
-//           name: element.product_name,
-//           price: Number(element.price),
-//         },
-//       })
-//       order_edit.value.products[index] = {
-//         ...element,
-//         product_id: res?.product_id,
-//         inventory_quantity: res?.inventory_quantity || 0,
-//         revenue_allocation: res?.custom_fields?.revenue_allocation || false,
-//         service_fee: res.service_fee || 0,
-//       }
-//     }
-//   } catch (e) {
-//     // $toast.error(e as string)
-//     throw e
-//   }
-// }
-
 /** Cập nhật order */
 async function updateAnOrder(status?: string) {
-  removeFullAddress()
-  updatePhoneNumberContact()
-
+  
   // * Nếu order chưa có id thì dừng lại
   if (!order_edit.value.id) return
+  
+  // clear field full address trong đơn hàng
+  removeFullAddress()
+
+  // Cập nhật số điện thoại khách hàng
+  updatePhoneNumberContact()
 
   // * Nếu có trạng thái truyền vào thì cho thay đổi status order
   if (status) order_edit.value.status = status
