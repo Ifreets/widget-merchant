@@ -130,6 +130,18 @@ export const getProfile = async (params:InputRequestApi) => {
   }
 }
 
+/** lấy deeplink */
+export async function getDeeplink(params: InputRequestApi) {
+  try {
+    return await apiMerchantRequest({
+      ...params,
+      end_point: 'auth/login_deeplink',
+    })
+  } catch (e) {
+    throw e
+  }
+}
+
 // * API CONTACT
 /** Đồng bộ dữ liệu khách hàng tới merchant */
 export const syncContact = async (params:InputRequestApi) => {

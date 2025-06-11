@@ -27,7 +27,7 @@
 <script setup lang="ts">
 import { ref, watch, onMounted } from 'vue'
 import { useCommonStore, useMerchantStore } from '@/stores'
-import { getOrder } from '@/service/api/merchant'
+import { getDeeplink, getOrder } from '@/service/api/merchant'
 
 // * library
 import WIDGET from 'bbh-chatbox-widget-js-sdk'
@@ -49,6 +49,18 @@ const props = defineProps<{
 /** Store */
 const commonStore = useCommonStore()
 const merchantStore = useMerchantStore()
+
+/** link tới merchant */
+const link_to_merchant = ref<string>('')
+
+onMounted(() => {
+  // nếu là điện thoại thì lây deep link
+  if (isMobile()) {
+    getDeepLinks()
+  } else {
+    link_to_merchant.value = `https://merchant.vn/login?chat_access_token=${WIDGET.access_token}&redirect=https://merchant.vn/a/order`
+  }
+})
 
 /** Hiện box từ bên ngoài */
 watch(
@@ -78,9 +90,30 @@ async function getOrders() {
 
 /** mở truy cập sang merchant */
 function openLink() {
-  window.open(
-    `https://merchant.vn/login?chat_access_token=${WIDGET.access_token}&redirect=https://merchant.vn/a/order`,
-    '_blank'
+  window.open(link_to_merchant.value, '_blank')
+}
+
+/** hàm kiểm tra xem có phải là mobile không */
+function isMobile() {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
   )
+}
+
+/** hàm lấy deep link */
+async function getDeepLinks() {
+  try {
+    const RES = await getDeeplink({
+      body: {
+        redirect: 'https://merchant.vn/a/order',
+        access_token: WIDGET.access_token,
+      },
+    })
+    
+    // lưu lại deep link
+    link_to_merchant.value = RES?.data?.deeplink
+  } catch (error) {
+    console.log(error)
+  }
 }
 </script>
