@@ -90,7 +90,12 @@ async function getOrders() {
 
 /** mở truy cập sang merchant */
 function openLink() {
-  window.open(link_to_merchant.value, '_blank')
+  if (isMobile()) {
+    window.location.href = link_to_merchant.value
+  }else{
+    window.open(link_to_merchant.value, '_blank')
+
+  }
 }
 
 /** hàm kiểm tra xem có phải là mobile không */
