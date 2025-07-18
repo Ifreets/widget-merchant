@@ -143,12 +143,26 @@ export async function getDeeplink(params: InputRequestApi) {
 }
 
 // * API CONTACT
-/** Đồng bộ dữ liệu khách hàng tới merchant */
+/** Đồng bộ dữ liệu khách hàng tới merchant 
+ * @deprecated dùng syncContactV2
+*/
 export const syncContact = async (params:InputRequestApi) => {
   try {
     return await apiContactRequest({
 			...params,
       end_point: 'contact/chatbox_sync_contact',
+    })
+  } catch (e) {
+    throw e
+  }
+}
+
+/** Đồng bộ dữ liệu khách hàng tới merchant */
+export const syncContactV2 = async (params:InputRequestApi) => {
+  try {
+    return await apiContactRequest({
+			...params,
+      end_point: 'v2/contact/sync_contact',
     })
   } catch (e) {
     throw e

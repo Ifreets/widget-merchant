@@ -256,6 +256,9 @@ export interface Order {
   inventory_quantity?: number
 
   is_archived?: boolean
+
+  /** id số điện thoại của người liên hệ */
+  contact_phone_id?: string
 }
 
 export interface ISelectedAddress {

@@ -142,7 +142,6 @@ function getWidthSuccessOrder(){
 async function getReporContact() {
   try {
     customer_data.value = {}
-    console.log($app.data_client?.conversation_contact?.client_phone)
 
     if (!$app.data_client?.conversation_contact?.client_phone) return
 

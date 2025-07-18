@@ -1,8 +1,6 @@
 <template>
   <article class="h-full px-2 flex flex-col overflow-auto scrollbar-thin">
     <section class="h-max flex flex-col gap-2">
-      <!-- Hành trình đơn hàng -->
-      <!-- <OrderJourney :order="order" /> -->
       <!-- Thông tin đơn hàng -->
       <div class="flex flex-col gap-2">
         <div class="flex items-center gap-2">
@@ -36,8 +34,8 @@
                   :class="{
                     'border-red-500':
                       (!customer_phone || is_phone_valid) && alert_validate,
-                      'py-2.5': checkIfMobile(),
-                      'py-1.5': !checkIfMobile(),
+                    'py-2.5': checkIfMobile(),
+                    'py-1.5': !checkIfMobile(),
                   }"
                   type="text"
                   placeholder="Số điện thoại"
@@ -54,11 +52,11 @@
                 v-if="show_dropbox"
               >
                 <div
-                  v-for="phone in $merchant.contact?.suggest_phone?.split(',')"
+                  v-for="phone in $merchant.contact?.contact_phones"
                   @click="setContactPhone(phone)"
                   class="cursor-pointer px-3 py-1.5 hover:bg-slate-100 rounded-md"
                 >
-                  {{ phone }}
+                  {{ phone?.phone_number }}
                 </div>
               </div>
             </template>
@@ -102,7 +100,11 @@
             </template>
             <template #box>
               <div
-                v-if="show_dropbox && isAvailablelUpdate('address') && addresses.length"
+                v-if="
+                  show_dropbox &&
+                  isAvailablelUpdate('address') &&
+                  addresses.length
+                "
                 class="w-full p-1 bg-white rounded-md border shadow-md flex flex-col gap-1 mt-1 max-h-60 overflow-y-auto"
               >
                 <template
@@ -282,7 +284,11 @@
             <template #box>
               <div
                 class="w-full rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-sm overflow-auto scrollbar-thin mt-1"
-                v-show="show_dropbox && isAvailablelUpdate('address') && districts.length"
+                v-show="
+                  show_dropbox &&
+                  isAvailablelUpdate('address') &&
+                  districts.length
+                "
               >
                 <div
                   :id="`district-${index}`"
@@ -348,7 +354,9 @@
             <template #box>
               <div
                 class="w-full rounded-md p-1 shadow-md border flex flex-col gap-2 bg-white max-h-sm overflow-auto scrollbar-thin mt-2"
-                v-show="show_dropbox && isAvailablelUpdate('address') && wards.length"
+                v-show="
+                  show_dropbox && isAvailablelUpdate('address') && wards.length
+                "
               >
                 <div
                   :id="`ward-${index}`"
@@ -539,7 +547,7 @@
                       'text-slate-500': Number(product.quantity) === 0,
                     }"
                     v-model="product.quantity"
-                    :onChange="()=>calculatorOrder(true)"
+                    :onChange="() => calculatorOrder()"
                     type="tel"
                     :min="0"
                   />
@@ -552,7 +560,7 @@
                         !product.product_name || Number(product.price) === 0,
                     }"
                     v-model="product.price"
-                    :onChange="() => calculatorOrder(true)"
+                    :onChange="() => calculatorOrder()"
                     type="tel"
                     :readonly="
                       !isAvailablelUpdate('product') || !product.product_name
@@ -614,7 +622,7 @@
           <InputMoney
             class="w-32 outline-none border-b border-black text-end font-medium text-base"
             v-model="order_edit.shipping_fee"
-            :onChange="()=>calculatorOrder(true)"
+            :onChange="() => calculatorOrder()"
             @input="
               () => {
                 if (order_edit.shipping_fee && order_edit.is_freeship)
@@ -909,11 +917,16 @@ import {
   getProduct,
   getSelectedAddress,
   updateContact,
-  updateOrder
+  updateOrder,
 } from '@/service/api/merchant'
 import { PRODUCT_DEFAULT, PROVINCE } from '@/service/constant'
 import { confirm2 as confirm } from '@/service/helper/alert'
-import { convertEmployeeName, copy, currency, nonAccentVn } from '@/service/helper/format'
+import {
+  convertEmployeeName,
+  copy,
+  currency,
+  nonAccentVn,
+} from '@/service/helper/format'
 import { Toast } from '@/service/helper/toast'
 import { checkPhone } from '@/service/helper/validate'
 import { useAppStore, useMerchantStore } from '@/stores'
@@ -946,6 +959,7 @@ import CheckCircle from '@/components/icons/CheckCircle.vue'
 /** Dữ liệu interface */
 import type {
   Addresses,
+  ContactPhone,
   DistrictData,
   EmployeeData,
   ISelectedAddress,
@@ -1000,7 +1014,9 @@ const alert_validate = ref<boolean>(false)
 const customer_name = ref(getContactName())
 
 /** số điện thoại người nhận */
-const customer_phone = ref(getContactPhone())
+const customer_phone = ref(getContactPhone(
+  $appStore.data_client?.conversation_contact?.client_phone || ''
+))
 
 /** hiển thị địa chỉ gần nhất */
 const lastest_address_show = computed(() => {
@@ -1055,13 +1071,6 @@ const check_order_valid = computed(() => {
   if (customer_name.value === '') {
     return false
   }
-  // if (customer_phone.value === '') {
-  //   return false
-  // }
-  // if (check_address.value) {
-  //   return false
-  // }
-
   return true
 })
 
@@ -1111,10 +1120,10 @@ onMounted(() => {
     order_edit.value.contact_info = $merchant.contact
     order_edit.value.address = copy($merchant.orders?.[0]?.address || '')
     order_edit.value.locations = copy($merchant.orders?.[0]?.locations || {})
+    initDataParams()
   }
 
   //khởi tạo giá trị của các field khi tạo đơn tự động
-  initDataParams()
   getSelectedAddresses()
 })
 
@@ -1136,15 +1145,13 @@ watch(
 )
 
 /** kiểm tra thiết bị */
-function checkIfMobile(){
+function checkIfMobile() {
   return /Mobi|Android|iPhone|iPad|iPod/i.test(navigator.userAgent)
 }
 
 /** hàm lấy danh sách địa chỉ đã chọn */
 async function getSelectedAddresses() {
   try {
-    console.log($merchant.contact?.identifier_id)
-
     if (!$merchant.contact?.identifier_id) return
 
     selected_address.value = await getSelectedAddress({
@@ -1159,21 +1166,22 @@ async function getSelectedAddresses() {
 
 /** hàm khởi tạo giá trị của các field khi tạo tự động */
 async function initDataParams() {
-  if (order_edit.value?.id) return
   customer_name.value = $appStore.data_client.public_profile?.client_name || ''
-  customer_phone.value =
+  customer_phone.value = getContactPhone(
     $appStore.data_client?.conversation_contact?.client_phone || ''
+  )
 
   // nếu không phải chế độ tạo tự động thì thôi
   if (!$appStore.is_auto_create) return
 
+  /** dữ liệu AI trả về */
   const AI_DATA = $appStore.data_client?.public_profile?.ai?.[0]
 
   // lấy giá trị từ url param
   const email = AI_DATA?.email?.[0]
   const phone = AI_DATA?.phone_number?.[0]
 
-  if (phone) customer_phone.value = phone
+  if (phone) customer_phone.value = getContactPhone(phone)
 
   const address = AI_DATA?.ctas?.place_order?.address || ''
   /** thành phố */
@@ -1209,8 +1217,6 @@ async function initDataParams() {
   }
 
   // nếu có địa chỉ thì tự động điền
-  // if (address) {
-  // gán địa chỉ chọn địa chỉ
   const array = []
 
   const house_street = `${house_number} ${street_name}`.trim()
@@ -1307,34 +1313,15 @@ function openSearchProduct() {
 }
 
 /** Cập nhật sdt */
-async function setContactPhone(value: string) {
+async function setContactPhone(value: ContactPhone) {
   try {
+    // đóng dropbox
     show_dropbox.value = false
-    /** index của số điện thoại */
-    const INDEX = order_edit.value.contact_info?.suggest_phone
-      ?.split(',')
-      ?.findIndex(phone => phone === value)
-
-    if (INDEX === undefined || INDEX < 0) return
-
-    const res = await getContact({
-      body: {
-        id: order_edit.value.contact_info?.id,
-        key: 'phones',
-        key_index: INDEX,
-        type: 'HIDDEN_DATA',
-      },
-    })
-    customer_phone.value = res.data
-
-    // updateAnOrder()
+    // lưu lại id số điện thoại
+    order_edit.value.contact_phone_id = value.id
+    // lưu lại sdt để hiển thị
+    customer_phone.value = value.phone_number || ''
   } catch (error) {}
-}
-
-/** chọn phương thức thanh toán */
-function selectPayment(value: PaymentMethods) {
-  show_dropbox.value = false
-  payment_method.value = value
 }
 
 /** Lấy ra tên khách hàng */
@@ -1343,12 +1330,25 @@ function getContactName() {
 }
 
 /** Lấy ra sdt của contact */
-function getContactPhone() {
-  if ($appStore.data_client.conversation_contact?.client_phone)
-    return $appStore.data_client.conversation_contact?.client_phone
+function getContactPhone(contact_phone: string):string {
+  // nếu contact đó không có danh sách số điện thoại nào thì thôi
+  if (!$merchant.contact?.contact_phones?.length) return ''
 
-  if (!$merchant.contact?.suggest_phone) return ''
-  return $merchant.contact?.suggest_phone?.split(',').reverse()[0] || ''
+  // nếu có sđt trong dữ liệu khach hàng có số điện thoại thì điền số đó vào
+  if (contact_phone) {
+    /** dữ liệu sdt trong liên hệ trùng với sdt khách hàng bên chatbot */
+    const PHONE_MATCH =  $merchant.contact?.contact_phones?.find(phone => {
+      
+      // nếu 4 số cuối nằm trong sdt khách hàng thì trả về số đó
+      return (
+        phone?.phone_number &&
+        contact_phone?.includes(phone?.phone_number?.replace(/\*/g, ''))
+      )
+    })
+    return PHONE_MATCH?.phone_number || ''
+  }
+
+  return $merchant.contact?.contact_phones?.[0]?.phone_number || ''
 }
 
 /** Chọn tỉnh thành */
@@ -1464,7 +1464,7 @@ function removeProduct(index: number) {
 }
 
 /** Tính giá trị đơn hàng */
-function calculatorOrder(is_update_order?: boolean) {
+function calculatorOrder() {
   /** Đơn giá */
   let product_price = 0
   /** Tổng tiền 1 loại sản phẩm trong đơn (số lượng x giá) */
@@ -1608,28 +1608,11 @@ function calculatorOrder(is_update_order?: boolean) {
 async function createNewOrder(status?: string) {
   try {
     removeFullAddress()
-    updatePhoneNumberContact()
 
     if (!checkOrderValid()) return
     if (!order_edit.value.contact_id) {
       return $toast.error('Vui lòng chọn khách hàng trước khi tạo đơn hàng')
     }
-    // * Check địa chỉ
-    // if (!order.value.address) {
-    //   return $toast.error('Vui lòng nhập chỉ trước khi tạo đơn hàng')
-    // }
-    // * Check tỉnh thành
-    // if (!order.value?.locations?.province?.code) {
-    //   return $toast.error('Vui lòng chọn tỉnh thành trước khi tạo đơn hàng')
-    // }
-    // * Check quận huyện
-    // if (!order.value?.locations?.district?.code) {
-    //   return $toast.error('Vui lòng chọn quận huyện trước khi tạo đơn hàng')
-    // }
-    // * Check phường xã
-    // if (!order.value?.locations?.ward?.code) {
-    //   return $toast.error('Vui lòng chọn phường xã trước khi tạo đơn hàng')
-    // }
     validateProduct()
 
     let new_order = await createOrder({
@@ -1654,23 +1637,17 @@ async function createNewOrder(status?: string) {
 function validateProduct() {
   if (!order_edit.value.products) return
   /** sản phẩm có hợp lệ hết không */
-  const IS_VALID = order_edit.value.products.every(
-    item => item.product_name
-  )
-  if(!IS_VALID) throw 'Vui lòng nhập đầy đủ tên cho sản phẩm'
+  const IS_VALID = order_edit.value.products.every(item => item.product_name)
+  if (!IS_VALID) throw 'Vui lòng nhập đầy đủ tên cho sản phẩm'
 }
 
 /** Cập nhật order */
 async function updateAnOrder(status?: string) {
-  
   // * Nếu order chưa có id thì dừng lại
   if (!order_edit.value.id) return
-  
+
   // clear field full address trong đơn hàng
   removeFullAddress()
-
-  // Cập nhật số điện thoại khách hàng
-  updatePhoneNumberContact()
 
   // * Nếu có trạng thái truyền vào thì cho thay đổi status order
   if (status) order_edit.value.status = status
@@ -1921,14 +1898,6 @@ async function activeStep(
         })
       })
     }
-
-    // if (
-    //   (!customer_phone.value.includes('*') &&
-    //     !checkPhone(customer_phone.value)) ||
-    //   customer_phone.value.length < 10
-    // ) {
-    //   throw 'Số điện thoại không hợp lệ'
-    // }
 
     order_edit.value.custom_fields = {
       ...order_edit.value.custom_fields,
