@@ -21,6 +21,7 @@
             @change="updateAnOrder()"
             v-model="customer_name"
             autocomplete="off"
+            :readonly="!isAvailablelUpdate('customer')"
           />
           <Dropbox>
             <template #trigger>
@@ -42,14 +43,15 @@
                   @change="updatePhoneNumber"
                   v-model="customer_phone"
                   autocomplete="off"
+                  :readonly="!isAvailablelUpdate('customer')"
                 />
-                <ArrowIcon class="text-gray-500 absolute right-3" />
+                <ArrowIcon class="text-gray-500 absolute right-3"  v-if="isAvailablelUpdate('customer')"/>
               </div>
             </template>
             <template #box>
               <div
                 class="bg-white border rounded-lg p-1 my-1 max-h-40 overflow-auto scrollbar-thin"
-                v-if="show_dropbox"
+                v-if="show_dropbox && isAvailablelUpdate('customer')"
               >
                 <div
                   v-for="phone in $merchant.contact?.contact_phones"
@@ -199,6 +201,7 @@
                     'py-1.5': !checkIfMobile(),
                   }"
                   autocomplete="off"
+                  :readonly="!isAvailablelUpdate('address')"
                 />
                 <ArrowIcon
                   class="text-gray-500 absolute right-3"
@@ -267,6 +270,7 @@
                     'py-1.5': !checkIfMobile(),
                   }"
                   autocomplete="off"
+                  :readonly="!isAvailablelUpdate('address')"
                 />
                 <ArrowIcon
                   class="text-gray-500 absolute right-3"
@@ -337,6 +341,7 @@
                     'py-1.5': !checkIfMobile(),
                   }"
                   autocomplete="off"
+                  :readonly="!isAvailablelUpdate('address')"
                 />
                 <ArrowIcon
                   class="text-gray-500 absolute right-3"
@@ -393,6 +398,9 @@
               <div
                 class="flex items-center gap-2"
                 @click="openSearchProduct"
+                :class="{
+                  'pointer-events-none': !isAvailablelUpdate('product'),
+                }"
               >
                 <img
                   :src="SearchIcon"
@@ -550,6 +558,9 @@
                     :onChange="() => calculatorOrder()"
                     type="tel"
                     :min="0"
+                    :readonly="
+                      !isAvailablelUpdate('product')
+                    "
                   />
                 </td>
                 <td class="text-end p-1">
@@ -609,6 +620,7 @@
           <Toggle
             v-model="order_edit.is_freeship"
             :title="''"
+            :disabled="!isAvailablelUpdate('money')"
           />
         </div>
         <div class="grid grid-cols-2 items-center">
@@ -897,7 +909,7 @@
       </div>
     </div>
     <div
-      v-if="order_edit.id"
+      v-if="order_edit.id && isAvailablelUpdate('')"
       class="p-2 border-t sticky bottom-0 bg-white"
     >
       <button
