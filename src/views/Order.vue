@@ -4,38 +4,63 @@
       class="w-2 h-2 absolute top-0 left-0 z-20"
       @click="copyLink()"
     ></button>
-    <div
-      class="px-2 flex gap-1 w-full flex-shrink-0 items-center sticky top-0 z-10 pt-1 bg-white"
-    >
-      <Header class="w-full" />
-      <img
-        v-tooltip="'Cài đặt'"
-        v-if="WIDGET.is_admin"
-        src="@/assets/icons/setting.svg"
-        class="w-5 h-5 cursor-pointer"
-        @click="is_show_modal_setting = true"
+    <!-- Skeleton loading -->
+    <template v-if="is_loading">
+      <!-- Header skeleton -->
+      <div
+        class="px-2 flex gap-1 w-full flex-shrink-0 items-center sticky top-0 z-10 pt-1 bg-white"
+      >
+        <div
+          class="w-full grid grid-cols-2 bg-slate-200 rounded-md overflow-hidden p-1"
+        >
+          <div class="h-8 bg-slate-300 rounded animate-pulse"></div>
+        </div>
+        <div
+          v-if="WIDGET.is_admin"
+          class="w-5 h-5 bg-slate-300 rounded animate-pulse"
+        ></div>
+      </div>
+      <!-- Content skeleton -->
+      <div class="flex-1 flex flex-col gap-2 px-2">
+        <div class="h-96 bg-slate-200 rounded animate-pulse"></div>
+        <div class="h-10 bg-slate-300 rounded animate-pulse"></div>
+      </div>
+    </template>
+    <!-- Nội dung thật -->
+    <template v-else>
+      <div
+        class="px-2 flex gap-1 w-full flex-shrink-0 items-center sticky top-0 z-10 pt-1 bg-white"
+      >
+        <Header class="w-full" />
+        <img
+          v-tooltip="'Cài đặt'"
+          v-if="WIDGET.is_admin"
+          src="@/assets/icons/setting.svg"
+          class="w-5 h-5 cursor-pointer"
+          @click="is_show_modal_setting = true"
+        />
+      </div>
+      <Orders
+        v-if="merchantStore.current_tab === 'ORDERS'"
+        :contact_id="contact_id"
       />
-    </div>
-    <Orders
-      v-if="merchantStore.current_tab === 'ORDERS'"
-      :contact_id="contact_id"
-    />
-    <CreateOrder
-      ref="create_order"
-      v-if="merchantStore.current_tab === 'CREATE_ORDER'"
-    />
-    <DetailReportContact ref="detail_report_contact" />
-    <ModalSetting
-      v-if="is_show_modal_setting"
-      v-model="is_show_modal_setting"
-    />
+      <CreateOrder
+        ref="create_order"
+        v-if="merchantStore.current_tab === 'CREATE_ORDER'"
+      />
+      <DetailReportContact ref="detail_report_contact" />
+      <ModalSetting
+        v-if="is_show_modal_setting"
+        v-model="is_show_modal_setting"
+      />
+    </template>
   </article>
 </template>
 <script setup lang="ts">
 import {
   getConfigChatbox,
   getEmployee,
-  syncContactV2
+  syncContactV2,
 } from '@/service/api/merchant'
 import { INIT_ORDER } from '@/service/constant'
 import { copy } from '@/service/helper/format'
@@ -63,6 +88,8 @@ const { order_edit, current_tab } = storeToRefs(merchantStore)
 const contact_id = ref<string>('')
 /** ẩn hiện modal cài đặt */
 const is_show_modal_setting = ref<boolean>(false)
+/** trạng thái loading */
+const is_loading = ref<boolean>(true)
 /** ref tới form tạo đơn hàng  */
 const create_order = ref<InstanceType<typeof CreateOrder>>()
 /** ref tới thống kê liên hệ */
@@ -92,6 +119,9 @@ onMounted(() => {
 /** load dữ liệu app */
 async function loadV2() {
   try {
+    // bật skeleton loading
+    is_loading.value = true
+
     /** id tin nhắn */
     const MESSAGE_ID = WIDGET.message_id
 
@@ -121,7 +151,12 @@ async function loadV2() {
 
     // * Lưu lại danh sách nhân viên
     merchantStore.saveEmployees(employees.data)
-  } catch {}
+  } catch {
+    // xử lý lỗi nếu cần
+  } finally {
+    // tắt skeleton loading
+    is_loading.value = false
+  }
 }
 
 /** lấy dữ liệu merchant */
