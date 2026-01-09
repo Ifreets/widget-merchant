@@ -1,8 +1,44 @@
 .scrollbar-thin {
-    scrollbar-width: thin;
+  scrollbar-width: thin;
 }
 
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
+  -webkit-appearance: none;
+}
+
+// Màu của thumb
+$thumb-color: #7217bd3f;
+// Màu khi kéo thumb
+$thumb-color-active: #7217bd6c;
+// độ rộng của thumb
+$thumb-size: 6px;
+
+// Class để áp dụng overlay scrollbar cho các element cụ thể
+.overlay-scrollbar {
+  // Sử dụng overflow: overlay (deprecated nhưng vẫn hoạt động trên WebKit)
+  overflow: auto;
+  overflow: overlay;
+
+  // Không để scrollbar chiếm không gian khi không cuộn
+  &::-webkit-scrollbar {
+    width: $thumb-size;
+    height: $thumb-size;
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: transparent;
+    border-radius: $thumb-size;
+    transition: background-color 0.2s;
+  }
+
+  // Chỉ hiện scrollbar khi hover
+  &:hover::-webkit-scrollbar-thumb {
+    background-color: $thumb-color;
+  }
+
+  &::-webkit-scrollbar-thumb:active {
+    background-color: $thumb-color-active;
+  }
 }
