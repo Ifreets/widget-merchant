@@ -14,7 +14,7 @@
   </div>
   <article
     v-if="merchantStore.orders?.length"
-    class="overflow-y-auto h-full scrollbar-thin flex flex-col gap-2 px-2 w-full overscroll-y-none"
+    class="overflow-y-auto flex-1 scrollbar-thin flex flex-col gap-2 px-2 w-full"
   >
     <section v-for="(order, index) in merchantStore.orders">
       <OrderInfo
