@@ -14,12 +14,12 @@
   </div>
   <article
     v-if="merchantStore.orders?.length"
-    class="overflow-y-auto h-full scrollbar-thin flex flex-col gap-2 px-2"
+    class="overflow-y-auto h-full scrollbar-thin flex flex-col gap-2 px-2 container"
   >
     <section v-for="(order, index) in merchantStore.orders">
       <OrderInfo
         :order="order"
-        :update="(order: Order) => merchantStore.orders[index] = order"
+        :update="(order: Order) => (merchantStore.orders[index] = order)"
       />
     </section>
   </article>
@@ -68,7 +68,7 @@ watch(
   () => {
     console.log('props.contact_id', props.contact_id)
     // getOrders()
-  }
+  },
 )
 
 /** Lấy danh sách đơn hàng */
@@ -92,16 +92,15 @@ async function getOrders() {
 function openLink() {
   if (isMobile()) {
     window.location.href = link_to_merchant.value
-  }else{
+  } else {
     window.open(link_to_merchant.value, '_blank')
-
   }
 }
 
 /** hàm kiểm tra xem có phải là mobile không */
 function isMobile() {
   return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent
+    navigator.userAgent,
   )
 }
 
@@ -114,7 +113,7 @@ async function getDeepLinks() {
         access_token: WIDGET.access_token,
       },
     })
-    
+
     // lưu lại deep link
     link_to_merchant.value = RES?.data?.deeplink
   } catch (error) {
@@ -122,3 +121,13 @@ async function getDeepLinks() {
   }
 }
 </script>
+
+<style scoped>
+/** fix scroll leak trên mobile iframe */
+.container {
+  /** ngăn scroll chain lan ra parent */
+  overscroll-behavior: contain;
+  /** tắt touch-action mặc định để kiểm soát hoàn toàn */
+  -webkit-overflow-scrolling: touch;
+}
+</style>
