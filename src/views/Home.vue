@@ -2,7 +2,7 @@
 <template>
   <div class="h-screen w-screen bg-slate-200 overflow-hidden fixed inset-0">
     <div
-      class="w-screen h-screen sm:w-[395px] sm:h-[300px] bg-white text-sm overflow-y-auto overscroll-contain"
+      class="w-screen h-screen sm:w-[395px] sm:h-[300px] bg-white text-sm overflow-y-auto overscroll-contain container"
     >
       <div
         v-if="['USER', 'ORDER'].includes(appStore.tab)"

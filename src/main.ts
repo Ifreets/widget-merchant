@@ -9,6 +9,9 @@ import './assets/css/index.scss'
 import '@/assets/css/tailwind.css'
 import 'floating-vue/dist/style.css'
 
+//import css
+import './style.css'
+
 // [optional] kích hoạt chế độ debug
 WIDGET.debugOn()
 
@@ -28,5 +31,5 @@ waterfall(
     (cb: CbError) => loadRouter(APP, cb),
     (cb: CbError) => loadApp(APP, cb),
   ],
-  () => APP.mount('#app')
+  () => APP.mount('#app'),
 )
