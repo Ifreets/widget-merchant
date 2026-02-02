@@ -14,7 +14,7 @@
   </div>
   <article
     v-if="merchantStore.orders?.length"
-    class="overflow-y-auto h-full scrollbar-thin flex flex-col gap-2 px-2 container"
+    class="overflow-y-auto h-full scrollbar-thin flex flex-col gap-2 px-2 container_custom"
   >
     <section v-for="(order, index) in merchantStore.orders">
       <OrderInfo
@@ -124,7 +124,7 @@ async function getDeepLinks() {
 
 <style scoped>
 /** fix scroll leak trên mobile iframe */
-.container {
+.container_custom {
   /** ngăn scroll chain lan ra parent */
   overscroll-behavior: contain;
   /** tắt touch-action mặc định để kiểm soát hoàn toàn */

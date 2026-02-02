@@ -2,7 +2,7 @@
 <template>
   <div class="h-screen w-screen bg-slate-200 overflow-hidden fixed inset-0">
     <div
-      class="w-screen h-screen sm:w-[395px] sm:h-[300px] bg-white text-sm overflow-y-auto overscroll-contain container"
+      class="w-screen h-screen sm:w-[395px] sm:h-[300px] bg-white text-sm overflow-y-auto overscroll-contain container_custom"
     >
       <div
         v-if="['USER', 'ORDER'].includes(appStore.tab)"
@@ -234,7 +234,7 @@ async function load() {
 
 <style scoped>
 /** fix scroll leak trên mobile iframe */
-.container {
+.container_custom {
   /** ngăn scroll chain lan ra parent */
   overscroll-behavior: contain;
   /** tắt touch-action mặc định để kiểm soát hoàn toàn */

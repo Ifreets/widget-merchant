@@ -1,5 +1,7 @@
 <template>
-  <article class="h-full px-2 flex flex-col overflow-auto scrollbar-thin">
+  <article
+    class="h-full px-2 flex flex-col overflow-auto scrollbar-thin container_custom"
+  >
     <section class="h-max flex flex-col gap-2">
       <!-- Thông tin đơn hàng -->
       <div class="flex flex-col gap-2">
@@ -45,7 +47,10 @@
                   autocomplete="off"
                   :readonly="!isAvailablelUpdate('customer')"
                 />
-                <ArrowIcon class="text-gray-500 absolute right-3"  v-if="isAvailablelUpdate('customer')"/>
+                <ArrowIcon
+                  class="text-gray-500 absolute right-3"
+                  v-if="isAvailablelUpdate('customer')"
+                />
               </div>
             </template>
             <template #box>
@@ -132,7 +137,7 @@
                       () => {
                         order_edit.address = address.address
                         order_edit.locations = JSON.parse(
-                          JSON.stringify(address.locations)
+                          JSON.stringify(address.locations),
                         )
                         show_dropbox = false
                       }
@@ -558,9 +563,7 @@
                     :onChange="() => calculatorOrder()"
                     type="tel"
                     :min="0"
-                    :readonly="
-                      !isAvailablelUpdate('product')
-                    "
+                    :readonly="!isAvailablelUpdate('product')"
                   />
                 </td>
                 <td class="text-end p-1">
@@ -824,7 +827,7 @@
                       {{
                         convertEmployeeName(
                           employee?.first_name || '',
-                          employee?.last_name || ''
+                          employee?.last_name || '',
                         )
                       }}
                     </span>
@@ -840,7 +843,7 @@
                         {{
                           convertEmployeeName(
                             employee?.first_name || '',
-                            employee?.last_name || ''
+                            employee?.last_name || '',
                           )
                         }}
                       </span>
@@ -1026,9 +1029,11 @@ const alert_validate = ref<boolean>(false)
 const customer_name = ref(getContactName())
 
 /** số điện thoại người nhận */
-const customer_phone = ref(getContactPhone(
-  $appStore.data_client?.conversation_contact?.client_phone || ''
-))
+const customer_phone = ref(
+  getContactPhone(
+    $appStore.data_client?.conversation_contact?.client_phone || '',
+  ),
+)
 
 /** hiển thị địa chỉ gần nhất */
 const lastest_address_show = computed(() => {
@@ -1125,7 +1130,7 @@ onMounted(() => {
     calculatorOrder()
   } else {
     order_edit.value.order_journey = copy(
-      $merchant.setting?.online_status || []
+      $merchant.setting?.online_status || [],
     )
     order_edit.value.staffs = $merchant.setting?.online_staff
     order_edit.value.contact_id = $merchant.contact?.identifier_id
@@ -1144,7 +1149,7 @@ watch(
   () => {
     if (is_calling_api.value) return
     is_calling_api.value = true
-  }
+  },
 )
 
 watch(
@@ -1153,7 +1158,7 @@ watch(
     if (newValue) order_edit.value.shipping_fee = 0
     calculatorOrder()
   },
-  { deep: true }
+  { deep: true },
 )
 
 /** kiểm tra thiết bị */
@@ -1180,7 +1185,7 @@ async function getSelectedAddresses() {
 async function initDataParams() {
   customer_name.value = $appStore.data_client.public_profile?.client_name || ''
   customer_phone.value = getContactPhone(
-    $appStore.data_client?.conversation_contact?.client_phone || ''
+    $appStore.data_client?.conversation_contact?.client_phone || '',
   )
 
   // nếu không phải chế độ tạo tự động thì thôi
@@ -1342,15 +1347,14 @@ function getContactName() {
 }
 
 /** Lấy ra sdt của contact */
-function getContactPhone(contact_phone: string):string {
+function getContactPhone(contact_phone: string): string {
   // nếu contact đó không có danh sách số điện thoại nào thì thôi
   if (!$merchant.contact?.contact_phones?.length) return ''
 
   // nếu có sđt trong dữ liệu khach hàng có số điện thoại thì điền số đó vào
   if (contact_phone) {
     /** dữ liệu sdt trong liên hệ trùng với sdt khách hàng bên chatbot */
-    const PHONE_MATCH =  $merchant.contact?.contact_phones?.find(phone => {
-      
+    const PHONE_MATCH = $merchant.contact?.contact_phones?.find(phone => {
       // nếu 4 số cuối nằm trong sdt khách hàng thì trả về số đó
       return (
         phone?.phone_number &&
@@ -1435,8 +1439,8 @@ function selectProduct(item: Product, still_show_box?: boolean) {
         item.type === 'gmv'
           ? 0
           : item.type === 'weighing_measuring_product'
-          ? item.weight
-          : 1,
+            ? item.weight
+            : 1,
       vat: item.vat || 0,
       service_fee: item.service_fee || 0,
       discount: 0,
@@ -1680,7 +1684,7 @@ async function updateAnOrder(status?: string) {
 
 /** Check xem đối tượng có được quyền update hay không */
 function isAvailablelUpdate(
-  type: 'product' | 'customer' | 'money' | 'address' | ''
+  type: 'product' | 'customer' | 'money' | 'address' | '',
 ) {
   if (order_edit.value.is_archived) return false
 
@@ -1895,7 +1899,7 @@ function checkStepActive() {
 async function activeStep(
   step_index: number,
   status_index: number,
-  action: string
+  action: string,
 ) {
   try {
     // * Nếu dữ liệu đơn hàng không hợp lệ thì dừng lại
@@ -1987,7 +1991,7 @@ async function activeStep(
           activeStatus()
           updateAnOrder('INVENTORY_IMPORT')
           $toast.success('Hủy đơn hàng thành công')
-        }
+        },
       )
     }
 
@@ -2008,7 +2012,7 @@ async function activeStep(
           activeStatus()
           updateAnOrder('CANCEL_ORDER')
           $toast.success('Hủy đơn hàng thành công')
-        }
+        },
       )
     }
 
@@ -2041,11 +2045,11 @@ async function searchAddress(is_auto_create: boolean = false) {
     // )
 
     order_edit.value.full_address = copy(
-      MESSAGE || order_edit.value.address || ''
+      MESSAGE || order_edit.value.address || '',
     )
   } else {
     order_edit.value.full_address = JSON.parse(
-      JSON.stringify(order_edit.value.address || '')
+      JSON.stringify(order_edit.value.address || ''),
     )
   }
   // addresses.value = await detectAddressV2({
@@ -2084,7 +2088,7 @@ async function getDetailLocation(address: Addresses) {
  */
 function removeLocation(
   type: 'province' | 'district' | 'ward' | 'all',
-  focus: boolean = true
+  focus: boolean = true,
 ) {
   if (order_edit.value.locations?.province && type === 'province') {
     order_edit.value.locations.province = {}
@@ -2154,7 +2158,7 @@ function selectLocation(type: 'province' | 'district' | 'ward' | 'address') {
 /** Chọn option địa chỉ */
 function controlLocation(
   type: 'province' | 'district' | 'ward' | 'address',
-  action: 'up' | 'down'
+  action: 'up' | 'down',
 ) {
   switch (type) {
     case 'address':
@@ -2270,7 +2274,7 @@ function linkToProductApp() {
   search_product.value = ''
   window.open(
     `https://merchant.vn/login?chat_access_token=${WIDGET.access_token}&redirect=https://merchant.vn/a/product`,
-    '_blank'
+    '_blank',
   )
 }
 
@@ -2301,3 +2305,9 @@ async function updatePhoneNumberContact() {
 
 defineExpose({ initDataParams, getSelectedAddresses, removeLocation })
 </script>
+<style scoped>
+.container_custom {
+  scrollbar-width: thin;
+  scrollbar-color: #94a3b8 #f1f5f9;
+}
+</style>
