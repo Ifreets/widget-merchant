@@ -1,6 +1,9 @@
+<!-- <div class="w-full h-full flex justify-center items-center bg-slate-300"> -->
 <template>
-  <div class="w-full h-full flex justify-center items-center bg-slate-300">
-    <div class="w-screen h-screen sm:w-[395px] sm:h-[300px] bg-white text-sm">
+  <div class="h-screen w-screen bg-slate-200 overflow-hidden fixed inset-0">
+    <div
+      class="w-screen h-screen sm:w-[395px] sm:h-[300px] bg-white text-sm overflow-y-auto overscroll-contain"
+    >
       <div
         v-if="['USER', 'ORDER'].includes(appStore.tab)"
         class="p-3 flex flex-col gap-2.5 text-gray-900"
@@ -164,7 +167,7 @@ async function synchData(token_business: string) {
     await fetchAllEmployee(
       commonStore.id_business,
       commonStore.token_business,
-      list_employee.value
+      list_employee.value,
     )
   } catch (error) {
     console.log('synch to merchant', error)
@@ -178,7 +181,7 @@ async function fetchAllEmployee(
   /** token doanh nghiệp */
   token_business: string,
   /** danh sách nhân viên được giao phụ trách khách hàng */
-  list_employee: string[]
+  list_employee: string[],
 ) {
   try {
     const GETALLEMPLOYEE = EmployeeFetcher(id_business, token_business)
@@ -228,3 +231,13 @@ async function load() {
   }
 }
 </script>
+
+<style scoped>
+/** fix scroll leak trên mobile iframe */
+.container {
+  /** ngăn scroll chain lan ra parent */
+  overscroll-behavior: contain;
+  /** tắt touch-action mặc định để kiểm soát hoàn toàn */
+  -webkit-overflow-scrolling: touch;
+}
+</style>
