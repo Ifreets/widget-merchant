@@ -1,7 +1,7 @@
 <template>
   <div
     v-if="!merchantStore.orders?.length"
-    class="flex flex-col gap-2 items-center py-3 px-2 h-full"
+    class="flex flex-col gap-2 items-center py-3 px-2 h-full w-full"
   >
     <p class="text-slate-500">Chưa có đơn nào được tạo</p>
     <p
@@ -14,7 +14,7 @@
   </div>
   <article
     v-if="merchantStore.orders?.length"
-    class="overflow-y-auto h-full scrollbar-thin flex flex-col gap-2 px-2 container_custom"
+    class="overflow-y-auto h-full scrollbar-thin flex flex-col gap-2 px-2"
   >
     <section v-for="(order, index) in merchantStore.orders">
       <OrderInfo
@@ -124,7 +124,7 @@ async function getDeepLinks() {
 
 <style scoped>
 /** fix scroll leak trên mobile iframe */
-.container_custom {
+.container {
   /** ngăn scroll chain lan ra parent */
   overscroll-behavior: contain;
   /** tắt touch-action mặc định để kiểm soát hoàn toàn */

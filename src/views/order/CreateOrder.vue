@@ -1,7 +1,5 @@
 <template>
-  <article
-    class="h-full px-2 flex flex-col overflow-auto scrollbar-thin container_custom"
-  >
+  <article class="h-full px-2 flex flex-col overflow-auto scrollbar-thin">
     <section class="h-max flex flex-col gap-2">
       <!-- Thông tin đơn hàng -->
       <div class="flex flex-col gap-2">
@@ -2305,9 +2303,3 @@ async function updatePhoneNumberContact() {
 
 defineExpose({ initDataParams, getSelectedAddresses, removeLocation })
 </script>
-<style scoped>
-.container_custom {
-  scrollbar-width: thin;
-  scrollbar-color: #94a3b8 #f1f5f9;
-}
-</style>
