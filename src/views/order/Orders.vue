@@ -14,8 +14,7 @@
   </div>
   <article
     v-if="merchantStore.orders?.length"
-    ref="scroll_container"
-    class="overflow-y-auto h-full scrollbar-thin flex flex-col gap-2 px-2 w-full"
+    class="overflow-y-auto h-full scrollbar-thin flex flex-col gap-2 px-2 w-full overscroll-y-none"
   >
     <section v-for="(order, index) in merchantStore.orders">
       <OrderInfo
@@ -26,7 +25,7 @@
   </article>
 </template>
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted } from 'vue'
+import { ref, watch, onMounted } from 'vue'
 import { useCommonStore, useMerchantStore } from '@/stores'
 import { getDeeplink, getOrder } from '@/service/api/merchant'
 
@@ -53,59 +52,6 @@ const merchantStore = useMerchantStore()
 
 /** link tới merchant */
 const link_to_merchant = ref<string>('')
-
-/** Ref cho container scroll */
-const scroll_container = ref<HTMLElement | null>(null)
-let touch_start_y = 0
-
-/**
- * Xử lý touch start để lưu vị trí bắt đầu
- * @param e TouchEvent
- */
-function onTouchStart(e: TouchEvent) {
-  touch_start_y = e.touches[0].clientY
-}
-
-/**
- * Xử lý touch move để chặn rubber-band ở top
- * Giúp hành vi kéo xuống khi đang ở top truyền ra ngoài (cho logic đóng popup)
- * @param e TouchEvent
- */
-function onTouchMove(e: TouchEvent) {
-  const el = scroll_container.value
-  if (!el) return
-
-  const current_y = e.touches[0].clientY
-  const dy = current_y - touch_start_y
-  const scroll_top = el.scrollTop
-
-  // Nếu đang ở đỉnh và kéo xuống -> chặn scroll bounce của div
-  // Để event bubble lên parent xử lý
-  if (scroll_top <= 0 && dy > 0) {
-    if (e.cancelable) {
-      e.preventDefault()
-    }
-  }
-}
-
-/** Watch element để gán sự kiện (do dùng v-if) */
-watch(scroll_container, (el, old_el) => {
-  if (old_el) {
-    old_el.removeEventListener('touchstart', onTouchStart)
-    old_el.removeEventListener('touchmove', onTouchMove)
-  }
-  if (el) {
-    el.addEventListener('touchstart', onTouchStart, { passive: true })
-    el.addEventListener('touchmove', onTouchMove, { passive: false })
-  }
-})
-
-onUnmounted(() => {
-  if (scroll_container.value) {
-    scroll_container.value.removeEventListener('touchstart', onTouchStart)
-    scroll_container.value.removeEventListener('touchmove', onTouchMove)
-  }
-})
 
 onMounted(() => {
   // nếu là điện thoại thì lây deep link
